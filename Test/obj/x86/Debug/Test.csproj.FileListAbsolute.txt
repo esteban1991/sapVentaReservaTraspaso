@@ -1,0 +1,23 @@
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\x86\Debug\Test.exe.config
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\x86\Debug\Test.exe
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\x86\Debug\Test.pdb
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\x86\Debug\ContabilizacionDeNominas.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\x86\Debug\SSIFramework.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\x86\Debug\ContabilizacionDeNominas.pdb
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\x86\Debug\Test.csprojResolveAssemblyReference.cache
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\x86\Debug\Test.Properties.Resources.resources
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\x86\Debug\Test.csproj.GenerateResource.Cache
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\x86\Debug\Test.exe
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\x86\Debug\Test.pdb
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\x86\Debug\log4net.dll
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\x86\Debug\Test.exe.config
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\x86\Debug\Test.exe
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\x86\Debug\Test.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\x86\Debug\Test.exe
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\x86\Debug\Test.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\x86\Debug\ventaRT.dll
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\x86\Debug\ventaRT.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\x86\Debug\Test.csprojResolveAssemblyReference.cache
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\x86\Debug\Test.Properties.Resources.resources
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\x86\Debug\Test.csproj.GenerateResource.Cache
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\x86\Debug\SSIFramework.dll

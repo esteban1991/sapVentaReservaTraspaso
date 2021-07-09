@@ -1,0 +1,16 @@
+C:\Users\eperalta\Documents\sap proyectos\common\sapB1RepoPro\programaEjemplo\obj\Debug\Interop.SAPbobsCOM.dll
+C:\Users\eperalta\Documents\sap proyectos\common\sapB1RepoPro\programaEjemplo\obj\Debug\Interop.SAPbouiCOM.dll
+C:\Users\eperalta\Documents\sap proyectos\common\sapB1RepoPro\programaEjemplo\obj\Debug\programaBasicoSapb1.csproj.ResolveComReference.cache
+C:\Users\eperalta\Documents\sap proyectos\common\sapB1RepoPro\programaEjemplo\bin\Debug\programaBasicoSapb1.dll
+C:\Users\eperalta\Documents\sap proyectos\common\sapB1RepoPro\programaEjemplo\bin\Debug\programaBasicoSapb1.pdb
+C:\Users\eperalta\Documents\sap proyectos\common\sapB1RepoPro\programaEjemplo\obj\Debug\programaBasicoSapb1.dll
+C:\Users\eperalta\Documents\sap proyectos\common\sapB1RepoPro\programaEjemplo\obj\Debug\programaBasicoSapb1.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapB1RepoPro\programaEjemplo\bin\Debug\programaBasicoSapb1.dll
+C:\Users\eperalta\Documents\QvaSAP\sapB1RepoPro\programaEjemplo\bin\Debug\programaBasicoSapb1.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapB1RepoPro\programaEjemplo\obj\Debug\Interop.SAPbobsCOM.dll
+C:\Users\eperalta\Documents\QvaSAP\sapB1RepoPro\programaEjemplo\obj\Debug\Interop.SAPbouiCOM.dll
+C:\Users\eperalta\Documents\QvaSAP\sapB1RepoPro\programaEjemplo\obj\Debug\programaBasicoSapb1.csproj.ResolveComReference.cache
+C:\Users\eperalta\Documents\QvaSAP\sapB1RepoPro\programaEjemplo\obj\Debug\programaBasicoSapb1.dll
+C:\Users\eperalta\Documents\QvaSAP\sapB1RepoPro\programaEjemplo\obj\Debug\programaBasicoSapb1.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapB1RepoPro\programaEjemplo\bin\Debug\SSIFramework.dll
+C:\Users\eperalta\Documents\QvaSAP\sapB1RepoPro\programaEjemplo\obj\Debug\programaBasicoSapb1.csprojResolveAssemblyReference.cache

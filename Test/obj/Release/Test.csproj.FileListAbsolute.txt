@@ -1,0 +1,11 @@
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\Release\Test.exe.config
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\Release\Test.exe
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\Release\Test.pdb
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\Release\ContabilizacionDeNominas.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\Release\SSIFramework.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\bin\Release\ContabilizacionDeNominas.pdb
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\Release\Test.csprojResolveAssemblyReference.cache
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\Release\Test.Properties.Resources.resources
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\Release\Test.csproj.GenerateResource.Cache
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\Release\Test.exe
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\Test\obj\Release\Test.pdb

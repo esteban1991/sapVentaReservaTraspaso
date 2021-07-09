@@ -1,0 +1,9 @@
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\bin\x86\Debug\ventaRT.dll
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\bin\x86\Debug\ventaRT.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\obj\x86\Debug\ventaRT.csprojResolveAssemblyReference.cache
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\obj\x86\Debug\Interop.SAPbobsCOM.dll
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\obj\x86\Debug\Interop.SAPbouiCOM.dll
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\obj\x86\Debug\ventaRT.csproj.ResolveComReference.cache
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\obj\x86\Debug\ventaRT.dll
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\obj\x86\Debug\ventaRT.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\bin\x86\Debug\SSIFramework.dll

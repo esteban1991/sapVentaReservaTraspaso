@@ -1,0 +1,7 @@
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\bin\Debug\ContabilizacionDeNominas.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\bin\Debug\ContabilizacionDeNominas.pdb
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\Interop.SAPbobsCOM.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\Interop.SAPbouiCOM.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\ClasePlantilla.csproj.ResolveComReference.cache
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.pdb

@@ -1,0 +1,27 @@
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Debug\ContabilizacionDeNominas.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Debug\ContabilizacionDeNominas.pdb
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Debug\SSIFramework.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\Interop.SAPbobsCOM.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\Interop.SAPbouiCOM.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.csproj.ResolveComReference.cache
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.pdb
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Debug\log4net.dll
+C:\Users\eperalta\Documents\genericos\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.csprojResolveAssemblyReference.cache
+C:\Users\eperalta\Documents\genericos\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\Interop.SAPbobsCOM.dll
+C:\Users\eperalta\Documents\genericos\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\Interop.SAPbouiCOM.dll
+C:\Users\eperalta\Documents\genericos\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.csproj.ResolveComReference.cache
+C:\Users\eperalta\Documents\genericos\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.dll
+C:\Users\eperalta\Documents\genericos\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.pdb
+C:\Users\eperalta\Documents\genericos\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Debug\ContabilizacionDeNominas.dll
+C:\Users\eperalta\Documents\genericos\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Debug\ContabilizacionDeNominas.pdb
+C:\Users\eperalta\Documents\genericos\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Debug\SSIFramework.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\bin\Debug\ContabilizacionDeNominas.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\bin\Debug\ContabilizacionDeNominas.pdb
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\bin\Debug\SSIFramework.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\Interop.SAPbobsCOM.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\Interop.SAPbouiCOM.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.csproj.ResolveComReference.cache
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.dll
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.pdb
+C:\Users\eperalta\Documents\genericos\recepImpo\ProgramaEjemplo\ContabilizacionDeNominas\obj\Debug\ContabilizacionDeNominas.csprojResolveAssemblyReference.cache

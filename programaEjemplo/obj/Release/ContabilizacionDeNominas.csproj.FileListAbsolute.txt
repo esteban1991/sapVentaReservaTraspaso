@@ -1,0 +1,10 @@
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Release\ContabilizacionDeNominas.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Release\ContabilizacionDeNominas.pdb
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Release\log4net.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\bin\Release\SSIFramework.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Release\ContabilizacionDeNominas.csprojResolveAssemblyReference.cache
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Release\Interop.SAPbobsCOM.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Release\Interop.SAPbouiCOM.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Release\ContabilizacionDeNominas.csproj.ResolveComReference.cache
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Release\ContabilizacionDeNominas.dll
+E:\TFS_EstebanPeralta\SAP\BY Demes\ContabilizacionDeNominas\ContabilizacionDeNominas\obj\Release\ContabilizacionDeNominas.pdb
