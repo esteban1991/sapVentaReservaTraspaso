@@ -20,7 +20,7 @@ namespace ventaRT.Constantes.View
         public const string btn_crear = "1";
         public const string btn_cancel = "2";
         public const string grid = "grid";
-        public const string mtx = "Item_3";
+        public const string mtx = "mtx";
     }
 
 
@@ -48,9 +48,10 @@ namespace ventaRT.Constantes.View
 
     public static class CAB_RVT
     {
-        public const string CAB_RV = "\"@CAB_RV\"";
+        public const string CAB_RV = "\"@CAB_RSTV\"";
         public const string Code = "\"Code\"";
-        public const string U_numOC = "\"U_numOC\"";
+        public const string Name = "\"Name\"";
+        public const string U_numOC = "\"U_numDoc\"";
         public const string U_fechaC = "\"U_fechaC\"";
         public const string U_fechaV = "\"U_fechaV\"";
         public const string U_estado = "\"U_estado\"";
@@ -63,21 +64,23 @@ namespace ventaRT.Constantes.View
 
     public static class DET_RVT
     {
-        public const string DET_RV = "\"@DET_RV\"";
+        public const string DET_RV = "\"@DET_RSTV\"";
         public const string U_numOC = "\"U_numOC\"";
-        public const string U_codArti = "\"U_codArti\"";
-        public const string U_codClie = "\"U_codClie\"";
+        public const string U_codArt = "\"U_codArt\"";
+        public const string U_codCli = "\"U_codCli\"";
         public const string U_cant = "\"U_cant\"";
         public const string U_estado = "\"U_estado\"";
         public const string U_idTV = "\"U_idTV\"";
+        public const string U_articulo = "\"U_articulo\"";
+        public const string U_cliente = "\"U_cliente\"";
         public const string Code = "\"Code\"";
     }
 
     public static class CAB_RVTabla
     {
-        public const string CAB_RV = "@CAB_RV";
+        public const string CAB_RV = "@CAB_RSTV";
         public const string Code = "Code";
-        public const string U_numOC = "U_numOC";
+        public const string U_numOC = "U_numDoc";
         public const string U_fechaC = "U_fechaC";
         public const string U_fechaV = "U_fechaV";
         public const string U_estado = "U_estado";
@@ -91,16 +94,16 @@ namespace ventaRT.Constantes.View
 
     public static class DET_RVTabla
     {
-        public const string DET_RV = "@DET_RV";
+        public const string DET_RV = "@DET_RSTV";
         public const string U_numOC = "U_numOC";
-        public const string U_codArti = "U_codArti";
-        public const string U_codClie = "U_codClie";
+        public const string U_codArt = "U_codArt";
+        public const string U_codCli = "U_codCli";
         public const string U_cant = "U_cant";
         public const string U_estado = "U_estado";
         public const string U_idTV = "U_idTV";
         public const string code = "code";
-        public const string articulo = "articulo";
-        public const string cliente = "cliente";
+        public const string articulo = "U_articulo";
+        public const string cliente = "U_cliente";
     }
 
 }

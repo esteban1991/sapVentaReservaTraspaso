@@ -16,13 +16,8 @@ namespace ventaRT
     public class addonGeneral : IPlugin
     {
 
-        //ejemplos de constantes donde se utilizar la key del menu
-        //public const string Interlocutors = "134";
-        //public const string Articles = "150";
-        //public const string Journal = "392";
-        public const string CdeCostes = "810";
-        public const string CdeCostesUf = "-810";
-        //public const string ATP = "154";
+        SAPbouiCOM.Form SForm = null;
+        SAPbouiCOM.Matrix SMatrix = null;
 
         private SSIFramework.SSIConnector B1;
 
@@ -137,7 +132,15 @@ namespace ventaRT
                         case Constantes.Views.Menu.MENU_submenu_registro_solicitud:
                             B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
                             new VIEW.PantallaRegistro();
+
+                            Configurar_Pantalla_Registro();
+
+                           
+     
+
+                            
                             break;
+
 
                     }
                 }
@@ -168,81 +171,20 @@ namespace ventaRT
                     switch (pVal.EventType)
                     {
 
-                        case BoEventTypes.et_FORM_LOAD:
+                        //case BoEventTypes.et_FORM_LOAD:
 
-                            if (pVal.Action_Success)
-                            {
+                        //    if (pVal.Action_Success)
+                        //    {
 
-                                switch (pVal.FormTypeEx)
-                                {
+                        //        switch (pVal.FormTypeEx)
+                        //        {
 
+                        //        }
+                        //    }
+                        //    break;
+                        case BoEventTypes.et_CHOOSE_FROM_LIST:
 
-
-
-                                    case CdeCostes:
-                                        String strSQL = String.Format("SELECT {0},{1}  FROM {2} WHERE {3} = '2'",
-                                             Constantes.Views.ColGridLog.PrCode,
-                                             Constantes.Views.ColGridLog.Nombre,
-                                             Constantes.Views.ColGridLog.Tabla,
-                                             Constantes.Views.ColGridLog.DimCode);
-                                        Recordset rsCards = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                                        rsCards.DoQuery(strSQL);
-
-
-                                        try
-                                        {
-                                            oForm = B1.Application.Forms.Item(pVal.FormUID);
-
-                                            SAPbouiCOM.Item Oitem2 = (SAPbouiCOM.Item)oForm.Items.Add("SSI_DPTOT", SAPbouiCOM.BoFormItemTypes.it_STATIC);
-                                            Oitem2.FromPane = 0;
-                                            Oitem2.Left = oForm.Items.Item("540002008").Left;
-                                            Oitem2.Top = oForm.Items.Item("540002008").Top + oForm.Items.Item("540002008").Height + 5;
-                                            Oitem2.Width = 80;
-                                            Oitem2.Height = 16;
-                                            Oitem2.LinkTo = "540002008";
-                                            SAPbouiCOM.StaticText DptpDesc = (SAPbouiCOM.StaticText)Oitem2.Specific;
-                                            DptpDesc.Caption = "Departamento ";
-
-
-                                            SAPbouiCOM.Item Oitem = (SAPbouiCOM.Item)oForm.Items.Add("SSI_DPTOS2", SAPbouiCOM.BoFormItemTypes.it_COMBO_BOX);
-                                            Oitem.FromPane = 0;
-                                            Oitem.Left = oForm.Items.Item("540002010").Left;
-                                            Oitem.Top = oForm.Items.Item("540002010").Top + oForm.Items.Item("540002010").Height + 5;
-                                            Oitem.Width = 198;
-                                            Oitem.Height = 16;
-                                            Oitem.DisplayDesc = true;
-                                            Oitem.Description = "Departamento";
-                                            Oitem.LinkTo = "SSI_DPTOT";
-                                            Oitem.AffectsFormMode = true;
-                                            SAPbouiCOM.ComboBox oComboBox = Oitem.Specific;
-                                            oComboBox.DataBind.SetBound(true, "OPRC", "U_SSI_DPTOS");
-
-                                            SSIFramework.Utilidades.GenericFunctions.fillComboBySQL(ref oComboBox, strSQL, "PrcCode", "PrcName", true);
-                                            oComboBox.ExpandType = SAPbouiCOM.BoExpandType.et_DescriptionOnly;
-
-                                        }
-
-                                        catch (Exception ex) { throw ex; }
-                                        break;
-
-                                    case CdeCostesUf:
-                                        try
-                                        {
-                                            //oForm = B1.Application.Forms.Item(pVal.FormUID);
-                                            //SAPbouiCOM.EditText oEdit = (SAPbouiCOM.EditText)oForm.Items.Item("U_SSI_DPTOS").Specific;
-                                            //SAPbouiCOM.Item Oitem2;
-                                            //Oitem2 = oForm.Items.Item("U_SSI_DPTOS");
-                                            //Oitem2.Enabled = false;
-                                            //oEdit.Item.FromPane=1;
-                                            //Oitem2.Visible = false;
-                                            ((SAPbouiCOM.EditText)B1.Application.Forms.GetForm("-810", pVal.FormTypeCount).Items.Item("U_SSI_DPTOS").Specific).Item.Visible = false;
-
-                                        }
-                                        catch (Exception ex) { throw ex; }
-                                        break;
-
-                                }
-                            }
+  
                             break;
                     }
 
@@ -258,6 +200,77 @@ namespace ventaRT
 
             }
 
+        }
+
+        
+        private void AddChooseFromListToEditTextBox(string ObjectType,
+            string CFLUID, SAPbobsCOM.BoYesNoEnum Condition, string ConAlias = "" ,
+            string conVal = "" )
+        {
+            try
+            {
+                SAPbouiCOM.ChooseFromListCollection oCFLs = null;
+                SAPbouiCOM.ChooseFromList oCFL = null;
+                SAPbouiCOM.ChooseFromListCreationParams oCFLCreationParams = null;
+                SAPbouiCOM.Conditions oCons = null;
+                SAPbouiCOM.Condition oCon = null;
+                oCFLs = SForm.ChooseFromLists;
+               
+                oCFLCreationParams = (SAPbouiCOM.ChooseFromListCreationParams) 
+                    (B1.Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_ChooseFromListCreationParams));
+                oCFLCreationParams.MultiSelection = false;
+                                oCFLCreationParams.ObjectType = ObjectType;
+                oCFLCreationParams.UniqueID = CFLUID;
+                oCFL = oCFLs.Add(oCFLCreationParams);
+                
+                if (Condition == BoYesNoEnum.tYES)
+                {
+                    oCons = oCFL.GetConditions();
+                    oCon = oCons.Add();
+                    oCon.Alias = ConAlias;
+                    oCon.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
+                    oCon.CondVal = conVal;
+                    oCFL.SetConditions(oCons);
+                }
+            }
+            catch (Exception ex)
+            {
+                B1.Application.MessageBox("Error : " + ex.Message);
+            }
+        }
+
+        private void Configurar_Pantalla_Registro()
+        {
+
+            SForm = B1.Application.Forms.ActiveForm;
+            SMatrix =SForm.Items.Item("mtx" ).Specific;
+            //SForm.AutoManaged = true;
+            //SForm.Items.Item("txt_numoc").SetAutoManagedAttribute(SAPbouiCOM.BoAutoManagedAttr.ama_Editable,0,SAPbouiCOM.BoModeVisualBehavior.mvb_False);
+            //SForm.Items.Item("txt_numoc").SetAutoManagedAttribute(SAPbouiCOM.BoAutoManagedAttr.ama_Editable,
+             //   2,SAPbouiCOM.BoModeVisualBehavior.mvb_False);
+             // SForm.DataBrowser.BrowseBy = "txt_numoc" ;
+              //SForm.Items.Item("txt_numoc").Click();
+
+            //SAPbouiCOM.EditText oEditText = (SAPbouiCOM.EditText)SForm.Items.Item("txt_numoc").Specific;
+            //SAPbouiCOM.EditText oEditText2 = (SAPbouiCOM.EditText)SForm.Items.Item("txt_com").Specific;
+            //SAPbouiCOM.ComboBox oComboBox = (SAPbouiCOM.ComboBox)SForm.Items.Item("cbnumoc").Specific;
+            //LoadDefaultValue("@CAB_RT", ref oComboBox, ref oEditText, ref oEditText2);
+
+            SAPbouiCOM.Column _Col = (SAPbouiCOM.Column)SMatrix.Columns.Item("codArt");
+            SAPbouiCOM.Column _Col1 = (SAPbouiCOM.Column)SMatrix.Columns.Item("articulo");
+            AddChooseFromListToEditTextBox("4", "CFL1", BoYesNoEnum.tNO);
+
+            SAPbouiCOM.Column _Col2= (SAPbouiCOM.Column)SMatrix.Columns.Item("codCli");
+            SAPbouiCOM.Column _Col3 = (SAPbouiCOM.Column)SMatrix.Columns.Item("cliente");
+            AddChooseFromListToEditTextBox("2", "CFL2", BoYesNoEnum.tYES,"CardType","C" );
+
+            _Col.ChooseFromListUID = "CFL1";
+            _Col.ChooseFromListAlias = "ItemCode";
+            _Col1.Editable = false;
+
+            _Col2.ChooseFromListUID = "CFL2";
+            _Col2.ChooseFromListAlias = "CardCode";
+            _Col3.Editable = false;    
         }
     }
 }

@@ -94,6 +94,7 @@
     <Compile Include="VIEW\PantallaImportacion.cs" />
     <Compile Include="VIEW\PantallaImportacionpuente.cs" />
     <Compile Include="VIEW\PantallaRegistro.cs" />
+    <Compile Include="VIEW\PantallaRegistroold.cs" />
     <Compile Include="VIEW\PantallaRecepImpo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +126,7 @@
     <EmbeddedResource Include="Forms\CargarNominas_ant.srf" />
     <EmbeddedResource Include="Forms\CargarPuente.srf" />
     <EmbeddedResource Include="Forms\RecepImpo.srf" />
+    <EmbeddedResource Include="Forms\Registro.srf" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\pantallaEjemplo.srf" />
@@ -133,10 +135,16 @@
     <EmbeddedResource Include="Forms\prueba1.srf" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\Registro.srf" />
+    <EmbeddedResource Include="Forms\Registroold.srf" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\Registro - Copia.srf" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\Registro - Copia %282%29.srf" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\Registro - Copia %283%29.srf" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
