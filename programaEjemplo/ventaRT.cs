@@ -130,17 +130,21 @@ namespace ventaRT
                     switch (pVal.MenuUID)
                     {
                         case Constantes.Views.Menu.MENU_submenu_registro_solicitud:
-                            B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
-                            new VIEW.PantallaRegistro();
+                            {
+                                B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+                                new VIEW.PantallaRegistro();
+                                Configurar_Pantalla_Registro();
+                            }
 
-                            Configurar_Pantalla_Registro();
-
-                           
-     
-
-                            
                             break;
+                        case Constantes.Views.Menu.MENU_submenu_control_aprobaciones:
+                            {
+                                B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+                                new VIEW.PantallaAprobac();
+                                //Configurar_Pantalla_Registro();
+                            }
 
+                            break;
 
                     }
                 }
@@ -205,7 +209,7 @@ namespace ventaRT
         
         private void AddChooseFromListToEditTextBox(string ObjectType,
             string CFLUID, SAPbobsCOM.BoYesNoEnum Condition, string ConAlias = "" ,
-            string conVal = "" )
+            string conVal = "", string oper = ""  )
         {
             try
             {
@@ -228,7 +232,10 @@ namespace ventaRT
                     oCons = oCFL.GetConditions();
                     oCon = oCons.Add();
                     oCon.Alias = ConAlias;
-                    oCon.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
+                    oCon.Operation = oper == "="? SAPbouiCOM.BoConditionOperation.co_EQUAL: 
+                        oper == ">"? SAPbouiCOM.BoConditionOperation.co_GRATER_THAN: 
+                        oper == "<"? SAPbouiCOM.BoConditionOperation.co_LESS_THAN :
+                         SAPbouiCOM.BoConditionOperation.co_EQUAL;
                     oCon.CondVal = conVal;
                     oCFL.SetConditions(oCons);
                 }
@@ -258,11 +265,12 @@ namespace ventaRT
 
             SAPbouiCOM.Column _Col = (SAPbouiCOM.Column)SMatrix.Columns.Item("codArt");
             SAPbouiCOM.Column _Col1 = (SAPbouiCOM.Column)SMatrix.Columns.Item("articulo");
-            AddChooseFromListToEditTextBox("4", "CFL1", BoYesNoEnum.tNO);
+            //AddChooseFromListToEditTextBox("4", "CFL1", BoYesNoEnum.tNO);
+            AddChooseFromListToEditTextBox("4", "CFL1", BoYesNoEnum.tYES, "onHand", "0", ">");
 
             SAPbouiCOM.Column _Col2= (SAPbouiCOM.Column)SMatrix.Columns.Item("codCli");
             SAPbouiCOM.Column _Col3 = (SAPbouiCOM.Column)SMatrix.Columns.Item("cliente");
-            AddChooseFromListToEditTextBox("2", "CFL2", BoYesNoEnum.tYES,"CardType","C" );
+            AddChooseFromListToEditTextBox("2", "CFL2", BoYesNoEnum.tYES,"CardType","C" ,"=" );
 
             _Col.ChooseFromListUID = "CFL1";
             _Col.ChooseFromListAlias = "ItemCode";

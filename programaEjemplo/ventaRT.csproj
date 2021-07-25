@@ -76,6 +76,7 @@
     <Compile Include="clases\detalle_registro.cs" />
     <Compile Include="clases\detalle_recepIpo.cs" />
     <Compile Include="Constantes\Model\UserFields.cs" />
+    <Compile Include="Constantes\View\aprobac.cs" />
     <Compile Include="Constantes\View\registro.cs" />
     <Compile Include="Constantes\View\prueba1.cs" />
     <Compile Include="Constantes\View\camcelRecepImpo.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="VIEW\pantallaEjemplo.cs" />
     <Compile Include="VIEW\PantallaImportacion.cs" />
     <Compile Include="VIEW\PantallaImportacionpuente.cs" />
+    <Compile Include="VIEW\PantallaAprobac.cs" />
     <Compile Include="VIEW\PantallaRegistro.cs" />
     <Compile Include="VIEW\PantallaRegistroold.cs" />
     <Compile Include="VIEW\PantallaRecepImpo.cs" />
@@ -145,6 +147,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\Registro - Copia %283%29.srf" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\Aprobac.srf" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

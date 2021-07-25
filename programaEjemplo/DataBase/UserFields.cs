@@ -32,7 +32,7 @@ namespace ventaRT.DataBase
             catch (Exception ex) { throw ex; }
         }
 
-        // Gisela : creando nueva tabla MD prueba1 para proveedores
+
         public static void CreateUserTables()
         {
 
@@ -40,8 +40,7 @@ namespace ventaRT.DataBase
             try
             {
 
-
-
+ 
                 if (!GenericFunctions.ExistUserTable("CAB_RSTV"))
                 {
 
@@ -84,6 +83,19 @@ namespace ventaRT.DataBase
                     GC.Collect();
                     GenericFunctions.AddUserField("CAB_RSTV", "comment", "Comentarios", HelpBaseType.Tipo.Text, 150, "");
                     GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("CAB_RSTV", "dias", "Dias Vigentes", HelpBaseType.Tipo.Date, 10, "");
+                    GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("CAB_RSTV", "vend", "Vendedor", HelpBaseType.Tipo.Date, 155, "");
+                    GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("CAB_RSTV", "aut", "Autorizador", HelpBaseType.Tipo.Date, 155, "");
+                    GC.Collect();
+
                 }
 
 
@@ -127,6 +139,14 @@ namespace ventaRT.DataBase
                     GC.Collect();
                     GenericFunctions.AddUserField("DET_RSTV", "cliente", "Cliente", HelpBaseType.Tipo.Regular, 100, "");
                     GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("DET_RSTV", "onHand", "Stock", HelpBaseType.Tipo.Quantity, 10, "");
+                    GC.Collect();
+
+
+
+
                 }
 
 

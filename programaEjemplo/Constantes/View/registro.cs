@@ -43,7 +43,24 @@ namespace ventaRT.Constantes.View
     {
         public const string CardCode = "\"CardCode\"";
         public const string CardName = "\"CardName\"";
+        public const string CardType = "\"CardType\"";
+        public const string validFor = "\"validFor\"";
         public const string OCRD = "OCRD";
+    }
+
+    public static class oitw
+    {
+        public const string OITW = "OITW";
+        public const string ItemCode = "\"ItemCode\"";
+        public const string WhsCode = "\"WhsCode\"";
+        public const string OnHand = "\"OnHand\"";
+    }
+
+    public static class owhs
+    {
+        public const string OWHS = "OWHS";
+        public const string WhsCode = "\"WhsCode\"";
+        public const string WhsName = "\"WhsName\"";
     }
 
     public static class CAB_RVT
@@ -69,6 +86,7 @@ namespace ventaRT.Constantes.View
         public const string U_codArt = "\"U_codArt\"";
         public const string U_codCli = "\"U_codCli\"";
         public const string U_cant = "\"U_cant\"";
+        public const string U_onHand = "\"U_onHand\"";
         public const string U_estado = "\"U_estado\"";
         public const string U_idTV = "\"U_idTV\"";
         public const string U_articulo = "\"U_articulo\"";
@@ -99,6 +117,7 @@ namespace ventaRT.Constantes.View
         public const string U_codArt = "U_codArt";
         public const string U_codCli = "U_codCli";
         public const string U_cant = "U_cant";
+        public const string U_onHand = "\"U_onHand\"";
         public const string U_estado = "U_estado";
         public const string U_idTV = "U_idTV";
         public const string code = "code";

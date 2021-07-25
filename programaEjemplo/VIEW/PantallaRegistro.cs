@@ -19,6 +19,7 @@ namespace ventaRT.VIEW
         private string ItemActiveMenu = "";
 
         private string formActual = "";
+        private string CFLActual = "";
         SAPbouiCOM.Form SForm = null;
         SAPbouiCOM.Matrix SMatrix = null;
        
@@ -36,51 +37,12 @@ namespace ventaRT.VIEW
             this.B1.Application.RightClickEvent += new SAPbouiCOM._IApplicationEvents_RightClickEventEventHandler(ThisSapApiForm_OnAfterRightClick);
 
  
-            cargarInfoInicial();
+            cargar_info_inicial();
         }
 
-        private void cargarInfoInicial()
-        {
-            SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
-            oCombo.Item.Visible = false;
-            SForm = B1.Application.Forms.ActiveForm;
-            SMatrix = SForm.Items.Item("mtx").Specific;
+       
 
-            SForm.EnableMenu("1290", true); SForm.EnableMenu("1289", true);
-            SForm.EnableMenu("1288", true); SForm.EnableMenu("1291", true);
-
-            SForm.EnableMenu("1282", true); SForm.EnableMenu("1283", true);
-            SForm.EnableMenu("1281", true); 
-
-            SAPbouiCOM.EditText txt_idvend = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idvend).Specific;
-            SAPbouiCOM.EditText txt_numoc = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_numoc).Specific;
-            SAPbouiCOM.EditText txt_fechac = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechac).Specific;
-            SAPbouiCOM.EditText txt_fechav = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechav).Specific;
-            SAPbouiCOM.EditText txt_estado = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_estado).Specific;
-            SAPbouiCOM.EditText txt_com = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_com).Specific;
-            SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
-            
-            SAPbouiCOM.Matrix mtx = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.mtx).Specific;
-            
-            if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_ADD_MODE)
-            {
-                Insertar_Solicitud();
-            }
-            //if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_UPDATE_MODE)
-            //{
-            //    btn_crear.Caption = "Actualizar";
-            //}
-            //if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_FIND_MODE)
-            //{
-            //    Preparar_Find();
-            //}
-            //if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_OK_MODE)
-            //{
-            //    btn_crear.Caption = "OK";
-            //}
-
-        }
-
+        // Metodos Override
 
         private void ThisSapApiForm_MenuEvent(ref MenuEvent pVal, out bool BubbleEvent)
         {
@@ -93,16 +55,15 @@ namespace ventaRT.VIEW
                     switch (pVal.MenuUID)
                     {
                         case "1282":    // Crear      
-                 
-                            Insertar_Solicitud();
+                            insertar_solicitud();
                             BubbleEvent = false;
                             break;
                         case "1281":    // Buscar                      
-                            Preparar_Find();
+                            preparar_modo_Find();
                             BubbleEvent = false;
                             break;
                         case "1283":    // Eliminar                     
-                            Eliminar_Solicitud();
+                            eliminar_solicitud();
                             BubbleEvent = false;
                             break;
                         case "1292":   //ADICIONAR LINEA
@@ -111,7 +72,11 @@ namespace ventaRT.VIEW
                                 case ventaRT.Constantes.View.registro.mtx:
                                     SMatrix.AddRow(1, SMatrix.RowCount);
                                     SMatrix.ClearRowData(SMatrix.RowCount);
-                                    //SMatrix.Columns.Item(5).Cells.Item(SMatrix.RowCount ).Specific.Value = "1";
+                                    SMatrix.FlushToDataSource();
+                                    SMatrix.LoadFromDataSource();
+                                    SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
+                                    btn_crear.Caption = "Actualizar";
+                                    SForm.Mode = SAPbouiCOM.BoFormMode.fm_UPDATE_MODE;
                                     BubbleEvent = false;
                                     break;
                             }
@@ -127,23 +92,26 @@ namespace ventaRT.VIEW
                                             SMatrix.DeleteRow(nRow);
                                             SMatrix.FlushToDataSource();
                                             SMatrix.LoadFromDataSource();
+                                            SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
+                                            btn_crear.Caption = "Actualizar";
+                                            SForm.Mode = SAPbouiCOM.BoFormMode.fm_UPDATE_MODE;
                                     }
-
                                     BubbleEvent = false;
+
                                     break;
                             }
                             break;
                         case "1290":    // Primero                      
-                            Activar_Primero();
+                            activar_primero();
                             break;
                         case "1289":    // Ant                      
-                            Activar_Anterior();
+                            activar_anterior();
                             break;
                         case "1288":    // Sig                      
-                            Activar_Posterior();
+                            activar_posterior();
                             break;
                         case "1291":    // Ultimo                      
-                            Activar_Ultimo();
+                            activar_ultimo();
                             break;
                     }
                     BubbleEvent = false;
@@ -210,20 +178,20 @@ namespace ventaRT.VIEW
                                                     string buscado = oCombox.Selected.Value == null ? " 0" :oCombox.Selected.Value.ToString();
                                                     if (buscado != "0")
                                                     {
-                                                        Cargar_Solicitud(buscado, true);
+                                                        cargar_solicitud(buscado, true);
                                                     }
                                                     BubbleEvent = false;
                                                     break;
                                                 }
                                             case SAPbouiCOM.BoFormMode.fm_ADD_MODE:
                                                 {
-                                                    Guardar_Solicitud();
+                                                    guardar_solicitud();
                                                     BubbleEvent = false;
                                                     break;
                                                 }
                                             case SAPbouiCOM.BoFormMode.fm_UPDATE_MODE:
                                                 {
-                                                    Guardar_Solicitud();
+                                                    guardar_solicitud();
                                                     BubbleEvent = false;
                                                     break;
                                                 }
@@ -276,33 +244,63 @@ namespace ventaRT.VIEW
                                 {
                                     if (pVal.ItemUID == "mtx" && pVal.ColUID == "codArt")
                                     {
-                                        SMatrix.FlushToDataSource();
-                                        oObLineDataSource.SetValue("U_CodArt", oObLineDataSource.Offset,
-                                            CFLEvent.SelectedObjects.GetValue("ItemCode", 0).ToString());
-                                        oObLineDataSource.SetValue("U_articulo", oObLineDataSource.Offset,
-                                            CFLEvent.SelectedObjects.GetValue("ItemName", 0).ToString());
-                                        SMatrix.LoadFromDataSource();
-
-                                        SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Click();
-                                        //SMatrix.SetCellFocus(pVal.Row+1, 3);
+                                        bool Ok = true;
+                                        string artsel = CFLEvent.SelectedObjects.GetValue("ItemCode", 0).ToString();
+                                        string codcli = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Specific).Value.ToString();
+                                        // Validar que no existan repetidos earticulo y cliente en el documento
+                                        if (artsel != "" && codcli != "" && !validar_art_cliente_unicos(artsel, codcli, pVal.Row))
+                                        {
+                                            Ok = false;
+                                            B1.Application.SetStatusBarMessage("Error Datos Repetidos: Articulo y Cliente deben ser unicos por Solicitud", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                            BubbleEvent = false;
+                                        }
+                                        // Validar que tenga existencia en la Bodega Principal CD
+                                        if (Ok)
+                                        {
+                                            if(!(obtener_exist_articulo(artsel)>0))
+                                            {
+                                                Ok = false;
+                                                B1.Application.SetStatusBarMessage("Error el Articulo no tienen disponibilidad en la Bodega Principal", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                BubbleEvent = false;
+                                            }
+                                        }
+                                        if (Ok)
+                                        {
+                                            SMatrix.FlushToDataSource();
+                                            oObLineDataSource.SetValue("U_CodArt", oObLineDataSource.Offset, artsel);
+                                            oObLineDataSource.SetValue("U_articulo", oObLineDataSource.Offset, CFLEvent.SelectedObjects.GetValue("ItemName", 0).ToString());
+                                            oObLineDataSource.SetValue("U_cant", oObLineDataSource.Offset, obtener_exist_articulo(artsel).ToString());
+                                            oObLineDataSource.SetValue("U_onHand", oObLineDataSource.Offset, obtener_exist_articulo(artsel).ToString());
+                                            SMatrix.LoadFromDataSource();
+                                            SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Click();
+                                        }
                                     }
                                     if (pVal.ItemUID == "mtx" && pVal.ColUID == "codCli")
                                     {
-                                        SMatrix.FlushToDataSource();
-                                        oObLineDataSource.SetValue("U_CodCli", oObLineDataSource.Offset,
-                                            CFLEvent.SelectedObjects.GetValue("CardCode", 0).ToString());
-                                        oObLineDataSource.SetValue("U_cliente", oObLineDataSource.Offset,
-                                            CFLEvent.SelectedObjects.GetValue("CardName", 0).ToString());
-                                        SMatrix.LoadFromDataSource();
-                                        SMatrix.Columns.Item("cant").Cells.Item(pVal.Row).Click();
+                                       bool Ok = true;
+                                       string codart = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codArt").Cells.Item(pVal.Row).Specific).Value.ToString();
+                                       string clisel = CFLEvent.SelectedObjects.GetValue("CardCode", 0).ToString();
+                                       if (codart != "" && clisel != "" && !validar_art_cliente_unicos(codart, clisel, pVal.Row))
+                                       {
+                                          Ok = false;
+                                          B1.Application.SetStatusBarMessage("Error Datos Repetidos: Articulo y Cliente deben ser unicos por Solicitud", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                          BubbleEvent = false;
+                                       }
+                                       if (Ok)
+                                       {
+                                          SMatrix.FlushToDataSource();
+                                          oObLineDataSource.SetValue("U_CodCli", oObLineDataSource.Offset, CFLEvent.SelectedObjects.GetValue("CardCode", 0).ToString());
+                                          oObLineDataSource.SetValue("U_cliente", oObLineDataSource.Offset, CFLEvent.SelectedObjects.GetValue("CardName", 0).ToString());
+                                          SMatrix.LoadFromDataSource();
+                                          SMatrix.Columns.Item("cant").Cells.Item(pVal.Row).Click();
+                                       }
+
                                     }
                                 }
                             }
                         }
                         break;
-                        
-                    }
-
+                       }
                 }
                 else
                 {
@@ -323,7 +321,7 @@ namespace ventaRT.VIEW
                                                                         Constantes.View.CAB_RVT.CAB_RV,
                                                                         Constantes.View.CAB_RVT.U_fechaC);
 
-                                    FillCombo(oCombo, SQLQuery);
+                                    llenar_combo_id(oCombo, SQLQuery);
                                 }
                             }
                             break;
@@ -338,7 +336,7 @@ namespace ventaRT.VIEW
                                             SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
                                             if (btn_crear.Caption == "Actualizar")
                                             {
-                                                Guardar_Solicitud();
+                                                guardar_solicitud();
                                                 BubbleEvent = false;
                                             }
 
@@ -347,50 +345,79 @@ namespace ventaRT.VIEW
                                 }
                             }
                             break;
+
 
                         case BoEventTypes.et_VALIDATE:
-                        {
-                            if (pVal.InnerEvent == false && pVal.ItemUID == "mtx")
                             {
+                                    if (pVal.InnerEvent == false && pVal.ItemUID == "mtx")
+                                    {
 
-                                switch (pVal.ColUID)
-                                {
-                                    case "codArt":
+                                        string codart = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codArt").Cells.Item(pVal.Row).Specific).Value.ToString();
+                                        string codcli = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Specific).Value.ToString();
+                                        switch (pVal.ColUID)
                                         {
-                                            string codart = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codArt").Cells.Item(pVal.Row).Specific).Value.ToString();
-                                            if (codart == "")
-                                            {
-                                                B1.Application.SetStatusBarMessage("Error Codigo Articulo es Obligatorio", SAPbouiCOM.BoMessageTime.bmt_Short, true);
-                                                BubbleEvent = false;
-                                            }
-                                        }
-                                        break;
-                                    case "codCli":
-                                        {
-                                            string codcli = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Specific).Value.ToString();
-                                            if (codcli == "")
-                                            {
-                                                B1.Application.SetStatusBarMessage("Error Codigo Cliente es Obligatorio", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                            case "codArt":
+                                                {
+                                                    if (codart == "")
+                                                    {
+                                                        B1.Application.SetStatusBarMessage("Error Codigo Articulo es Obligatorio", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                        BubbleEvent = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        if (codart != "" && codcli != "" && !validar_art_cliente_unicos(codart, codcli, pVal.Row))
+                                                        {
+                                                            B1.Application.SetStatusBarMessage("Error Datos Repetidos: Articulo y Cliente deben ser unicos por Solicitud", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                            BubbleEvent = false;
+                                                        }
+                                                    }
+                                                }
+                                                break;
+                                            case "codCli":
+                                                {
+                                                    if (codcli == "")
+                                                    {
+                                                        B1.Application.SetStatusBarMessage("Error Codigo Cliente es Obligatorio", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                        BubbleEvent = false;
+                                                    }
+                                                    else
+                                                    {
+                                                       if (codart != "" && codcli != "" && !validar_art_cliente_unicos(codart, codcli, pVal.Row))
+                                                       {
+                                                            B1.Application.SetStatusBarMessage("Error Datos Repetidos: Articulo y Cliente deben ser unicos por Solicitud", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                            BubbleEvent = false;
+                                                       }
+                                                    }
 
-                                                BubbleEvent = false;
-                                            }
-                                        }
-                                        break;
-                                    case "cant":
-                                        {
-                                            string cantidad = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("cant").Cells.Item(pVal.Row).Specific).Value.ToString();
-                                            if (cantidad == "0")
-                                            { SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value = "1"; }
-                                        }
-                                        break;
+                                                }
+                                                break;
+                                            case "cant":
+                                                {
+                                                    double cantidad = Double.Parse(((SAPbouiCOM.EditText)SMatrix.Columns.Item("cant").Cells.Item(pVal.Row).Specific).Value.ToString());
+                                                    double disp = Double.Parse(((SAPbouiCOM.EditText)SMatrix.Columns.Item("onHand").Cells.Item(pVal.Row).Specific).Value.ToString());
+                                                    if (cantidad == 0 && disp != 0)
+                                                    {
+                                                        //SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value = disp.ToString(); 
+                                                        B1.Application.SetStatusBarMessage("Error Cantidad debe ser superior a 0", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                        BubbleEvent = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        if (cantidad > disp)
+                                                        {
+                                                            //SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value = disp.ToString();
+                                                            B1.Application.SetStatusBarMessage("Error Cantidad > Disponibilidad", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                            BubbleEvent = false;
+                                                        }
 
+                                                    }
+
+                                                }
+                                                break;
+                                    }
                                 }
-
+                                break;
                             }
-   
-                                
-                            }
-                            break;
                     }
                 }
             }
@@ -402,10 +429,52 @@ namespace ventaRT.VIEW
 
         }
 
+         
+        // Metodos No Override
 
+        private void cargar_info_inicial()
+        {
+            SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
+            oCombo.Item.Visible = false;
+            SForm = B1.Application.Forms.ActiveForm;
+            SMatrix = SForm.Items.Item("mtx").Specific;
 
+            SForm.EnableMenu("1290", true); SForm.EnableMenu("1289", true);
+            SForm.EnableMenu("1288", true); SForm.EnableMenu("1291", true);
 
-        private bool Insertar_Solicitud()
+            SForm.EnableMenu("1282", true); SForm.EnableMenu("1283", true);
+            SForm.EnableMenu("1281", true);
+
+            SAPbouiCOM.EditText txt_idvend = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idvend).Specific;
+            SAPbouiCOM.EditText txt_numoc = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_numoc).Specific;
+            SAPbouiCOM.EditText txt_fechac = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechac).Specific;
+            SAPbouiCOM.EditText txt_fechav = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechav).Specific;
+            SAPbouiCOM.EditText txt_estado = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_estado).Specific;
+            SAPbouiCOM.EditText txt_com = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_com).Specific;
+            SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
+
+            SAPbouiCOM.Matrix mtx = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.mtx).Specific;
+
+            if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_ADD_MODE)
+            {
+                insertar_solicitud();
+            }
+            //if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_UPDATE_MODE)
+            //{
+            //    btn_crear.Caption = "Actualizar";
+            //}
+            //if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_FIND_MODE)
+            //{
+            //    Preparar_Find();
+            //}
+            //if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_OK_MODE)
+            //{
+            //    btn_crear.Caption = "OK";
+            //}
+
+        }
+
+        private bool insertar_solicitud()
         {
 
             bool todoOk = true;
@@ -417,7 +486,7 @@ namespace ventaRT.VIEW
                     B1.Application.Forms.ActiveForm.Mode = SAPbouiCOM.BoFormMode.fm_ADD_MODE;
 
 
-                        int norecord = obtenerUltimoID("CA") + 1;
+                        int norecord = obtener_ultimo_ID("CA") + 1;
                
                         //Insertando nuevo record
 
@@ -434,7 +503,7 @@ namespace ventaRT.VIEW
                         
 
                         oDbHeaderDataSource.SetValue("U_numDoc", norecord, norecord.ToString());
-                        oDbHeaderDataSource.SetValue("U_IdVend", norecord, obtenerVendedor());
+                        oDbHeaderDataSource.SetValue("U_IdVend", norecord, obtener_Vendedor());
                         oDbHeaderDataSource.SetValue("U_fechaC", norecord, fc.ToString("yyyyMMdd"));
                         oDbHeaderDataSource.SetValue("U_fechaV", norecord, fv.ToString("yyyyMMdd"));
                         oDbHeaderDataSource.SetValue("U_estado", norecord, "Nueva");
@@ -454,7 +523,7 @@ namespace ventaRT.VIEW
                         SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
 
                         txt_numoc.Value = norecord.ToString();
-                        txt_idvend.Value = obtenerVendedor(); 
+                        txt_idvend.Value = obtener_Vendedor(); 
                         txt_idaut.Value = "";
                         txt_idtv.Value = "";
                         txt_idtr.Value = "";
@@ -478,7 +547,7 @@ namespace ventaRT.VIEW
                 return todoOk;
         }
 
-        private bool Preparar_Find()
+        private bool preparar_modo_Find()
         {
             bool todoOk = true; 
             SAPbouiCOM.DBDataSource oDbHeaderDataSource = null;
@@ -553,7 +622,7 @@ namespace ventaRT.VIEW
  
         }
 
-        private void Activar_Primero()
+        private void activar_primero()
         {
             SAPbouiCOM.DBDataSource oDbHeaderDataSource = null;
             oDbHeaderDataSource = SForm.DataSources.DBDataSources.Item("@CAB_RSTV");
@@ -569,7 +638,7 @@ namespace ventaRT.VIEW
                     //oDbHeaderDataSource.Offset = 0;
                     //oDbHeaderDataSource.Query();
                     //Cargar_Solicitud(oDbHeaderDataSource.GetValue("U_numDoc", 0), false);
-                    Cargar_Solicitud("0", false);
+                    cargar_solicitud("0", false);
                     B1.Application.SetStatusBarMessage("Movimiento al Primero ", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
 
                 }
@@ -580,7 +649,7 @@ namespace ventaRT.VIEW
             }
          }
 
-        private void Activar_Anterior()
+        private void activar_anterior()
         {
 
             SAPbouiCOM.DBDataSource oDbHeaderDataSource = null;
@@ -599,7 +668,7 @@ namespace ventaRT.VIEW
                        // oDbHeaderDataSource.Query();
                        // Cargar_Solicitud(oDbHeaderDataSource.GetValue("U_numDoc", oDbHeaderDataSource.Offset), false);
 
-                        Cargar_Solicitud(oDbHeaderDataSource.Offset.ToString(), false);
+                        cargar_solicitud(oDbHeaderDataSource.Offset.ToString(), false);
                     }
 
                     B1.Application.SetStatusBarMessage("Movimiento al Anterior ", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
@@ -614,7 +683,7 @@ namespace ventaRT.VIEW
   
         }
 
-        private void Activar_Posterior()
+        private void activar_posterior()
         {
             SAPbouiCOM.DBDataSource oDbHeaderDataSource = null;
             oDbHeaderDataSource = SForm.DataSources.DBDataSources.Item("@CAB_RSTV");
@@ -629,7 +698,7 @@ namespace ventaRT.VIEW
                     oDbHeaderDataSource.Offset++;
                     //oDbHeaderDataSource.Query();
                     //Cargar_Solicitud(oDbHeaderDataSource.GetValue("U_numDoc", oDbHeaderDataSource.Offset), false);
-                    Cargar_Solicitud(oDbHeaderDataSource.Offset.ToString(), false);
+                    cargar_solicitud(oDbHeaderDataSource.Offset.ToString(), false);
 
                     B1.Application.SetStatusBarMessage("Movimiento al Siguiente ", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
 
@@ -644,7 +713,7 @@ namespace ventaRT.VIEW
 
         }
 
-        private void Activar_Ultimo()
+        private void activar_ultimo()
       {
             SAPbouiCOM.DBDataSource oDbHeaderDataSource = null;
             oDbHeaderDataSource = SForm.DataSources.DBDataSources.Item("@CAB_RSTV");
@@ -659,7 +728,7 @@ namespace ventaRT.VIEW
                     oDbHeaderDataSource.Offset = oDbHeaderDataSource.Size - 1;
                     //oDbHeaderDataSource.Query();
                     //Cargar_Solicitud(oDbHeaderDataSource.GetValue("U_numDoc", oDbHeaderDataSource.Offset), false);
-                    Cargar_Solicitud(oDbHeaderDataSource.Offset.ToString(), false);
+                    cargar_solicitud(oDbHeaderDataSource.Offset.ToString(), false);
                     B1.Application.SetStatusBarMessage("Movimiento al Ultimo ", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
 
                 }
@@ -673,7 +742,7 @@ namespace ventaRT.VIEW
 
       }
 
-        private bool Eliminar_Solicitud()
+        private bool eliminar_solicitud()
         {
             bool todoOk = true;
             string serror = "";
@@ -727,8 +796,8 @@ namespace ventaRT.VIEW
                                         abuscar);
                         oRecordSet.DoQuery(SQLQuery);
 
-                        if (oDbHeaderDataSource.Offset == 0) { Activar_Posterior(); }
-                        else { Activar_Anterior(); }
+                        if (oDbHeaderDataSource.Offset == 0) { activar_posterior(); }
+                        else { activar_anterior(); }
                     }
                     else
                     {
@@ -755,10 +824,11 @@ namespace ventaRT.VIEW
 
         }
 
-        private bool Guardar_Solicitud()
+        private bool guardar_solicitud()
         {
             bool todoOk = true;
             string serror = "";
+            string sCode = ""; string sName = "";
             int iRet;
             try
             {
@@ -769,7 +839,7 @@ namespace ventaRT.VIEW
                 SAPbobsCOM.UserTable UTDoc = B1.Company.UserTables.Item("CAB_RSTV");
                 SAPbobsCOM.UserTable UTLines = B1.Company.UserTables.Item("DET_RSTV");
                 //SForm.Freeze(true);
-                string sCode = ""; string sName = "";
+                
  
               
 
@@ -889,7 +959,8 @@ namespace ventaRT.VIEW
                 //Salvando lineas del documento
                 if (SMatrix != null && todoOk)
                 {
-                    int norecord2 = obtenerUltimoID("DE") ;
+                    int norecord2 = obtener_ultimo_ID("DE") ;
+  
                     SMatrix.FlushToDataSource();
                     for(int i=0; i <= oDbLineDataSource.Size-1; i++)
                     {
@@ -902,6 +973,7 @@ namespace ventaRT.VIEW
                         string scodcli = oDbLineDataSource.GetValue("U_codCli",i);
                         string sccli = oDbLineDataSource.GetValue("U_cliente",i);
                         string scant = oDbLineDataSource.GetValue("U_cant",i);
+                        string sdisp = oDbLineDataSource.GetValue("U_onHand", i);
 
                         if (scodart != "" && scodcli!= "" && scant!="")
                         {
@@ -917,6 +989,7 @@ namespace ventaRT.VIEW
                                     UTLines.UserFields.Fields.Item("U_codCli").Value = scodcli;
                                     UTLines.UserFields.Fields.Item("U_cliente").Value = sccli;
                                     UTLines.UserFields.Fields.Item("U_cant").Value = Double.Parse(scant) / 1000000.00;
+                                    UTLines.UserFields.Fields.Item("U_onHand").Value = Double.Parse(sdisp) / 1000000.00;
                                     UTLines.UserFields.Fields.Item("U_numOC").Value = sCode;
                                     iRet = UTLines.Update();
                                     todoOk = (iRet == 0);
@@ -933,6 +1006,7 @@ namespace ventaRT.VIEW
                                     UTLines.UserFields.Fields.Item("U_codCli").Value = scodcli;
                                     UTLines.UserFields.Fields.Item("U_cliente").Value = sccli;
                                     UTLines.UserFields.Fields.Item("U_cant").Value = Double.Parse(scant)/1000000.00;
+                                    UTLines.UserFields.Fields.Item("U_onHand").Value = Double.Parse(sdisp) / 1000000.00;
                                     UTLines.UserFields.Fields.Item("U_numOC").Value = sCode;
 
                                     iRet = UTLines.Add();
@@ -982,7 +1056,11 @@ namespace ventaRT.VIEW
                 System.GC.Collect();
             }
 
-
+            if (todoOk)
+            {
+                //todoOk = eliminar_filas_borradas(sCode);
+            }
+ 
 
             if (todoOk){
                B1.Application.SetStatusBarMessage("Solicitud procesada con exito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
@@ -999,7 +1077,77 @@ namespace ventaRT.VIEW
 
         }
 
-        private bool Cargar_Lineas(string noDoc)
+        private bool eliminar_filas_borradas(string noDoc)
+        {
+
+           bool todoOk = true;
+           SAPbobsCOM.UserTable UTLines = B1.Company.UserTables.Item("DET_RSTV");
+           if (noDoc != "" && SMatrix.RowCount >= 1)
+           {
+               try
+               {
+                   SMatrix.LoadFromDataSource();
+                   String strSQL = String.Format("SELECT {1} FROM {2} Where {0}='{3}'",
+
+                                                   Constantes.View.DET_RVT.U_numOC,//0
+                                                   Constantes.View.DET_RVT.Code,//1
+                                                   Constantes.View.DET_RVT.DET_RV,//2
+                                                   noDoc);  //3
+
+                   Recordset rsCards = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                   rsCards.DoQuery(strSQL);
+                   SAPbobsCOM.Fields fields = rsCards.Fields;
+                   rsCards.MoveFirst();
+                   string codeline = "";
+                   string clmatrix = "";
+                   for (int i = 1; !rsCards.EoF; i++)
+                   {
+                        int creg = 0;
+                        codeline = fields.Item("code").Value.ToString();
+                        for (int j = 1; j <= SMatrix.RowCount && creg < 1; j++)
+                        {
+                            clmatrix=(SMatrix.Columns.Item(10).Cells.Item(j).Specific).Value.ToString();
+                            if ( clmatrix== codeline )
+                            {
+                                creg++;
+                            }
+                        }
+                        if (creg==0)
+                        {
+                            // Borrarlo fisicame
+                            if (UTLines.GetByKey(codeline))
+                            {
+                                        int iRet = UTLines.Remove();
+                                        todoOk = (iRet == 0);
+                            }
+                        }
+                        rsCards.MoveNext();
+                   }
+                }
+                catch (Exception ex)
+                {
+                    B1.Application.SetStatusBarMessage("Error sincronizando eliminados " + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                    todoOk = false;
+                    throw;
+                }
+
+               finally
+               {
+                   System.GC.Collect();
+               }
+
+                return todoOk;
+           }
+           else { return true; }
+
+
+
+
+
+        }
+
+
+        private bool cargar_lineas(string noDoc)
         {
            bool todoOk = true;
 
@@ -1009,8 +1157,8 @@ namespace ventaRT.VIEW
                try
                {
                    SForm.Freeze(true);
-                   String strSQL = String.Format("SELECT {0}, {1}, {2},{3},{4}, {5}, {6}, {8}" +
-                                                       " FROM {9} Where {7}='{10}'",
+                   String strSQL = String.Format("SELECT {0}, {1}, {2},{3},{4}, {5}, {6}, {7}, {8}, {10}" +
+                                                       " FROM {9} Where {7}='{11}'",
                                                    Constantes.View.DET_RVT.U_codArt, //0
                                                    Constantes.View.DET_RVT.U_articulo, //1
                                                    Constantes.View.DET_RVT.U_codCli, //2
@@ -1021,7 +1169,8 @@ namespace ventaRT.VIEW
                                                    Constantes.View.DET_RVT.U_numOC,//7
                                                    Constantes.View.DET_RVT.Code,//8
                                                    Constantes.View.DET_RVT.DET_RV,//9
-                                                   noDoc);  //10
+                                                   Constantes.View.DET_RVT.U_onHand,//10
+                                                   noDoc);  //11
 
                    Recordset rsCards = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
                    rsCards.DoQuery(strSQL);
@@ -1036,8 +1185,12 @@ namespace ventaRT.VIEW
                        SMatrix.Columns.Item(3).Cells.Item(i).Specific.Value = fields.Item("U_codCli").Value.ToString();
                        SMatrix.Columns.Item(4).Cells.Item(i).Specific.Value = fields.Item("U_cliente").Value.ToString();
                        SMatrix.Columns.Item(5).Cells.Item(i).Specific.Value = fields.Item("U_cant").Value.ToString();
-                       SMatrix.Columns.Item(8).Cells.Item(i).Specific.Value = fields.Item("Code").Value.ToString();
-                       
+                       SMatrix.Columns.Item(6).Cells.Item(i).Specific.Value = fields.Item("U_onHand").Value.ToString();
+                       SMatrix.Columns.Item(7).Cells.Item(i).Specific.Checked = fields.Item("U_estado").Value.ToString()=="A";
+                       SMatrix.Columns.Item(8).Cells.Item(i).Specific.Value = fields.Item("U_idTV").Value.ToString();
+                       SMatrix.Columns.Item(9).Cells.Item(i).Specific.Value = fields.Item("U_numOC").Value.ToString();
+                       SMatrix.Columns.Item(10).Cells.Item(i).Specific.Value = fields.Item("code").Value.ToString();                       
+                        
                        rsCards.MoveNext();
                    }
                   SMatrix.AutoResizeColumns();
@@ -1067,7 +1220,7 @@ namespace ventaRT.VIEW
            else { return true; }
         }
 
-        private bool Cargar_Solicitud(string noDoc, bool posicion)
+        private bool cargar_solicitud(string noDoc, bool posicion)
         {
 
             bool todoOk = true;
@@ -1078,7 +1231,7 @@ namespace ventaRT.VIEW
             oDbHeaderDataSource = SForm.DataSources.DBDataSources.Item("@CAB_RSTV");
             if (oDbHeaderDataSource.Size == 0)
             {
-                return Insertar_Solicitud();
+                return insertar_solicitud();
             }
             else
             {
@@ -1188,7 +1341,7 @@ namespace ventaRT.VIEW
                     {
                         B1.Application.SetStatusBarMessage("Solicitud cargada con exito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
 
-                        todoOk = Cargar_Lineas(txt_numoc.Value.ToString());
+                        todoOk = cargar_lineas(txt_numoc.Value.ToString());
                         if (todoOk)
                         {
                             SForm.Mode = SAPbouiCOM.BoFormMode.fm_OK_MODE;
@@ -1216,55 +1369,82 @@ namespace ventaRT.VIEW
             }
         }
 
-        private string obtenerIdVendedor()
+        private double obtener_exist_articulo(string codart)
         {
+            double exist = 0.00;
             try
             {
-                string usrCurrent = B1.Company.UserName;
-                String strSQL = String.Format("SELECT {0}  FROM {2} Where contains({1},'%{3}%')",
-                          Constantes.View.ousr.uId,
-                          Constantes.View.ousr.uName,
-                          Constantes.View.ousr.OUSR,
-                          usrCurrent);
-                Recordset rsUsers = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                rsUsers.DoQuery(strSQL);
-                SAPbobsCOM.Fields fields = rsUsers.Fields;
-                string User_Id = rsUsers.Fields.Item("USERID").Value.ToString();
-                return User_Id;
+                //String strSQL = String.Format("SELECT T0.{0},T0.{2},T1.{3} FROM {4} T0 INNER JOIN {5} T1"  +
+                //    " ON T0.{2} = T1.{2} " +
+                //    " WHERE contains(T0.{1},'%{6}%') AND T0.{2}='CD'",
+                //          Constantes.View.oitw.OnHand,     
+                //          Constantes.View.oitw.ItemCode,
+                //          Constantes.View.owhs.WhsCode,
+                //          Constantes.View.owhs.WhsName,
+                //          Constantes.View.oitw.OITW,
+                //          Constantes.View.owhs.OWHS,
+                //          codart);
+                String strSQL = String.Format("SELECT {0} FROM {3} " +
+                    " WHERE contains({1},'%{4}%') AND {2}='{5}'  ",
+                          Constantes.View.oitw.OnHand,
+                          Constantes.View.oitw.ItemCode,
+                          Constantes.View.oitw.WhsCode,
+                          Constantes.View.oitw.OITW,
+                          codart,
+                          "CD");
+                Recordset rsResult = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                rsResult.DoQuery(strSQL);
+                SAPbobsCOM.Fields fields = rsResult.Fields;
+                rsResult.MoveFirst();
+                if (!rsResult.EoF)
+                { 
+                    exist = Double.Parse(rsResult.Fields.Item("OnHand").Value.ToString());
+                    //string wc = rsResult.Fields.Item("WhsCode").Value.ToString();
+                    //string wn = rsResult.Fields.Item("WhsName").Value.ToString();
+                }
             }
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error obteniendo Vendedor", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                B1.Application.SetStatusBarMessage("Error obteniendo Stock Disponible" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
                 throw;
             }
-        }   
-
-        private string obtenerVendedor()
-        {
-            try
-            {
-                string usrCurrent = B1.Company.UserName;
-                String strSQL = String.Format("SELECT {0},{1}  FROM {2} Where contains({0},'%{3}%')",
-                          Constantes.View.ousr.uCode,
-                          Constantes.View.ousr.uName,
-                          Constantes.View.ousr.OUSR,
-                          usrCurrent);
-                Recordset rsUsers = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                rsUsers.DoQuery(strSQL);
-                SAPbobsCOM.Fields fields = rsUsers.Fields;
-
-                string User_Code = rsUsers.Fields.Item("USER_CODE").Value.ToString();
-                string User_Name = rsUsers.Fields.Item("U_NAME").Value.ToString();
-                return User_Code ;
-            }
-            catch (Exception ex)
-            {
-                B1.Application.SetStatusBarMessage("Error obteniendo Vendedor", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                throw;
-            }
+            return exist;
         }
 
-        private int obtenerUltimoID(string tipo)
+        private bool validar_art_cliente_unicos( string art, string cli, int row)
+        {
+            bool todoOK = true;
+            if(SMatrix.RowCount > 1)
+            {
+                try
+                {
+                    // Validar contra la misma matriz porque cuando es nuevo solo datos en linea, 
+                    // No fisicos en la BD
+                    int creg = 0;
+                    for (int i = 1; i <= SMatrix.RowCount && creg < 1; i++)
+                    {
+                        if ((i != row) &&
+                            (SMatrix.Columns.Item(1).Cells.Item(i).Specific).Value.ToString() == art &&
+                            (SMatrix.Columns.Item(3).Cells.Item(i).Specific).Value.ToString() == cli)
+                        {
+                            creg++;
+                        }
+                    }
+                    todoOK = (creg < 1);
+
+                }
+                catch (Exception ex)
+                {
+                    B1.Application.SetStatusBarMessage("Error validando campos repetidos" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                    todoOK = false;
+                    throw;
+                }
+            }
+
+            return todoOK;
+        }
+
+        private int obtener_ultimo_ID(string tipo)
         {
             int CodeNumCA = 0;
             int CodeNumDE = 0;
@@ -1313,7 +1493,7 @@ namespace ventaRT.VIEW
 
         }
 
-        public void FillCombo(SAPbouiCOM.ComboBox oCombo, string SqlQuery)
+        public void llenar_combo_id(SAPbouiCOM.ComboBox oCombo, string SqlQuery)
         {
             SAPbobsCOM.Recordset oRecordSet = null;
 
@@ -1340,6 +1520,53 @@ namespace ventaRT.VIEW
 
         }
 
+        private string obtener_IdVendedor()
+        {
+            try
+            {
+                string usrCurrent = B1.Company.UserName;
+                String strSQL = String.Format("SELECT {0}  FROM {2} Where contains({1},'%{3}%')",
+                          Constantes.View.ousr.uId,
+                          Constantes.View.ousr.uName,
+                          Constantes.View.ousr.OUSR,
+                          usrCurrent);
+                Recordset rsUsers = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                rsUsers.DoQuery(strSQL);
+                SAPbobsCOM.Fields fields = rsUsers.Fields;
+                string User_Id = rsUsers.Fields.Item("USERID").Value.ToString();
+                return User_Id;
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error obteniendo Vendedor", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw;
+            }
+        }
+
+        private string obtener_Vendedor()
+        {
+            try
+            {
+                string usrCurrent = B1.Company.UserName;
+                String strSQL = String.Format("SELECT {0},{1}  FROM {2} Where contains({0},'%{3}%')",
+                          Constantes.View.ousr.uCode,
+                          Constantes.View.ousr.uName,
+                          Constantes.View.ousr.OUSR,
+                          usrCurrent);
+                Recordset rsUsers = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                rsUsers.DoQuery(strSQL);
+                SAPbobsCOM.Fields fields = rsUsers.Fields;
+
+                string User_Code = rsUsers.Fields.Item("USER_CODE").Value.ToString();
+                string User_Name = rsUsers.Fields.Item("U_NAME").Value.ToString();
+                return User_Code;
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error obteniendo Vendedor", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw;
+            }
+        }
 
         
     }
