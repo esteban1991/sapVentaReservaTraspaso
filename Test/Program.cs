@@ -20,7 +20,7 @@ namespace Test
 
             ventaRT.addonGeneral x = new ventaRT.addonGeneral();
 
-
+            
             //x.Instalar();
 
             x.CrearMenu();

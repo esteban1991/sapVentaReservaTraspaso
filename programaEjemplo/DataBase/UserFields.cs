@@ -40,6 +40,7 @@ namespace ventaRT.DataBase
             try
             {
 
+
  
                 if (!GenericFunctions.ExistUserTable("CAB_RSTV"))
                 {
@@ -85,15 +86,15 @@ namespace ventaRT.DataBase
                     GC.Collect();
 
                     GC.Collect();
-                    GenericFunctions.AddUserField("CAB_RSTV", "dias", "Dias Vigentes", HelpBaseType.Tipo.Date, 10, "");
+                    GenericFunctions.AddUserField("CAB_RSTV", "diasv", "Dias Vigentes", HelpBaseType.Tipo.Regular, 10, "");
                     GC.Collect();
 
                     GC.Collect();
-                    GenericFunctions.AddUserField("CAB_RSTV", "vend", "Vendedor", HelpBaseType.Tipo.Date, 155, "");
+                    GenericFunctions.AddUserField("CAB_RSTV", "vend", "Vendedor", HelpBaseType.Tipo.Regular, 155, "");
                     GC.Collect();
 
                     GC.Collect();
-                    GenericFunctions.AddUserField("CAB_RSTV", "aut", "Autorizador", HelpBaseType.Tipo.Date, 155, "");
+                    GenericFunctions.AddUserField("CAB_RSTV", "aut", "Autorizador", HelpBaseType.Tipo.Regular, 155, "");
                     GC.Collect();
 
                 }

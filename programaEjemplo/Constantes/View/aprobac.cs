@@ -14,8 +14,10 @@ namespace ventaRT.Constantes.View
         public const string cboxPer  = "cboxPer";
         public const string cboxCli = "cboxCli";
         public const string cboxArt = "cboxArt";
+        public const string cboxVend = "cboxVend";
         public const string cbArt = "cbArt";
         public const string cbCli = "cbCli";
+        public const string cbVend = "cbVend";
     }
 
 

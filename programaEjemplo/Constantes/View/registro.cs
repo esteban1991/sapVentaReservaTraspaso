@@ -15,7 +15,11 @@ namespace ventaRT.Constantes.View
         public const string txt_idtv = "txt_idtv";
         public const string txt_idtr = "txt_idtr";
         public const string txt_idvend = "txt_idvend";
+        public const string txt_vend = "txt_vend";
         public const string txt_idaut = "txt_idaut";
+        public const string txt_aut = "txt_aut";
+
+
         public const string txt_com = "txt_com";
         public const string btn_crear = "1";
         public const string btn_cancel = "2";
@@ -77,6 +81,8 @@ namespace ventaRT.Constantes.View
         public const string U_comment = "\"U_comment\"";
         public const string U_idVend = "\"U_idVend\"";
         public const string U_idAut = "\"U_idAut\"";
+        public const string U_vend = "\"U_vend\"";
+        public const string U_aut = "\"U_aut\"";
     }
 
     public static class DET_RVT

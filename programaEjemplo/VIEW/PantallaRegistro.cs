@@ -434,8 +434,8 @@ namespace ventaRT.VIEW
 
         private void cargar_info_inicial()
         {
-            SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
-            oCombo.Item.Visible = false;
+            //SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
+            //oCombo.Item.Visible = false;
             SForm = B1.Application.Forms.ActiveForm;
             SMatrix = SForm.Items.Item("mtx").Specific;
 
@@ -445,32 +445,42 @@ namespace ventaRT.VIEW
             SForm.EnableMenu("1282", true); SForm.EnableMenu("1283", true);
             SForm.EnableMenu("1281", true);
 
-            SAPbouiCOM.EditText txt_idvend = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idvend).Specific;
-            SAPbouiCOM.EditText txt_numoc = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_numoc).Specific;
-            SAPbouiCOM.EditText txt_fechac = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechac).Specific;
-            SAPbouiCOM.EditText txt_fechav = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechav).Specific;
-            SAPbouiCOM.EditText txt_estado = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_estado).Specific;
-            SAPbouiCOM.EditText txt_com = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_com).Specific;
-            SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
+            SAPbouiCOM.DBDataSource oDbHeaderDataSource = null;
+            oDbHeaderDataSource = SForm.DataSources.DBDataSources.Item("@CAB_RSTV");
 
-            SAPbouiCOM.Matrix mtx = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.mtx).Specific;
-
-            if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_ADD_MODE)
+            // FILTRAR LAS SOLICITUDES DEL USUARIO ACTUAL
+            SAPbouiCOM.Conditions orCons = new SAPbouiCOM.Conditions();
+            SAPbouiCOM.Condition orCon = orCons.Add();
+            orCon.Alias = "U_idVend" ;
+            orCon.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
+            orCon.CondVal = B1.Company.UserName;
+            oDbHeaderDataSource.Query(orCons);
+            if (oDbHeaderDataSource.Size >0)
             {
-                insertar_solicitud();
+                oDbHeaderDataSource.Offset = 0;
+                //oDbHeaderDataSource.Query();
+
+
+                SAPbouiCOM.DBDataSource oDbLinesDataSource = null;
+                oDbLinesDataSource = SForm.DataSources.DBDataSources.Item("@DET_RSTV");
+                // FILTRAR LAS LINES DE SOLICITUD ACTUAL
+                SAPbouiCOM.Conditions olCons = new SAPbouiCOM.Conditions();
+                SAPbouiCOM.Condition olCon = olCons.Add();
+                olCon.Alias = "U_numOC";
+                olCon.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
+                olCon.CondVal = oDbHeaderDataSource.GetValue("U_numDoc", oDbHeaderDataSource.Offset);
+                oDbLinesDataSource.Query(olCons);
+                SMatrix.LoadFromDataSource();
+
+
+                //cargar_lineas(oDbHeaderDataSource.GetValue("U_numDoc", oDbHeaderDataSource.Offset));
             }
-            //if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_UPDATE_MODE)
-            //{
-            //    btn_crear.Caption = "Actualizar";
-            //}
-            //if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_FIND_MODE)
-            //{
-            //    Preparar_Find();
-            //}
-            //if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_OK_MODE)
-            //{
-            //    btn_crear.Caption = "OK";
-            //}
+
+            if (B1.Application.Forms.ActiveForm.Mode == SAPbouiCOM.BoFormMode.fm_FIND_MODE)
+            {
+                //preparar_modo_Find();
+            }
+
 
         }
 
@@ -504,6 +514,7 @@ namespace ventaRT.VIEW
 
                         oDbHeaderDataSource.SetValue("U_numDoc", norecord, norecord.ToString());
                         oDbHeaderDataSource.SetValue("U_IdVend", norecord, obtener_Vendedor());
+                        oDbHeaderDataSource.SetValue("U_vend", norecord, obtener_NameVendedor());
                         oDbHeaderDataSource.SetValue("U_fechaC", norecord, fc.ToString("yyyyMMdd"));
                         oDbHeaderDataSource.SetValue("U_fechaV", norecord, fv.ToString("yyyyMMdd"));
                         oDbHeaderDataSource.SetValue("U_estado", norecord, "Nueva");
@@ -511,7 +522,9 @@ namespace ventaRT.VIEW
 
 
                         SAPbouiCOM.EditText txt_idvend = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idvend).Specific;
+                        SAPbouiCOM.EditText txt_vend = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_vend).Specific;
                         SAPbouiCOM.EditText txt_idaut = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idaut).Specific;
+                        SAPbouiCOM.EditText txt_aut = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_aut).Specific;
                         SAPbouiCOM.EditText txt_numoc = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_numoc).Specific;
                         SAPbouiCOM.EditText txt_fechac = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechac).Specific;
                         SAPbouiCOM.EditText txt_fechav = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechav).Specific;
@@ -523,8 +536,10 @@ namespace ventaRT.VIEW
                         SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
 
                         txt_numoc.Value = norecord.ToString();
-                        txt_idvend.Value = obtener_Vendedor(); 
+                        txt_idvend.Value = obtener_Vendedor();
+                        txt_vend.Value = obtener_NameVendedor(); 
                         txt_idaut.Value = "";
+                        txt_aut.Value = "";
                         txt_idtv.Value = "";
                         txt_idtr.Value = "";
                         txt_fechac.Value = fc.ToString("yyyyMMdd");
@@ -549,7 +564,8 @@ namespace ventaRT.VIEW
 
         private bool preparar_modo_Find()
         {
-            bool todoOk = true; 
+            bool todoOk = true;
+            int borrado = 0;
             SAPbouiCOM.DBDataSource oDbHeaderDataSource = null;
             oDbHeaderDataSource = SForm.DataSources.DBDataSources.Item("@CAB_RSTV");
 
@@ -562,7 +578,6 @@ namespace ventaRT.VIEW
             {
                 try
                 {
-                    int borrado = 0;
                     if (B1.Company.InTransaction || SForm.Mode == SAPbouiCOM.BoFormMode.fm_ADD_MODE || SForm.Mode == SAPbouiCOM.BoFormMode.fm_UPDATE_MODE)
                     {
                         int respuesta = B1.Application.MessageBox("Desea cancelar los datos modificados? ", 1, "OK", " Cancelar");
@@ -592,18 +607,23 @@ namespace ventaRT.VIEW
                         SForm = B1.Application.Forms.ActiveForm;
                         SMatrix = SForm.Items.Item("mtx").Specific;
 
-                        SAPbouiCOM.EditText txt_idvend = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idvend).Specific;
-                        SAPbouiCOM.EditText txt_numoc = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_numoc).Specific;
-                        SAPbouiCOM.EditText txt_fechac = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechac).Specific;
-                        SAPbouiCOM.EditText txt_fechav = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechav).Specific;
-                        SAPbouiCOM.EditText txt_estado = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_estado).Specific;
-                        SAPbouiCOM.EditText txt_com = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_com).Specific;
-                        SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
-                        SAPbouiCOM.Matrix mtx = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.mtx).Specific;
-                        SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
+                        //SAPbouiCOM.EditText txt_idvend = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idvend).Specific;
+                        //SAPbouiCOM.EditText txt_vend = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_vend).Specific;
+                        //SAPbouiCOM.EditText txt_numoc = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_numoc).Specific;
+                        //SAPbouiCOM.EditText txt_fechac = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechac).Specific;
+                        //SAPbouiCOM.EditText txt_fechav = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_fechav).Specific;
+                        //SAPbouiCOM.EditText txt_estado = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_estado).Specific;
+                        //SAPbouiCOM.EditText txt_com = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_com).Specific;
+                        
+                        //SAPbouiCOM.Matrix mtx = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.mtx).Specific;
+                        
+                        //SAPbouiCOM.EditText txt_idaut = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idaut).Specific;
+                        //SAPbouiCOM.EditText txt_aut = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idaut).Specific;
 
                         SForm.Mode = SAPbouiCOM.BoFormMode.fm_FIND_MODE;
+                        SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
                         btn_crear.Caption = "Buscar";
+                        SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
                         oCombo.Item.Visible = true;
                         oCombo.Item.Enabled = true;
                         //mtx.Item.Enabled = false;
@@ -839,9 +859,6 @@ namespace ventaRT.VIEW
                 SAPbobsCOM.UserTable UTDoc = B1.Company.UserTables.Item("CAB_RSTV");
                 SAPbobsCOM.UserTable UTLines = B1.Company.UserTables.Item("DET_RSTV");
                 //SForm.Freeze(true);
-                
- 
-              
 
                 try {
                       // Salvando documento 
@@ -854,6 +871,11 @@ namespace ventaRT.VIEW
                         string sestado = oDbHeaderDataSource.GetValue("U_estado", oDbHeaderDataSource.Offset);
                         string scom = oDbHeaderDataSource.GetValue("U_comment", oDbHeaderDataSource.Offset);
                         string svend = oDbHeaderDataSource.GetValue("U_idVend", oDbHeaderDataSource.Offset);
+                        string snvend = oDbHeaderDataSource.GetValue("U_vend", oDbHeaderDataSource.Offset);
+                        string saut = oDbHeaderDataSource.GetValue("U_idAut", oDbHeaderDataSource.Offset);
+                        string snaut = oDbHeaderDataSource.GetValue("U_aut", oDbHeaderDataSource.Offset);
+                        string sidtr = oDbHeaderDataSource.GetValue("U_idTR", oDbHeaderDataSource.Offset);
+                        string sidtv = oDbHeaderDataSource.GetValue("U_idTV", oDbHeaderDataSource.Offset);
 
                         // Guardando en la UserTable
                         B1.Company.StartTransaction();
@@ -866,6 +888,11 @@ namespace ventaRT.VIEW
                             UTDoc.UserFields.Fields.Item("U_fechaV").Value = SSIFramework.Utilidades.GenericFunctions.GetDate(sfechav);
                             UTDoc.UserFields.Fields.Item("U_estado").Value = sestado;
                             UTDoc.UserFields.Fields.Item("U_comment").Value = scom;
+                            UTDoc.UserFields.Fields.Item("U_vend").Value = snvend;
+                            UTDoc.UserFields.Fields.Item("U_idAut").Value = saut;
+                            UTDoc.UserFields.Fields.Item("U_aut").Value = snaut;
+                            UTDoc.UserFields.Fields.Item("U_idTR").Value = sidtr;
+                            UTDoc.UserFields.Fields.Item("U_idTV").Value = sidtv;
 
                             iRet = UTDoc.Update();
                             todoOk = (iRet==0);
@@ -881,6 +908,11 @@ namespace ventaRT.VIEW
                             UTDoc.UserFields.Fields.Item("U_fechaV").Value = SSIFramework.Utilidades.GenericFunctions.GetDate(sfechav);
                             UTDoc.UserFields.Fields.Item("U_estado").Value = sestado;
                             UTDoc.UserFields.Fields.Item("U_comment").Value = scom;
+                            UTDoc.UserFields.Fields.Item("U_vend").Value = snvend;
+                            UTDoc.UserFields.Fields.Item("U_idAut").Value = saut;
+                            UTDoc.UserFields.Fields.Item("U_aut").Value = snaut;
+                            UTDoc.UserFields.Fields.Item("U_idTR").Value = sidtr;
+                            UTDoc.UserFields.Fields.Item("U_idTV").Value = sidtv;
      
                             iRet = UTDoc.Add();
                             todoOk = (iRet==0);
@@ -1024,21 +1056,14 @@ namespace ventaRT.VIEW
                             }
                             finally
                             {
-                                B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_Commit);
-                                //UTLines = null;
+                                if (todoOk) { B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_Commit);}
+                                
                             }
                         }
-                        //else
-                        //{
-                        //    if (i > 0)
-                        //    {
-                        //        SMatrix.DeleteRow(i);
-                        //        SMatrix.FlushToDataSource();
-                        //    }
-                        //}
+
   
                     }
-                    //Cargar_Lineas(sCode);
+                    UTLines = null;
                     //oDbLineDataSource.Query();
                    // SMatrix.LoadFromDataSource();
 
@@ -1157,42 +1182,59 @@ namespace ventaRT.VIEW
                try
                {
                    SForm.Freeze(true);
-                   String strSQL = String.Format("SELECT {0}, {1}, {2},{3},{4}, {5}, {6}, {7}, {8}, {10}" +
-                                                       " FROM {9} Where {7}='{11}'",
-                                                   Constantes.View.DET_RVT.U_codArt, //0
-                                                   Constantes.View.DET_RVT.U_articulo, //1
-                                                   Constantes.View.DET_RVT.U_codCli, //2
-                                                   Constantes.View.DET_RVT.U_cliente, //3
-                                                   Constantes.View.DET_RVT.U_cant, //4
-                                                   Constantes.View.DET_RVT.U_estado, //5
-                                                   Constantes.View.DET_RVT.U_idTV,//6
-                                                   Constantes.View.DET_RVT.U_numOC,//7
-                                                   Constantes.View.DET_RVT.Code,//8
-                                                   Constantes.View.DET_RVT.DET_RV,//9
-                                                   Constantes.View.DET_RVT.U_onHand,//10
-                                                   noDoc);  //11
+                   // --------------------------con conditions en la dbdatasource
 
-                   Recordset rsCards = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                   rsCards.DoQuery(strSQL);
-                   SMatrix.Clear();
-                   SAPbobsCOM.Fields fields = rsCards.Fields;
-                   rsCards.MoveFirst();
-                   for (int i = 1; !rsCards.EoF; i++)
-                   {
-                       SMatrix.AddRow(1, 1);
-                       SMatrix.Columns.Item(1).Cells.Item(i).Specific.Value = fields.Item("U_codArt").Value.ToString();
-                       SMatrix.Columns.Item(2).Cells.Item(i).Specific.Value = fields.Item("U_articulo").Value.ToString();
-                       SMatrix.Columns.Item(3).Cells.Item(i).Specific.Value = fields.Item("U_codCli").Value.ToString();
-                       SMatrix.Columns.Item(4).Cells.Item(i).Specific.Value = fields.Item("U_cliente").Value.ToString();
-                       SMatrix.Columns.Item(5).Cells.Item(i).Specific.Value = fields.Item("U_cant").Value.ToString();
-                       SMatrix.Columns.Item(6).Cells.Item(i).Specific.Value = fields.Item("U_onHand").Value.ToString();
-                       SMatrix.Columns.Item(7).Cells.Item(i).Specific.Checked = fields.Item("U_estado").Value.ToString()=="A";
-                       SMatrix.Columns.Item(8).Cells.Item(i).Specific.Value = fields.Item("U_idTV").Value.ToString();
-                       SMatrix.Columns.Item(9).Cells.Item(i).Specific.Value = fields.Item("U_numOC").Value.ToString();
-                       SMatrix.Columns.Item(10).Cells.Item(i).Specific.Value = fields.Item("code").Value.ToString();                       
+
+                       SAPbouiCOM.DBDataSource oDbLinesDataSource = null;
+                       oDbLinesDataSource = SForm.DataSources.DBDataSources.Item("@DET_RSTV");
+                       // FILTRAR LAS LINES DE SOLICITUD ACTUAL
+                       SAPbouiCOM.Conditions olCons = new SAPbouiCOM.Conditions();
+                       SAPbouiCOM.Condition olCon = olCons.Add();
+                       olCon.Alias = "U_numOC";
+                       olCon.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
+                       olCon.CondVal = noDoc;
+                       oDbLinesDataSource.Query(olCons);
+                       SMatrix.LoadFromDataSource();
+
+
+
+                   // --------------------------con SQL Select
+                   //String strSQL = String.Format("SELECT {0}, {1}, {2},{3},{4}, {5}, {6}, {7}, {8}, {10}" +
+                   //                                    " FROM {9} Where {7}='{11}'",
+                   //                                Constantes.View.DET_RVT.U_codArt, //0
+                   //                                Constantes.View.DET_RVT.U_articulo, //1
+                   //                                Constantes.View.DET_RVT.U_codCli, //2
+                   //                                Constantes.View.DET_RVT.U_cliente, //3
+                   //                                Constantes.View.DET_RVT.U_cant, //4
+                   //                                Constantes.View.DET_RVT.U_estado, //5
+                   //                                Constantes.View.DET_RVT.U_idTV,//6
+                   //                                Constantes.View.DET_RVT.U_numOC,//7
+                   //                                Constantes.View.DET_RVT.Code,//8
+                   //                                Constantes.View.DET_RVT.DET_RV,//9
+                   //                                Constantes.View.DET_RVT.U_onHand,//10
+                   //                                noDoc);  //11
+
+                   //Recordset rsCards = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                   //rsCards.DoQuery(strSQL);
+                   //SMatrix.Clear();
+                   //SAPbobsCOM.Fields fields = rsCards.Fields;
+                   //rsCards.MoveFirst();
+                   //for (int i = 1; !rsCards.EoF; i++)
+                   //{
+                   //    SMatrix.AddRow(1, 1);
+                   //    SMatrix.Columns.Item(1).Cells.Item(i).Specific.Value = fields.Item("U_codArt").Value.ToString();
+                   //    SMatrix.Columns.Item(2).Cells.Item(i).Specific.Value = fields.Item("U_articulo").Value.ToString();
+                   //    SMatrix.Columns.Item(3).Cells.Item(i).Specific.Value = fields.Item("U_codCli").Value.ToString();
+                   //    SMatrix.Columns.Item(4).Cells.Item(i).Specific.Value = fields.Item("U_cliente").Value.ToString();
+                   //    SMatrix.Columns.Item(5).Cells.Item(i).Specific.Value = fields.Item("U_cant").Value.ToString();
+                   //    SMatrix.Columns.Item(6).Cells.Item(i).Specific.Value = fields.Item("U_onHand").Value.ToString();
+                   //    SMatrix.Columns.Item(7).Cells.Item(i).Specific.Checked = fields.Item("U_estado").Value.ToString()=="A";
+                   //    SMatrix.Columns.Item(8).Cells.Item(i).Specific.Value = fields.Item("U_idTV").Value.ToString();
+                   //    SMatrix.Columns.Item(9).Cells.Item(i).Specific.Value = fields.Item("U_numOC").Value.ToString();
+                   //    SMatrix.Columns.Item(10).Cells.Item(i).Specific.Value = fields.Item("code").Value.ToString();                       
                         
-                       rsCards.MoveNext();
-                   }
+                   //    rsCards.MoveNext();
+                   //}
                   SMatrix.AutoResizeColumns();
                   // SMatrix.FlushToDataSource();
 
@@ -1252,7 +1294,9 @@ namespace ventaRT.VIEW
                     SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
                     SAPbouiCOM.Matrix mtx = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item("mtx").Specific;
                     SAPbouiCOM.ComboBox oCombox = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
-
+                    SAPbouiCOM.EditText txt_vend = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_vend).Specific;
+                    SAPbouiCOM.EditText txt_aut = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_aut).Specific;
+ 
 
                     try
                     {
@@ -1315,12 +1359,24 @@ namespace ventaRT.VIEW
 
                             nuevaposic = nuevaposic < 0 ? 0 : nuevaposic;
                             oDbHeaderDataSource.Offset = nuevaposic;
+
+
                             oDbHeaderDataSource.Query();
+ 
+
+
+
+
+
 
 
                             txt_numoc.Value = oDbHeaderDataSource.GetValue("U_numDoc", oDbHeaderDataSource.Offset);
                             txt_idvend.Value = oDbHeaderDataSource.GetValue("U_idVend", oDbHeaderDataSource.Offset);
                             txt_idaut.Value = oDbHeaderDataSource.GetValue("U_idAut", oDbHeaderDataSource.Offset);
+                            txt_vend.Value = oDbHeaderDataSource.GetValue("U_vend", oDbHeaderDataSource.Offset);
+                            //txt_vend.Value = txt_vend.Value.ToString() == "" ? obtener_NameVendedor():txt_vend.Value;
+                            oDbHeaderDataSource.SetValue("U_vend", oDbHeaderDataSource.Offset, txt_vend.Value.ToString());
+                            txt_aut.Value = oDbHeaderDataSource.GetValue("U_aut", oDbHeaderDataSource.Offset);
                             txt_idtv.Value = oDbHeaderDataSource.GetValue("U_idTV", oDbHeaderDataSource.Offset);
                             txt_idtr.Value = oDbHeaderDataSource.GetValue("U_idTR", oDbHeaderDataSource.Offset);
                             txt_fechac.Value = oDbHeaderDataSource.GetValue("U_fechaC", oDbHeaderDataSource.Offset);
@@ -1328,6 +1384,7 @@ namespace ventaRT.VIEW
                             txt_com.Value = oDbHeaderDataSource.GetValue("U_comment", oDbHeaderDataSource.Offset);
                             txt_estado.Value = oDbHeaderDataSource.GetValue("U_estado", oDbHeaderDataSource.Offset);
                             txt_estado.Value = txt_estado.Value == "N" ? " Nueva" : "Revisada";
+
                         }
                     }
                     catch (Exception ex)
@@ -1520,21 +1577,22 @@ namespace ventaRT.VIEW
 
         }
 
-        private string obtener_IdVendedor()
+        private string obtener_NameVendedor()
         {
             try
             {
                 string usrCurrent = B1.Company.UserName;
-                String strSQL = String.Format("SELECT {0}  FROM {2} Where contains({1},'%{3}%')",
-                          Constantes.View.ousr.uId,
+                String strSQL = String.Format("SELECT {0}, {1}   FROM {2} Where contains({0},'%{3}%')",
+                          Constantes.View.ousr.uCode,
                           Constantes.View.ousr.uName,
                           Constantes.View.ousr.OUSR,
                           usrCurrent);
                 Recordset rsUsers = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
                 rsUsers.DoQuery(strSQL);
                 SAPbobsCOM.Fields fields = rsUsers.Fields;
-                string User_Id = rsUsers.Fields.Item("USERID").Value.ToString();
-                return User_Id;
+                rsUsers.MoveFirst();
+                string User_Name = rsUsers.Fields.Item("U_NAME").Value.ToString();
+                return User_Name;
             }
             catch (Exception ex)
             {

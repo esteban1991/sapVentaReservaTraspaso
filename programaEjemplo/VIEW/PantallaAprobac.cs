@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Globalization;
 using SAPbouiCOM;
@@ -22,8 +23,11 @@ namespace ventaRT.VIEW
         private string ItemActiveMenu = "";
 
         private string formActual = "";
-        SAPbouiCOM.Form SForm = null;
-        SAPbouiCOM.Matrix SMatrix = null;
+        SAPbouiCOM.Form AForm = null;
+        SAPbouiCOM.Matrix AMatrix = null;
+
+   
+
 
 
         public PantallaAprobac()
@@ -104,11 +108,21 @@ namespace ventaRT.VIEW
                     condArt = selArt != "" ? Constantes.View.DET_RVT.U_codArt + " = '" + selArt + "'": condArt;
                 }
 
-                string cadw = condPer != String.Empty || condCli != String.Empty || condArt != String.Empty ? " WHERE " : "";
+                SAPbouiCOM.CheckBox cboxVend = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxVend).Specific;
+                string condVend = String.Empty;
+                if (cboxVend.Checked == true)
+                {
+                    SAPbouiCOM.ComboBox vend = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cbVend).Specific;
+                    string selVend = vend.Selected != null ? vend.Selected.Value.ToString() : "";
+                    condVend = selVend != "" ? Constantes.View.CAB_RVT.U_idVend + " = '" + selVend + "'" : condVend;
+                }
+
+                string cadw = condPer != String.Empty || condCli != String.Empty || condArt != String.Empty || condVend != String.Empty ? " WHERE " : "";
                 cadw = cadw + condPer;
-                cadw = cadw + ((condPer != String.Empty) && (condCli != String.Empty || condArt != String.Empty) ? " AND " : "");
+                cadw = cadw + ((condPer != String.Empty) && (condCli != String.Empty || condArt != String.Empty || condVend != String.Empty) ? " AND " : "");
                 cadw = cadw + condCli + ((condPer != String.Empty || condCli != String.Empty) && (condArt != String.Empty) ? " AND " : "");
-                cadw = cadw + condArt;
+                cadw = cadw + condArt + ((condPer != String.Empty || condCli != String.Empty || condArt != String.Empty) && (condVend != String.Empty) ? " AND " : ""); ;
+                cadw = cadw + condVend;
 
                 string adicjoin = (condCli != String.Empty || condArt != String.Empty) ? " INNER JOIN " +
                 Constantes.View.DET_RVT.DET_RV + " T3 ON T0." + Constantes.View.CAB_RVT.U_numOC +
@@ -124,7 +138,7 @@ namespace ventaRT.VIEW
                 //+",  T0." +   Constantes.View.CAB_RVT.U_comment
                 : "" ;              
 
-                SQLQuery = String.Format("SELECT T0.{1} , T0.{4}, T1.{3} U_vend, T0.{6}, T0.{7}, DAYS_BETWEEN( CURRENT_DATE,T0.{7}) U_dias, " +
+                SQLQuery = String.Format("SELECT T0.{1} , T0.{4}, T1.{3} U_vend, T0.{6}, T0.{7}, DAYS_BETWEEN( CURRENT_DATE,T0.{7}) U_diasv, " +
                       " T0.{8}, T2.{3} U_aut, T0.{9}, T0.{10}, T0.{11} " +
                 //,T0.{22} " +
                       " FROM {0} T0 INNER JOIN {2} T1 ON T0.{4} = T1.{5} " +
@@ -166,13 +180,17 @@ namespace ventaRT.VIEW
                 rsCards.MoveFirst();
                 for (int i = 1; !rsCards.EoF; i++)
                 {
-                    AMatrix.AddRow(1, 1);
+                    AMatrix.AddRow(1);
                     AMatrix.Columns.Item(1).Cells.Item(i).Specific.Value = fields.Item("U_numDoc").Value.ToString();
                     AMatrix.Columns.Item(2).Cells.Item(i).Specific.Value = fields.Item("U_IdVend").Value.ToString();
                     AMatrix.Columns.Item(3).Cells.Item(i).Specific.Value = fields.Item("U_vend").Value.ToString();
                     AMatrix.Columns.Item(4).Cells.Item(i).Specific.Value = fields.Item("U_fechaC").Value.ToString("yyyyMMdd");
                     AMatrix.Columns.Item(5).Cells.Item(i).Specific.Value = fields.Item("U_fechaV").Value.ToString("yyyyMMdd");
-                    AMatrix.Columns.Item(6).Cells.Item(i).Specific.Value = fields.Item("U_dias").Value.ToString();
+                    AMatrix.Columns.Item(6).Cells.Item(i).Specific.Value = fields.Item("U_diasv").Value.ToString();
+                    if (Int32.Parse(fields.Item("U_diasv").Value.ToString()) <= 5) 
+                    { 
+                        AMatrix.CommonSetting.SetCellFontColor(i, 6, 255); 
+                    }
                     AMatrix.Columns.Item(7).Cells.Item(i).Specific.Value = fields.Item("U_IdAut").Value.ToString();
                     AMatrix.Columns.Item(8).Cells.Item(i).Specific.Value = fields.Item("U_aut").Value.ToString();
                     string txtestado = fields.Item("U_estado").Value.ToString();
@@ -186,8 +204,7 @@ namespace ventaRT.VIEW
                     rsCards.MoveNext();
                 }
                 AMatrix.AutoResizeColumns();
-
-
+                
                 B1.Application.Forms.ActiveForm.Freeze(false);
             }
             catch (Exception ex)
@@ -254,6 +271,11 @@ namespace ventaRT.VIEW
                                             cargar_datos_matriz();
                                         }
                                         break;
+                                    case "cbVend":
+                                        {
+                                            cargar_datos_matriz();
+                                        }
+                                        break;
                                 }
                                 break;
 
@@ -295,6 +317,18 @@ namespace ventaRT.VIEW
                                             oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxArt").Specific;
                                             SAPbouiCOM.ComboBox oCombo = null;
                                             oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbArt").Specific;
+                                            //oCombo.Item.Visible = !oCbox.Checked;
+                                            cargar_datos_matriz();
+                                        }
+                                        break;
+
+                                    case "cboxVend":
+                                        {
+                                            // Activar busqueda por articulo  
+                                            SAPbouiCOM.CheckBox oCbox = null;
+                                            oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxVend").Specific;
+                                            SAPbouiCOM.ComboBox oCombo = null;
+                                            oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbVend").Specific;
                                             //oCombo.Item.Visible = !oCbox.Checked;
                                             cargar_datos_matriz();
                                         }
@@ -358,7 +392,21 @@ namespace ventaRT.VIEW
                                             llenar_combo_busq(oCombo, SQLQuery);
                                         }
                                         break;
-                                    
+
+                                    case "cbVend":
+                                        {
+                                            // Rellenando combo de busqueda
+                                            SAPbouiCOM.ComboBox oCombo = null;
+                                            oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbVend").Specific;
+                                            string SQLQuery = string.Empty;
+                                            SQLQuery = String.Format("SELECT {1}, {2} FROM {0} GROUP BY {1}, {2} ORDER BY {1}",
+                                                                                Constantes.View.CAB_RVT.CAB_RV,
+                                                                                Constantes.View.CAB_RVT.U_idVend,
+                                                                                Constantes.View.CAB_RVT.U_vend);
+
+                                            llenar_combo_busq(oCombo, SQLQuery);
+                                        }
+                                        break;                                    
 
                                 }
                             }
