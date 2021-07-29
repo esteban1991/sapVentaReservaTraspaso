@@ -246,6 +246,60 @@ namespace ventaRT
             }
         }
 
+        private void AddCFLArtOnHandinCD(string ObjectType,string CFLUID)
+        {
+            try
+            {
+                SAPbouiCOM.ChooseFromListCollection oCFLs = null;
+                SAPbouiCOM.ChooseFromList oCFL = null;
+                SAPbouiCOM.ChooseFromListCreationParams oCFLCreationParams = null;
+                SAPbouiCOM.Conditions oCons = null;
+                SAPbouiCOM.Condition oCon = null;
+                oCFLs = SForm.ChooseFromLists;
+
+                oCFLCreationParams = (SAPbouiCOM.ChooseFromListCreationParams)
+                    (B1.Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_ChooseFromListCreationParams));
+                oCFLCreationParams.MultiSelection = false;
+                oCFLCreationParams.ObjectType = ObjectType;
+                oCFLCreationParams.UniqueID = CFLUID;
+                oCFL = oCFLs.Add(oCFLCreationParams);
+                oCons = oCFL.GetConditions();
+                //Ejecuart Query que devuelve los que tienen existencia en la Bodega CD
+                String strSQL = String.Format("SELECT {1} FROM {3} " +
+                         " WHERE {2}='{4}' AND {0} > 0 ",
+                               Constantes.View.oitw.OnHand,
+                               Constantes.View.oitw.ItemCode,
+                               Constantes.View.oitw.WhsCode,
+                               Constantes.View.oitw.OITW,
+                               "CD");
+                Recordset rsResult = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                rsResult.DoQuery(strSQL);
+                SAPbobsCOM.Fields fields = rsResult.Fields;
+                rsResult.MoveFirst();
+                if (!rsResult.EoF)
+                {
+                    do {
+                        oCon = oCons.Add();
+                        oCon.Alias = "ItemCode";
+                        oCon.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
+                        oCon.CondVal = rsResult.Fields.Item("ItemCode").Value.ToString();
+                        rsResult.MoveNext();
+                        if (!rsResult.EoF)
+                        {
+                            oCon.Relationship = BoConditionRelationship.cr_OR;
+                        }
+                    } while (!rsResult.EoF);
+
+                }
+                oCFL.SetConditions(oCons);
+
+            }
+            catch (Exception ex)
+            {
+                B1.Application.MessageBox("Error : " + ex.Message);
+            }
+        }
+
         private void Configurar_Pantalla_Registro()
         {
 
@@ -266,7 +320,9 @@ namespace ventaRT
             SAPbouiCOM.Column _Col = (SAPbouiCOM.Column)SMatrix.Columns.Item("codArt");
             SAPbouiCOM.Column _Col1 = (SAPbouiCOM.Column)SMatrix.Columns.Item("articulo");
             //AddChooseFromListToEditTextBox("4", "CFL1", BoYesNoEnum.tNO);
-            AddChooseFromListToEditTextBox("4", "CFL1", BoYesNoEnum.tYES, "onHand", "0", ">");
+            //AddChooseFromListToEditTextBox("4", "CFL1", BoYesNoEnum.tYES, "onHand", "0", ">"); // 4 - oitm
+            //AddChooseFromListToEditTextBox("31", "CFL1", BoYesNoEnum.tYES, "onHand", "0", ">"); //31 - oitw
+            AddCFLArtOnHandinCD("4", "CFL1");
 
             SAPbouiCOM.Column _Col2= (SAPbouiCOM.Column)SMatrix.Columns.Item("codCli");
             SAPbouiCOM.Column _Col3 = (SAPbouiCOM.Column)SMatrix.Columns.Item("cliente");
