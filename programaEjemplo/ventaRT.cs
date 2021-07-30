@@ -18,6 +18,8 @@ namespace ventaRT
 
         SAPbouiCOM.Form SForm = null;
         SAPbouiCOM.Matrix SMatrix = null;
+        SAPbouiCOM.Form UForm = null;
+        SAPbouiCOM.Matrix UMatrix = null;
 
         private SSIFramework.SSIConnector B1;
 
@@ -83,6 +85,12 @@ namespace ventaRT
                     Constantes.Views.Menu.MENU_submenu_control_anulaciones_Desc,
                     Constantes.Views.Menu.MenuVentaReserva,
                     BoMenuType.mt_STRING, null);
+
+                if (!B1.Application.Menus.Exists(Constantes.Views.Menu.MENU_submenu_autorizadores))
+                    GenericFunctions.addMenu(Constantes.Views.Menu.MENU_submenu_autorizadores,
+                    Constantes.Views.Menu.MENU_submenu_autorizadores_Desc,
+                    Constantes.Views.Menu.MenuVentaReserva,
+                    BoMenuType.mt_STRING, null);
             }
             catch (Exception ex)
             {
@@ -145,7 +153,14 @@ namespace ventaRT
                             }
 
                             break;
+                        case Constantes.Views.Menu.MENU_submenu_autorizadores:
+                            {
+                                B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+                                new VIEW.PantallaAutoriz();
+                                Configurar_Pantalla_Autoriz();
+                            }
 
+                            break;
                     }
                 }
 
@@ -207,43 +222,47 @@ namespace ventaRT
         }
 
         
-        private void AddChooseFromListToEditTextBox(string ObjectType,
+        private void AddChooseFromListToEditTextBox(SAPbouiCOM.Form XForm, string ObjectType,
             string CFLUID, SAPbobsCOM.BoYesNoEnum Condition, string ConAlias = "" ,
-            string conVal = "", string oper = ""  )
+            string conVal = "", string oper = ""   )
         {
-            try
+            if (XForm!= null)
             {
-                SAPbouiCOM.ChooseFromListCollection oCFLs = null;
-                SAPbouiCOM.ChooseFromList oCFL = null;
-                SAPbouiCOM.ChooseFromListCreationParams oCFLCreationParams = null;
-                SAPbouiCOM.Conditions oCons = null;
-                SAPbouiCOM.Condition oCon = null;
-                oCFLs = SForm.ChooseFromLists;
-               
-                oCFLCreationParams = (SAPbouiCOM.ChooseFromListCreationParams) 
-                    (B1.Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_ChooseFromListCreationParams));
-                oCFLCreationParams.MultiSelection = false;
-                                oCFLCreationParams.ObjectType = ObjectType;
-                oCFLCreationParams.UniqueID = CFLUID;
-                oCFL = oCFLs.Add(oCFLCreationParams);
-                
-                if (Condition == BoYesNoEnum.tYES)
+                try
                 {
-                    oCons = oCFL.GetConditions();
-                    oCon = oCons.Add();
-                    oCon.Alias = ConAlias;
-                    oCon.Operation = oper == "="? SAPbouiCOM.BoConditionOperation.co_EQUAL: 
-                        oper == ">"? SAPbouiCOM.BoConditionOperation.co_GRATER_THAN: 
-                        oper == "<"? SAPbouiCOM.BoConditionOperation.co_LESS_THAN :
-                         SAPbouiCOM.BoConditionOperation.co_EQUAL;
-                    oCon.CondVal = conVal;
-                    oCFL.SetConditions(oCons);
+                    SAPbouiCOM.ChooseFromListCollection oCFLs = null;
+                    SAPbouiCOM.ChooseFromList oCFL = null;
+                    SAPbouiCOM.ChooseFromListCreationParams oCFLCreationParams = null;
+                    SAPbouiCOM.Conditions oCons = null;
+                    SAPbouiCOM.Condition oCon = null;
+                    oCFLs = XForm.ChooseFromLists;
+
+                    oCFLCreationParams = (SAPbouiCOM.ChooseFromListCreationParams)
+                        (B1.Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_ChooseFromListCreationParams));
+                    oCFLCreationParams.MultiSelection = false;
+                    oCFLCreationParams.ObjectType = ObjectType;
+                    oCFLCreationParams.UniqueID = CFLUID;
+                    oCFL = oCFLs.Add(oCFLCreationParams);
+
+                    if (Condition == BoYesNoEnum.tYES)
+                    {
+                        oCons = oCFL.GetConditions();
+                        oCon = oCons.Add();
+                        oCon.Alias = ConAlias;
+                        oCon.Operation = oper == "=" ? SAPbouiCOM.BoConditionOperation.co_EQUAL :
+                            oper == ">" ? SAPbouiCOM.BoConditionOperation.co_GRATER_THAN :
+                            oper == "<" ? SAPbouiCOM.BoConditionOperation.co_LESS_THAN :
+                             SAPbouiCOM.BoConditionOperation.co_EQUAL;
+                        oCon.CondVal = conVal;
+                        oCFL.SetConditions(oCons);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    B1.Application.MessageBox("Error : " + ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                B1.Application.MessageBox("Error : " + ex.Message);
-            }
+
         }
 
         private void AddCFLArtOnHandinCD(string ObjectType,string CFLUID)
@@ -264,7 +283,7 @@ namespace ventaRT
                 oCFLCreationParams.UniqueID = CFLUID;
                 oCFL = oCFLs.Add(oCFLCreationParams);
                 oCons = oCFL.GetConditions();
-                //Ejecuart Query que devuelve los que tienen existencia en la Bodega CD
+                //Ejecutar Query que devuelve los que tienen existencia en la Bodega CD
                 String strSQL = String.Format("SELECT {1} FROM {3} " +
                          " WHERE {2}='{4}' AND {0} > 0 ",
                                Constantes.View.oitw.OnHand,
@@ -326,7 +345,7 @@ namespace ventaRT
 
             SAPbouiCOM.Column _Col2= (SAPbouiCOM.Column)SMatrix.Columns.Item("codCli");
             SAPbouiCOM.Column _Col3 = (SAPbouiCOM.Column)SMatrix.Columns.Item("cliente");
-            AddChooseFromListToEditTextBox("2", "CFL2", BoYesNoEnum.tYES,"CardType","C" ,"=" );
+            AddChooseFromListToEditTextBox(SForm, "2", "CFL2", BoYesNoEnum.tYES,"CardType","C" ,"=" );
 
             _Col.ChooseFromListUID = "CFL1";
             _Col.ChooseFromListAlias = "ItemCode";
@@ -336,5 +355,20 @@ namespace ventaRT
             _Col2.ChooseFromListAlias = "CardCode";
             _Col3.Editable = false;    
         }
+
+        private void Configurar_Pantalla_Autoriz()
+        {
+
+            UForm = B1.Application.Forms.ActiveForm;
+            UMatrix = UForm.Items.Item("umtx").Specific;
+
+            SAPbouiCOM.Column _Col4 = (SAPbouiCOM.Column)UMatrix.Columns.Item("idAut");
+            SAPbouiCOM.Column _Col5 = (SAPbouiCOM.Column)UMatrix.Columns.Item("aut");
+            AddChooseFromListToEditTextBox(UForm, "12", "CFL3", BoYesNoEnum.tNO);
+
+            _Col4.ChooseFromListUID = "CFL3";
+            _Col4.ChooseFromListAlias = "USER_CODE";
+            _Col5.Editable = false;
+        }    
     }
 }

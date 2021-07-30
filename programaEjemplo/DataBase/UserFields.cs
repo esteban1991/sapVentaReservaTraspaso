@@ -40,7 +40,26 @@ namespace ventaRT.DataBase
             try
             {
 
+                if (!GenericFunctions.ExistUserTable("AUT_RSTV"))
+                {
 
+                    GC.Collect();
+                    GenericFunctions.AddUserTable("AUT_RSTV", "Aprobadores Res Stock Traspaso", BoUTBTableType.bott_NoObject);
+                    GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("AUT_RSTV", "idAut", "Id Autorizador", HelpBaseType.Tipo.Regular, 25, "");
+                    GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("AUT_RSTV", "aut", "Autorizador", HelpBaseType.Tipo.Regular, 155, "");
+                    GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("AUT_RSTV", "activo", "Activo", HelpBaseType.Tipo.Regular, 3, "");
+                    GC.Collect();
+
+                }
  
                 if (!GenericFunctions.ExistUserTable("CAB_RSTV"))
                 {
