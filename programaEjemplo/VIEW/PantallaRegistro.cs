@@ -1129,7 +1129,6 @@ namespace ventaRT.VIEW
 
         }
 
-
         private bool eliminar_filas_borradas()
         {
 

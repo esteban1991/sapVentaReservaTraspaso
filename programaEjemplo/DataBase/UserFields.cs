@@ -73,7 +73,7 @@ namespace ventaRT.DataBase
                     GC.Collect();
 
                     GC.Collect();
-                    GenericFunctions.AddUserField("CAB_RSTV", "idVend", "Id Vendedor", HelpBaseType.Tipo.Regular, 10, "");
+                    GenericFunctions.AddUserField("CAB_RSTV", "idVend", "Id Vendedor", HelpBaseType.Tipo.Regular, 25, "");
                     GC.Collect();
 
                     GC.Collect();
@@ -97,7 +97,7 @@ namespace ventaRT.DataBase
                     GC.Collect();
 
                     GC.Collect();
-                    GenericFunctions.AddUserField("CAB_RSTV", "idAut", "Id Autorizador", HelpBaseType.Tipo.Regular, 10, "");
+                    GenericFunctions.AddUserField("CAB_RSTV", "idAut", "Id Autorizador", HelpBaseType.Tipo.Regular, 25, "");
                     GC.Collect();
 
                     GC.Collect();

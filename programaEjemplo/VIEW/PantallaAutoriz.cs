@@ -25,6 +25,8 @@ namespace ventaRT.VIEW
         SAPbouiCOM.DBDataSource oDbAutDataSource = null;
 
         List<string> lineasdel = new List<string>();
+
+        int rowsel = 0;
        
 
         public PantallaAutoriz()
@@ -72,19 +74,35 @@ namespace ventaRT.VIEW
                             {
                                 //ejemplo con una matrix 
                                 case ventaRT.Constantes.View.autorizad.umtx:
-
-                                    int nRow = (int)UMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
-                                    nRow = nRow == -1 ? UMatrix.RowCount : nRow ;
-                                    if (nRow > 0)
+                                    UForm.Freeze(true);
+                                    //int nRow = (int)UMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
+                                    //nRow = nRow == -1 ? UMatrix.RowCount : nRow ;
+                                    if (rowsel > 0)
                                     {
 
-                                        UMatrix.GetLineData(nRow);
-                                        string lindel = oDbAutDataSource.GetValue("code", nRow- 1);
-                                        lineasdel.Add(lindel);
-                                        UMatrix.DeleteRow(nRow);
-                                        UMatrix.FlushToDataSource();
-                                        UMatrix.LoadFromDataSource();
+                                        UMatrix.GetLineData(rowsel);
+                                        //  Verificando si tiene autorizadas
+                                        string autor = oDbAutDataSource.GetValue("U_idAut", rowsel-1);
+                                        if(!tiene_Autorizadas(autor))
+                                        {
+
+                                            B1.Application.SetStatusBarMessage("Ese Autorizador tiene autorizaciones, por tanto, solo se Desactiva", SAPbouiCOM.BoMessageTime.bmt_Short, false);
+                                            UMatrix.Columns.Item(3).Cells.Item(rowsel).Specific.Checked = false;
+                                            UMatrix.FlushToDataSource();
+                                            UMatrix.LoadFromDataSource();
+                                        }
+                                        else 
+                                        {
+                                            string lindel = oDbAutDataSource.GetValue("code", rowsel-1);
+                                            lineasdel.Add(lindel);
+                                            UMatrix.DeleteRow(rowsel);
+                                            UMatrix.FlushToDataSource();
+                                            UMatrix.LoadFromDataSource();
+                                        }
+
+
                                     }
+                                    UForm.Freeze(false);
                                     BubbleEvent = false;
 
                                     break;
@@ -112,6 +130,7 @@ namespace ventaRT.VIEW
                 {
                     UForm.EnableMenu("1292", true); //Activar Agregar Linea
                     UForm.EnableMenu("1293", true); //Activar Borrar Linea 
+                    rowsel = eventInfo.Row;
                 }
                 else
                 {
@@ -132,7 +151,7 @@ namespace ventaRT.VIEW
             BubbleEvent = true;
             try
             {
- 
+
                 if (!pVal.BeforeAction)
                 {
                     switch (pVal.EventType)
@@ -152,22 +171,23 @@ namespace ventaRT.VIEW
                                 break;
 
                             }
-                         case BoEventTypes.et_VALIDATE:
-                         {
-                            if (pVal.InnerEvent == false && pVal.ItemUID == "umtx" && pVal.ColUID == "activo")
-                            {
-                                string idAut = ((SAPbouiCOM.EditText)UMatrix.Columns.Item("idAut").Cells.Item(pVal.Row).Specific).Value.ToString();
-                                
-                                if (idAut != ""  && pVal.Row == UMatrix.RowCount)
-                                {
-                                    UMatrix.AddRow(1, pVal.Row);
-                                    UMatrix.ClearRowData(UMatrix.RowCount);
-                                    UMatrix.FlushToDataSource();
-                                    UMatrix.LoadFromDataSource();
-                                }
-                            }
-                         }
-                         break;
+
+                        //case BoEventTypes.et_VALIDATE:
+                        //    {
+                        //        if (pVal.InnerEvent == false && pVal.ItemUID == "umtx" && pVal.ColUID == "activo")
+                        //        {
+                        //            string idAut = ((SAPbouiCOM.EditText)UMatrix.Columns.Item("idAut").Cells.Item(pVal.Row).Specific).Value.ToString();
+
+                        //            if (idAut != "" && pVal.Row == UMatrix.RowCount)
+                        //            {
+                        //                UMatrix.AddRow(1, pVal.Row);
+                        //                UMatrix.ClearRowData(UMatrix.RowCount);
+                        //                UMatrix.FlushToDataSource();
+                        //                UMatrix.LoadFromDataSource();
+                        //            }
+                        //        }
+                        //    }
+                        //    break;
                         
                          case BoEventTypes.et_CHOOSE_FROM_LIST:
                         {
@@ -228,6 +248,7 @@ namespace ventaRT.VIEW
                         case BoEventTypes.et_VALIDATE:
                             {
                                     if (pVal.InnerEvent == false && pVal.ItemUID == "umtx")
+
                                     {
                                         string idaut = ((SAPbouiCOM.EditText)UMatrix.Columns.Item("idAut").Cells.Item(pVal.Row).Specific).Value.ToString();
                                          switch (pVal.ColUID)
@@ -281,6 +302,7 @@ namespace ventaRT.VIEW
             string serror = "";
             string sCode = ""; string sName = "";
             int iRet;
+            UForm.Freeze(true);
             try
             {
                 SAPbobsCOM.UserTable UTAut = B1.Company.UserTables.Item("AUT_RSTV");
@@ -355,7 +377,7 @@ namespace ventaRT.VIEW
                 throw;
             }
             finally {
-                //UForm.Freeze(false);
+
                 System.GC.Collect();
             }
             if (todoOk)
@@ -368,6 +390,7 @@ namespace ventaRT.VIEW
             else {
                 B1.Application.SetStatusBarMessage("Error guardando datos: " + serror, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
             }
+            UForm.Freeze(false);
             return todoOk;
         }
 
@@ -486,6 +509,38 @@ namespace ventaRT.VIEW
             }
             return CodeNum;
         }
-     
+
+        private bool tiene_Autorizadas(string autor)
+        {
+            try
+            {
+                string usrCurrent = B1.Company.UserName;
+                String strSQL = String.Format("SELECT COUNT(*) FROM {1} Where {0}='{2}'",
+                          Constantes.View.CAB_RVT.U_idAut,
+                          Constantes.View.CAB_RVT.CAB_RV,
+                          autor);
+                Recordset rsUsers = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                rsUsers.DoQuery(strSQL);
+                SAPbobsCOM.Fields fields = rsUsers.Fields;
+                rsUsers.MoveFirst();
+                if (rsUsers.EoF)
+                {
+                    return false;
+                }
+                else
+                {
+                    int existe = Int32.Parse(rsUsers.Fields.Item("COUNT(*)").Value.ToString());
+                    return existe > 0;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error obteniendo Autorizaciones", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw;
+            }
+        }
+    
+
     }
 }

@@ -147,9 +147,16 @@ namespace ventaRT
                             break;
                         case Constantes.Views.Menu.MENU_submenu_control_aprobaciones:
                             {
-                                B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
-                                new VIEW.PantallaAprobac();
-                                //Configurar_Pantalla_Registro();
+                                if(es_Autorizador())
+                                {
+                                    B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+                                    new VIEW.PantallaAprobac();
+                                }
+                                else
+                                {
+                                    B1.Application.SetStatusBarMessage("Ud. no está registrado como Autorizador, por tanto, no puede acceder a esta opción", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                                    //int resp=B1.Application.MessageBox("Ud. no está registrado como Autorizador, por tanto, no puede acceder a esta opción");
+                                }
                             }
 
                             break;
@@ -369,6 +376,40 @@ namespace ventaRT
             _Col4.ChooseFromListUID = "CFL3";
             _Col4.ChooseFromListAlias = "USER_CODE";
             _Col5.Editable = false;
-        }    
+        }
+
+        private bool es_Autorizador()
+        {
+            try
+            {
+                string usrCurrent = B1.Company.UserName;
+                String strSQL = String.Format("SELECT COUNT(*) FROM {1} Where {0}='{3}' AND {2} = 'Y'",
+                          Constantes.View.AUT_RVT.U_idAut,
+                          Constantes.View.AUT_RVT.AUT_RV,
+                          Constantes.View.AUT_RVT.U_activo,
+                          usrCurrent);
+                Recordset rsUsers = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                rsUsers.DoQuery(strSQL);
+                SAPbobsCOM.Fields fields = rsUsers.Fields;
+                rsUsers.MoveFirst();
+                if (rsUsers.EoF)
+                {
+                    return false;
+                }
+                else
+                {
+                    int existe = Int32.Parse(rsUsers.Fields.Item("COUNT(*)").Value.ToString());
+                    return existe > 0;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error verificando Autorizador", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw;
+            }
+        }
+    
+    
     }
 }
