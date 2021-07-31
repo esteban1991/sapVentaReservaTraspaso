@@ -38,7 +38,7 @@ namespace ventaRT.VIEW
             this.B1.Application.MenuEvent += new _IApplicationEvents_MenuEventEventHandler(ThisSapApiForm_MenuEvent);
             this.B1.Application.RightClickEvent += new SAPbouiCOM._IApplicationEvents_RightClickEventEventHandler(ThisSapApiForm_OnAfterRightClick);
 
-             cargar_info_inicial();
+            cargar_info_inicial();
         }
 
        
@@ -49,7 +49,9 @@ namespace ventaRT.VIEW
         {
             try
             {
-                BubbleEvent = true;
+              BubbleEvent = true;
+              if (B1.Application.Forms.ActiveForm.UniqueID == formActual)
+              {
                 if (pVal.BeforeAction)
                 {
                     BubbleEvent = true;
@@ -59,12 +61,7 @@ namespace ventaRT.VIEW
                             switch (ItemActiveMenu)
                             {
                                 case ventaRT.Constantes.View.autorizad.umtx:
-                                    UMatrix.AddRow(1, UMatrix.RowCount);
-                                    UMatrix.ClearRowData(UMatrix.RowCount);
-                                    UMatrix.FlushToDataSource();
-                                    UMatrix.LoadFromDataSource();
-                                    UMatrix.Columns.Item(3).Cells.Item(UMatrix.RowCount).Specific.Checked = true;
-                                    UMatrix.Columns.Item(1).Cells.Item(UMatrix.RowCount).Click(BoCellClickType.ct_Double);
+                                    insertar_linea_autoriz();
                                     BubbleEvent = false;
                                     break;
                             }
@@ -74,43 +71,15 @@ namespace ventaRT.VIEW
                             {
                                 //ejemplo con una matrix 
                                 case ventaRT.Constantes.View.autorizad.umtx:
-                                    UForm.Freeze(true);
-                                    //int nRow = (int)UMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
-                                    //nRow = nRow == -1 ? UMatrix.RowCount : nRow ;
-                                    if (rowsel > 0)
-                                    {
-
-                                        UMatrix.GetLineData(rowsel);
-                                        //  Verificando si tiene autorizadas
-                                        string autor = oDbAutDataSource.GetValue("U_idAut", rowsel-1);
-                                        if(!tiene_Autorizadas(autor))
-                                        {
-
-                                            B1.Application.SetStatusBarMessage("Ese Autorizador tiene autorizaciones, por tanto, solo se Desactiva", SAPbouiCOM.BoMessageTime.bmt_Short, false);
-                                            UMatrix.Columns.Item(3).Cells.Item(rowsel).Specific.Checked = false;
-                                            UMatrix.FlushToDataSource();
-                                            UMatrix.LoadFromDataSource();
-                                        }
-                                        else 
-                                        {
-                                            string lindel = oDbAutDataSource.GetValue("code", rowsel-1);
-                                            lineasdel.Add(lindel);
-                                            UMatrix.DeleteRow(rowsel);
-                                            UMatrix.FlushToDataSource();
-                                            UMatrix.LoadFromDataSource();
-                                        }
-
-
-                                    }
-                                    UForm.Freeze(false);
+                                    borrar_linea_autoriz();
                                     BubbleEvent = false;
-
                                     break;
                             }
                             break;
                     }
                     BubbleEvent = false;
                 }
+             }
             }
             catch (Exception ex)
             {
@@ -125,23 +94,26 @@ namespace ventaRT.VIEW
 
             try
             {
-                ItemActiveMenu = eventInfo.ItemUID;
-                if (eventInfo.BeforeAction && eventInfo.ItemUID == ventaRT.Constantes.View.autorizad.umtx)
+                if (eventInfo.FormUID == formActual)
                 {
-                    UForm.EnableMenu("1292", true); //Activar Agregar Linea
-                    UForm.EnableMenu("1293", true); //Activar Borrar Linea 
-                    rowsel = eventInfo.Row;
-                }
-                else
-                {
-                    UForm.EnableMenu("1292", false); //Desctivar Agregar Linea
-                    UForm.EnableMenu("1293", false); //Desactivar Borrar Linea 
+                    ItemActiveMenu = eventInfo.ItemUID;
+                    if (eventInfo.BeforeAction && eventInfo.ItemUID == ventaRT.Constantes.View.autorizad.umtx)
+                    {
+                        UForm.EnableMenu("1292", true); //Activar Agregar Linea
+                        UForm.EnableMenu("1293", true); //Activar Borrar Linea 
+                        rowsel = eventInfo.Row;
+                    }
+                    else
+                    {
+                        UForm.EnableMenu("1292", false); //Desctivar Agregar Linea
+                        UForm.EnableMenu("1293", false); //Desactivar Borrar Linea 
+                    }
                 }
             }
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("ErrorActivando Opciones Menu" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                throw;
+                B1.Application.SetStatusBarMessage("Error Activando Opciones Menu" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw ex;
             }
 
         }
@@ -151,107 +123,108 @@ namespace ventaRT.VIEW
             BubbleEvent = true;
             try
             {
-
-                if (!pVal.BeforeAction)
+                if (FormUID == formActual)
                 {
-                    switch (pVal.EventType)
+
+                    if (!pVal.BeforeAction)
                     {
-
-                        case BoEventTypes.et_ITEM_PRESSED:
-                            {
-
-                                switch (pVal.ItemUID)
-                                {
-                                    case Constantes.View.autorizad.btn_Exit:
-                                        {
-                                            UForm.Close();
-                                        }
-                                        break;
-                                }
-                                break;
-
-                            }
-
-                        //case BoEventTypes.et_VALIDATE:
-                        //    {
-                        //        if (pVal.InnerEvent == false && pVal.ItemUID == "umtx" && pVal.ColUID == "activo")
-                        //        {
-                        //            string idAut = ((SAPbouiCOM.EditText)UMatrix.Columns.Item("idAut").Cells.Item(pVal.Row).Specific).Value.ToString();
-
-                        //            if (idAut != "" && pVal.Row == UMatrix.RowCount)
-                        //            {
-                        //                UMatrix.AddRow(1, pVal.Row);
-                        //                UMatrix.ClearRowData(UMatrix.RowCount);
-                        //                UMatrix.FlushToDataSource();
-                        //                UMatrix.LoadFromDataSource();
-                        //            }
-                        //        }
-                        //    }
-                        //    break;
-                        
-                         case BoEventTypes.et_CHOOSE_FROM_LIST:
+                        switch (pVal.EventType)
                         {
-                            if (pVal.InnerEvent == true)
-                            {
 
-                                SAPbouiCOM.ChooseFromList oCFL;
-
-                                SAPbouiCOM.IChooseFromListEvent CFLEvent = (SAPbouiCOM.IChooseFromListEvent)pVal;
-
-                                string CFL_Id = CFLEvent.ChooseFromListUID;
-                                oCFL = UForm.ChooseFromLists.Item(CFL_Id);
-                                if (pVal.FormTypeEx.Substring(0, 5) == "AutRT" && CFLEvent.SelectedObjects != null)
+                            case BoEventTypes.et_ITEM_PRESSED:
                                 {
-                                    if (pVal.ItemUID == "umtx" && pVal.ColUID == "idAut")
+
+                                    switch (pVal.ItemUID)
                                     {
-                                        bool Ok = true;
-                                        string usrsel = CFLEvent.SelectedObjects.GetValue("USER_CODE", 0).ToString();
-                                        // Validar que no existan repetidos 
-                                        if (usrsel != "" && !validar_usr_unico(usrsel, pVal.Row))
+                                        case Constantes.View.autorizad.btn_Exit:
+                                            {
+                                                UForm.Close();
+                                            }
+                                            break;
+                                    }
+                                    break;
+
+                                }
+
+                            //case BoEventTypes.et_VALIDATE:
+                            //    {
+                            //        if (pVal.InnerEvent == false && pVal.ItemUID == "umtx" && pVal.ColUID == "activo")
+                            //        {
+                            //            string idAut = ((SAPbouiCOM.EditText)UMatrix.Columns.Item("idAut").Cells.Item(pVal.Row).Specific).Value.ToString();
+
+                            //            if (idAut != "" && pVal.Row == UMatrix.RowCount)
+                            //            {
+                            //                UMatrix.AddRow(1, pVal.Row);
+                            //                UMatrix.ClearRowData(UMatrix.RowCount);
+                            //                UMatrix.FlushToDataSource();
+                            //                UMatrix.LoadFromDataSource();
+                            //            }
+                            //        }
+                            //    }
+                            //    break;
+
+                            case BoEventTypes.et_CHOOSE_FROM_LIST:
+                                {
+                                    if (pVal.InnerEvent == true)
+                                    {
+
+                                        SAPbouiCOM.ChooseFromList oCFL;
+
+                                        SAPbouiCOM.IChooseFromListEvent CFLEvent = (SAPbouiCOM.IChooseFromListEvent)pVal;
+
+                                        string CFL_Id = CFLEvent.ChooseFromListUID;
+                                        oCFL = UForm.ChooseFromLists.Item(CFL_Id);
+                                        if (pVal.FormTypeEx.Substring(0, 5) == "AutRT" && CFLEvent.SelectedObjects != null)
                                         {
-                                            Ok = false;
-                                            B1.Application.SetStatusBarMessage("Error Usuario Repetido", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                                            BubbleEvent = false;
-                                        }
-                                        if (Ok)
-                                        {
-                                            int nRow = (int)UMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
-                                            nRow = nRow == -1 ? pVal.Row : nRow - 1;
-                                            UMatrix.FlushToDataSource();
-                                            oDbAutDataSource.SetValue("U_idAut", nRow-1, usrsel);
-                                            oDbAutDataSource.SetValue("U_aut", nRow-1, CFLEvent.SelectedObjects.GetValue("U_NAME", 0).ToString());
-                                            UMatrix.LoadFromDataSource();
+                                            if (pVal.ItemUID == "umtx" && pVal.ColUID == "idAut")
+                                            {
+                                                bool Ok = true;
+                                                string usrsel = CFLEvent.SelectedObjects.GetValue("USER_CODE", 0).ToString();
+                                                // Validar que no existan repetidos 
+                                                if (usrsel != "" && !validar_usr_unico(usrsel, pVal.Row))
+                                                {
+                                                    Ok = false;
+                                                    B1.Application.SetStatusBarMessage("Error Usuario Repetido", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                                                    BubbleEvent = false;
+                                                }
+                                                if (Ok)
+                                                {
+                                                    int nRow = (int)UMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
+                                                    nRow = nRow == -1 ? pVal.Row : nRow - 1;
+                                                    UMatrix.FlushToDataSource();
+                                                    oDbAutDataSource.SetValue("U_idAut", nRow - 1, usrsel);
+                                                    oDbAutDataSource.SetValue("U_aut", nRow - 1, CFLEvent.SelectedObjects.GetValue("U_NAME", 0).ToString());
+                                                    UMatrix.LoadFromDataSource();
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
+                                break;
                         }
-                        break;
-                       }
-                }
-                else
-                {
-                    // Antes de Accion
-
-                    switch (pVal.EventType)
+                    }
+                    else
                     {
-                        case BoEventTypes.et_FORM_CLOSE:
-                            {
-                                if (pVal.FormTypeEx.Substring(0, 5) == "AutRT")
+                        // Antes de Accion
+
+                        switch (pVal.EventType)
+                        {
+                            case BoEventTypes.et_FORM_CLOSE:
                                 {
-                                    guardar_autoriz();
+                                    if (pVal.FormTypeEx.Substring(0, 5) == "AutRT")
+                                    {
+                                        guardar_autoriz();
+                                    }
+
+
                                 }
-                                
-
-                            }
-                            break;
-                        case BoEventTypes.et_VALIDATE:
-                            {
+                                break;
+                            case BoEventTypes.et_VALIDATE:
+                                {
                                     if (pVal.InnerEvent == false && pVal.ItemUID == "umtx")
-
                                     {
                                         string idaut = ((SAPbouiCOM.EditText)UMatrix.Columns.Item("idAut").Cells.Item(pVal.Row).Specific).Value.ToString();
-                                         switch (pVal.ColUID)
+                                        switch (pVal.ColUID)
                                         {
                                             case "idAut":
                                                 {
@@ -262,7 +235,7 @@ namespace ventaRT.VIEW
                                                     }
                                                     else
                                                     {
-                                                        if (idaut != ""  && !validar_usr_unico(idaut, pVal.Row))
+                                                        if (idaut != "" && !validar_usr_unico(idaut, pVal.Row))
                                                         {
                                                             B1.Application.SetStatusBarMessage("Error: Autorizador Repetido", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
                                                             BubbleEvent = false;
@@ -270,10 +243,11 @@ namespace ventaRT.VIEW
                                                     }
                                                 }
                                                 break;
+                                        }
                                     }
+                                    break;
                                 }
-                                break;
-                            }
+                        }
                     }
                 }
             }
@@ -293,6 +267,7 @@ namespace ventaRT.VIEW
             UForm = B1.Application.Forms.ActiveForm;
             UMatrix = UForm.Items.Item("umtx").Specific;
             oDbAutDataSource = UForm.DataSources.DBDataSources.Item("@AUT_RSTV");
+            formActual = B1.Application.Forms.ActiveForm.UniqueID;
             cargar_lineas();
         }
 
@@ -442,6 +417,9 @@ namespace ventaRT.VIEW
                    oDbAutDataSource.Query();
                    UMatrix.LoadFromDataSource();
                    UMatrix.AutoResizeColumns();
+                   SAPbouiCOM.Column oColumn = UMatrix.Columns.Item("idAut");
+                   oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
+
                }
                catch (Exception ex)
                {
@@ -494,7 +472,7 @@ namespace ventaRT.VIEW
             return todoOK;
         }
 
-        private int obtener_ultimo_ID()
+        private int  obtener_ultimo_ID()
         {
             int CodeNum = 0;
             String strSQL = String.Format("SELECT TOP 1 CAST(T0.{0} AS INT) AS nd FROM {1} T0 ORDER BY CAST(T0.{0} AS INT) DESC",
@@ -540,7 +518,47 @@ namespace ventaRT.VIEW
                 throw;
             }
         }
-    
+
+        private void borrar_linea_autoriz()
+        {
+            UForm.Freeze(true);
+            //int nRow = (int)UMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
+            //nRow = nRow == -1 ? UMatrix.RowCount : nRow ;
+            if (rowsel > 0)
+            {
+                UMatrix.GetLineData(rowsel);
+                //  Verificando si tiene autorizadas
+                string autor = oDbAutDataSource.GetValue("U_idAut", rowsel - 1);
+                if (tiene_Autorizadas(autor))
+                {
+
+                    B1.Application.SetStatusBarMessage("Ese Autorizador tiene autorizaciones, por tanto, solo se Desactiva", SAPbouiCOM.BoMessageTime.bmt_Short, false);
+                    UMatrix.Columns.Item(3).Cells.Item(rowsel).Specific.Checked = false;
+                    UMatrix.FlushToDataSource();
+                    UMatrix.LoadFromDataSource();
+                }
+                else
+                {
+                    string lindel = oDbAutDataSource.GetValue("code", rowsel - 1);
+                    lineasdel.Add(lindel);
+                    UMatrix.DeleteRow(rowsel);
+                    UMatrix.FlushToDataSource();
+                    UMatrix.LoadFromDataSource();
+                }
+            }
+            UForm.Freeze(false);
+        }
+
+        private void insertar_linea_autoriz()
+        {
+            UMatrix.AddRow(1, UMatrix.RowCount);
+            UMatrix.ClearRowData(UMatrix.RowCount);
+            UMatrix.FlushToDataSource();
+            UMatrix.LoadFromDataSource();
+            UMatrix.Columns.Item(3).Cells.Item(UMatrix.RowCount).Specific.Checked = true;
+            UMatrix.Columns.Item(1).Cells.Item(UMatrix.RowCount).Click(BoCellClickType.ct_Double);
+        }
+        
 
     }
 }

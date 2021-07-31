@@ -53,7 +53,9 @@ namespace ventaRT.VIEW
         {
             try
             {
-                BubbleEvent = true;
+              BubbleEvent = true;
+              if (B1.Application.Forms.ActiveForm.UniqueID == formActual)
+              {
                 if (pVal.BeforeAction)
                 {
                     BubbleEvent = true;
@@ -128,6 +130,7 @@ namespace ventaRT.VIEW
                     }
                     BubbleEvent = false;
                 }
+              }
             }
             catch (Exception ex)
             {
@@ -143,22 +146,25 @@ namespace ventaRT.VIEW
 
             try
             {
-                ItemActiveMenu = eventInfo.ItemUID;
-                if (eventInfo.BeforeAction && eventInfo.ItemUID == ventaRT.Constantes.View.registro.mtx)
+                if (eventInfo.FormUID == formActual)
                 {
-                    SForm.EnableMenu("1292", true); //Activar Agregar Linea
-                    SForm.EnableMenu("1293", true); //Activar Borrar Linea 
-                }
-                else
-                {
-                    SForm.EnableMenu("1292", false); //Desctivar Agregar Linea
-                    SForm.EnableMenu("1293", false); //Desactivar Borrar Linea 
+                    ItemActiveMenu = eventInfo.ItemUID;
+                    if (eventInfo.BeforeAction && eventInfo.ItemUID == ventaRT.Constantes.View.registro.mtx)
+                    {
+                        SForm.EnableMenu("1292", true); //Activar Agregar Linea
+                        SForm.EnableMenu("1293", true); //Activar Borrar Linea 
+                    }
+                    else
+                    {
+                        SForm.EnableMenu("1292", false); //Desctivar Agregar Linea
+                        SForm.EnableMenu("1293", false); //Desactivar Borrar Linea 
+                    }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                B1.Application.SetStatusBarMessage("Error Activando Opciones Menu" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw ex;
             }
 
         }
@@ -169,205 +175,207 @@ namespace ventaRT.VIEW
             BubbleEvent = true;
             try
             {
- 
-                if (!pVal.BeforeAction)
+                if (FormUID == formActual)
                 {
-                    switch (pVal.EventType)
+
+                    if (!pVal.BeforeAction)
                     {
- 
-                        case BoEventTypes.et_ITEM_PRESSED:
-                            {
-                                
-                                switch (pVal.ItemUID)
+                        switch (pVal.EventType)
+                        {
+
+                            case BoEventTypes.et_ITEM_PRESSED:
                                 {
-                                    case Constantes.View.registro.btn_crear:
+
+                                    switch (pVal.ItemUID)
                                     {
-                                        switch (B1.Application.Forms.ActiveForm.Mode)
-                                        {
-                                            case SAPbouiCOM.BoFormMode.fm_FIND_MODE:
+                                        case Constantes.View.registro.btn_crear:
+                                            {
+                                                switch (B1.Application.Forms.ActiveForm.Mode)
                                                 {
-                                                    SAPbouiCOM.ComboBox oCombox = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
-                                                    string buscado = oCombox.Selected.Value == null ? " 0" :oCombox.Selected.Value.ToString();
-                                                    if (buscado != "0")
-                                                    {
-                                                        cargar_solicitud(buscado, true);
-                                                    }
-                                                    BubbleEvent = false;
-                                                    break;
+                                                    case SAPbouiCOM.BoFormMode.fm_FIND_MODE:
+                                                        {
+                                                            SAPbouiCOM.ComboBox oCombox = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
+                                                            string buscado = oCombox.Selected.Value == null ? " 0" : oCombox.Selected.Value.ToString();
+                                                            if (buscado != "0")
+                                                            {
+                                                                cargar_solicitud(buscado, true);
+                                                            }
+                                                            BubbleEvent = false;
+                                                            break;
+                                                        }
+                                                    case SAPbouiCOM.BoFormMode.fm_ADD_MODE:
+                                                        {
+                                                            guardar_solicitud();
+                                                            BubbleEvent = false;
+                                                            break;
+                                                        }
+                                                    case SAPbouiCOM.BoFormMode.fm_UPDATE_MODE:
+                                                        {
+                                                            guardar_solicitud();
+                                                            BubbleEvent = false;
+                                                            break;
+                                                        }
                                                 }
-                                            case SAPbouiCOM.BoFormMode.fm_ADD_MODE:
-                                                {
-                                                    guardar_solicitud();
-                                                    BubbleEvent = false;
-                                                    break;
-                                                }
-                                            case SAPbouiCOM.BoFormMode.fm_UPDATE_MODE:
-                                                {
-                                                    guardar_solicitud();
-                                                    BubbleEvent = false;
-                                                    break;
-                                                }
-                                        }
-                                        break;
+                                                break;
+                                            }
+
                                     }
+                                    break;
+
+                                }
+
+                            case BoEventTypes.et_VALIDATE:
+                                {
+                                    if (pVal.InnerEvent == false && pVal.ItemUID == "mtx" && pVal.ColUID == "cant")
+                                    {
+                                        string codArt = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codArt").Cells.Item(pVal.Row).Specific).Value.ToString();
+                                        string codCli = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Specific).Value.ToString();
+                                        if (codArt != "" && codCli != "" && pVal.Row == SMatrix.RowCount)
+                                        {
+                                            string tempnum = SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value.ToString();
+                                            if (Double.Parse(tempnum) == 0.00)
+                                            { SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value = "1"; }
+                                            SMatrix.AddRow(1, pVal.Row);
+                                            SMatrix.ClearRowData(SMatrix.RowCount);
+                                            SMatrix.FlushToDataSource();
+                                            SMatrix.LoadFromDataSource();
+                                            //SMatrix.Columns.Item("codArt").Cells.Item(SMatrix.RowCount).Click(BoCellClickType.ct_Double, 0);
+                                            //SMatrix.Columns.Item(5).Cells.Item(pVal.Row + 1).Specific.Value = "1";
+
+
+                                        }
+                                    }
+
 
                                 }
                                 break;
 
-                            }
-
-                        case BoEventTypes.et_VALIDATE:
-                        {
-                            if (pVal.InnerEvent == false && pVal.ItemUID == "mtx" && pVal.ColUID == "cant")
-                            {
-                                string codArt = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codArt").Cells.Item(pVal.Row).Specific).Value.ToString();
-                                string codCli = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Specific).Value.ToString();
-                                if (codArt != "" && codCli != "" && pVal.Row == SMatrix.RowCount)
+                            case BoEventTypes.et_CHOOSE_FROM_LIST:
                                 {
-                                    string tempnum = SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value.ToString();
-                                    if (Double.Parse(tempnum) == 0.00)
-                                        { SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value = "1"; }
-                                    SMatrix.AddRow(1, pVal.Row);
-                                    SMatrix.ClearRowData(SMatrix.RowCount);
-                                    SMatrix.FlushToDataSource();
-                                    SMatrix.LoadFromDataSource();
-                                    //SMatrix.Columns.Item("codArt").Cells.Item(SMatrix.RowCount).Click(BoCellClickType.ct_Double, 0);
-                                    //SMatrix.Columns.Item(5).Cells.Item(pVal.Row + 1).Specific.Value = "1";
-
-
-                                }
-                            }
-   
-                                
-                            }
-                            break;
-                        
-                         case BoEventTypes.et_CHOOSE_FROM_LIST:
-                        {
-                            if (pVal.InnerEvent == true)
-                            {
-
-                                SAPbouiCOM.ChooseFromList oCFL;
-
-                                SAPbouiCOM.IChooseFromListEvent CFLEvent = (SAPbouiCOM.IChooseFromListEvent)pVal;
-
-                                string CFL_Id = CFLEvent.ChooseFromListUID;
-                                oCFL = SForm.ChooseFromLists.Item(CFL_Id);
-                                if (pVal.FormTypeEx.Substring(0, 10) == "ventaRT_Re" && CFLEvent.SelectedObjects != null)
-                                {
-                                    if (pVal.ItemUID == "mtx" && pVal.ColUID == "codArt")
+                                    if (pVal.InnerEvent == true)
                                     {
-                                        bool Ok = true;
-                                        string artsel = CFLEvent.SelectedObjects.GetValue("ItemCode", 0).ToString();
-                                        string codcli = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Specific).Value.ToString();
-                                        // Validar que no existan repetidos earticulo y cliente en el documento
-                                        if (artsel != "" && codcli != "" && !validar_art_cliente_unicos(artsel, codcli, pVal.Row))
+
+                                        SAPbouiCOM.ChooseFromList oCFL;
+
+                                        SAPbouiCOM.IChooseFromListEvent CFLEvent = (SAPbouiCOM.IChooseFromListEvent)pVal;
+
+                                        string CFL_Id = CFLEvent.ChooseFromListUID;
+                                        oCFL = SForm.ChooseFromLists.Item(CFL_Id);
+                                        if (pVal.FormTypeEx.Substring(0, 10) == "ventaRT_Re" && CFLEvent.SelectedObjects != null)
                                         {
-                                            Ok = false;
-                                            B1.Application.SetStatusBarMessage("Error Datos Repetidos: Articulo y Cliente deben ser unicos por Solicitud", SAPbouiCOM.BoMessageTime.bmt_Short, true);
-                                            BubbleEvent = false;
-                                        }
-                                        // Validar que tenga existencia en la Bodega Principal CD
-                                        if (Ok)
-                                        {
-                                            if(!(obtener_exist_articulo(artsel)>0))
+                                            if (pVal.ItemUID == "mtx" && pVal.ColUID == "codArt")
                                             {
-                                                Ok = false;
-                                                B1.Application.SetStatusBarMessage("Error el Articulo no tienen disponibilidad en la Bodega Principal", SAPbouiCOM.BoMessageTime.bmt_Short, true);
-                                                BubbleEvent = false;
+                                                bool Ok = true;
+                                                string artsel = CFLEvent.SelectedObjects.GetValue("ItemCode", 0).ToString();
+                                                string codcli = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Specific).Value.ToString();
+                                                // Validar que no existan repetidos earticulo y cliente en el documento
+                                                if (artsel != "" && codcli != "" && !validar_art_cliente_unicos(artsel, codcli, pVal.Row))
+                                                {
+                                                    Ok = false;
+                                                    B1.Application.SetStatusBarMessage("Error Datos Repetidos: Articulo y Cliente deben ser unicos por Solicitud", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                    BubbleEvent = false;
+                                                }
+                                                // Validar que tenga existencia en la Bodega Principal CD
+                                                if (Ok)
+                                                {
+                                                    if (!(obtener_exist_articulo(artsel) > 0))
+                                                    {
+                                                        Ok = false;
+                                                        B1.Application.SetStatusBarMessage("Error el Articulo no tienen disponibilidad en la Bodega Principal", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                        BubbleEvent = false;
+                                                    }
+                                                }
+                                                if (Ok)
+                                                {
+                                                    int nRow = (int)SMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
+                                                    nRow = nRow == -1 ? pVal.Row : nRow - 1;
+                                                    SMatrix.FlushToDataSource();
+                                                    oDbLinesDataSource.SetValue("U_CodArt", nRow - 1, artsel);
+                                                    //oDbLinesDataSource.Offset
+                                                    oDbLinesDataSource.SetValue("U_articulo", nRow - 1, CFLEvent.SelectedObjects.GetValue("ItemName", 0).ToString());
+                                                    oDbLinesDataSource.SetValue("U_cant", nRow - 1, obtener_exist_articulo(artsel).ToString());
+                                                    oDbLinesDataSource.SetValue("U_onHand", nRow - 1, obtener_exist_articulo(artsel).ToString());
+                                                    SMatrix.LoadFromDataSource();
+                                                    SMatrix.Columns.Item("codCli").Cells.Item(nRow).Click();
+                                                }
+                                            }
+                                            if (pVal.ItemUID == "mtx" && pVal.ColUID == "codCli")
+                                            {
+                                                bool Ok = true;
+                                                string codart = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codArt").Cells.Item(pVal.Row).Specific).Value.ToString();
+                                                string clisel = CFLEvent.SelectedObjects.GetValue("CardCode", 0).ToString();
+                                                if (codart != "" && clisel != "" && !validar_art_cliente_unicos(codart, clisel, pVal.Row))
+                                                {
+                                                    Ok = false;
+                                                    B1.Application.SetStatusBarMessage("Error Datos Repetidos: Articulo y Cliente deben ser unicos por Solicitud", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                    BubbleEvent = false;
+                                                }
+                                                if (Ok)
+                                                {
+                                                    int nRow = (int)SMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
+                                                    nRow = nRow == -1 ? pVal.Row : nRow - 1;
+                                                    SMatrix.FlushToDataSource();
+                                                    oDbLinesDataSource.SetValue("U_CodCli", nRow - 1, CFLEvent.SelectedObjects.GetValue("CardCode", 0).ToString());
+                                                    oDbLinesDataSource.SetValue("U_cliente", nRow - 1, CFLEvent.SelectedObjects.GetValue("CardName", 0).ToString());
+                                                    SMatrix.LoadFromDataSource();
+
+                                                    SMatrix.Columns.Item("cant").Cells.Item(nRow).Click();
+                                                }
+
                                             }
                                         }
-                                        if (Ok)
-                                        {
-                                            int nRow = (int)SMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
-                                            nRow = nRow == -1 ? pVal.Row : nRow - 1;
-                                            SMatrix.FlushToDataSource();
-                                            oDbLinesDataSource.SetValue("U_CodArt", nRow-1, artsel);
-                                            //oDbLinesDataSource.Offset
-                                            oDbLinesDataSource.SetValue("U_articulo", nRow-1, CFLEvent.SelectedObjects.GetValue("ItemName", 0).ToString());
-                                            oDbLinesDataSource.SetValue("U_cant", nRow-1, obtener_exist_articulo(artsel).ToString());
-                                            oDbLinesDataSource.SetValue("U_onHand", nRow-1, obtener_exist_articulo(artsel).ToString());
-                                            SMatrix.LoadFromDataSource();
-                                            SMatrix.Columns.Item("codCli").Cells.Item(nRow).Click();
-                                        }
-                                    }
-                                    if (pVal.ItemUID == "mtx" && pVal.ColUID == "codCli")
-                                    {
-                                       bool Ok = true;
-                                       string codart = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codArt").Cells.Item(pVal.Row).Specific).Value.ToString();
-                                       string clisel = CFLEvent.SelectedObjects.GetValue("CardCode", 0).ToString();
-                                       if (codart != "" && clisel != "" && !validar_art_cliente_unicos(codart, clisel, pVal.Row))
-                                       {
-                                          Ok = false;
-                                          B1.Application.SetStatusBarMessage("Error Datos Repetidos: Articulo y Cliente deben ser unicos por Solicitud", SAPbouiCOM.BoMessageTime.bmt_Short, true);
-                                          BubbleEvent = false;
-                                       }
-                                       if (Ok)
-                                       {
-                                          int nRow = (int)SMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
-                                          nRow = nRow == -1 ? pVal.Row : nRow - 1;
-                                          SMatrix.FlushToDataSource();
-                                          oDbLinesDataSource.SetValue("U_CodCli", nRow-1, CFLEvent.SelectedObjects.GetValue("CardCode", 0).ToString());
-                                          oDbLinesDataSource.SetValue("U_cliente", nRow-1, CFLEvent.SelectedObjects.GetValue("CardName", 0).ToString());
-                                          SMatrix.LoadFromDataSource();
-
-                                          SMatrix.Columns.Item("cant").Cells.Item(nRow).Click();
-                                       }
-
                                     }
                                 }
-                            }
+                                break;
                         }
-                        break;
-                       }
-                }
-                else
-                {
-                    // Antes de Accion
-
-                    switch (pVal.EventType)
+                    }
+                    else
                     {
-                        case BoEventTypes.et_CLICK:
-                            {
-                                // Rellenando combo de busqueda
-                                if (pVal.ItemUID == "cbnd")
-                                {
-                                    SAPbouiCOM.ComboBox oCombo = null;
-                                    oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
-                                    string SQLQuery = string.Empty;
-                                    SQLQuery = String.Format("SELECT {0}, {2} FROM {1}",
-                                                                        Constantes.View.CAB_RVT.Code,
-                                                                        Constantes.View.CAB_RVT.CAB_RV,
-                                                                        Constantes.View.CAB_RVT.U_fechaC);
+                        // Antes de Accion
 
-                                    llenar_combo_id(oCombo, SQLQuery);
+                        switch (pVal.EventType)
+                        {
+                            case BoEventTypes.et_CLICK:
+                                {
+                                    // Rellenando combo de busqueda
+                                    if (pVal.ItemUID == "cbnd")
+                                    {
+                                        SAPbouiCOM.ComboBox oCombo = null;
+                                        oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbnd").Specific;
+                                        string SQLQuery = string.Empty;
+                                        SQLQuery = String.Format("SELECT {0}, {2} FROM {1}",
+                                                                            Constantes.View.CAB_RVT.Code,
+                                                                            Constantes.View.CAB_RVT.CAB_RV,
+                                                                            Constantes.View.CAB_RVT.U_fechaC);
+
+                                        llenar_combo_id(oCombo, SQLQuery);
+                                    }
                                 }
-                            }
-                            break;
+                                break;
 
-                        case BoEventTypes.et_ITEM_PRESSED:
-                            {
-
-                                switch (pVal.ItemUID)
+                            case BoEventTypes.et_ITEM_PRESSED:
                                 {
-                                    case Constantes.View.registro.btn_crear:
-                                        {
-                                            SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
-                                            if (btn_crear.Caption == "Actualizar")
+
+                                    switch (pVal.ItemUID)
+                                    {
+                                        case Constantes.View.registro.btn_crear:
                                             {
-                                                guardar_solicitud();
-                                                BubbleEvent = false;
+                                                SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
+                                                if (btn_crear.Caption == "Actualizar")
+                                                {
+                                                    guardar_solicitud();
+                                                    BubbleEvent = false;
+                                                }
+
                                             }
-
-                                        }
-                                        break;
+                                            break;
+                                    }
                                 }
-                            }
-                            break;
+                                break;
 
 
-                        case BoEventTypes.et_VALIDATE:
-                            {
+                            case BoEventTypes.et_VALIDATE:
+                                {
                                     if (pVal.InnerEvent == false && pVal.ItemUID == "mtx")
                                     {
 
@@ -401,11 +409,11 @@ namespace ventaRT.VIEW
                                                     }
                                                     else
                                                     {
-                                                       if (codart != "" && codcli != "" && !validar_art_cliente_unicos(codart, codcli, pVal.Row))
-                                                       {
+                                                        if (codart != "" && codcli != "" && !validar_art_cliente_unicos(codart, codcli, pVal.Row))
+                                                        {
                                                             B1.Application.SetStatusBarMessage("Error Datos Repetidos: Articulo y Cliente deben ser unicos por Solicitud", SAPbouiCOM.BoMessageTime.bmt_Short, true);
                                                             BubbleEvent = false;
-                                                       }
+                                                        }
                                                     }
 
                                                 }
@@ -433,10 +441,11 @@ namespace ventaRT.VIEW
 
                                                 }
                                                 break;
+                                        }
                                     }
+                                    break;
                                 }
-                                break;
-                            }
+                        }
                     }
                 }
             }
@@ -457,6 +466,7 @@ namespace ventaRT.VIEW
             //oCombo.Item.Visible = false;
             SForm = B1.Application.Forms.ActiveForm;
             SMatrix = SForm.Items.Item("mtx").Specific;
+            formActual = B1.Application.Forms.ActiveForm.UniqueID;
 
             SForm.EnableMenu("1290", true); SForm.EnableMenu("1289", true);
             SForm.EnableMenu("1288", true); SForm.EnableMenu("1291", true);

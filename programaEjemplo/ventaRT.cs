@@ -154,8 +154,9 @@ namespace ventaRT
                                 }
                                 else
                                 {
-                                    B1.Application.SetStatusBarMessage("Ud. no está registrado como Autorizador, por tanto, no puede acceder a esta opción", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                                    //int resp=B1.Application.MessageBox("Ud. no está registrado como Autorizador, por tanto, no puede acceder a esta opción");
+                                    //B1.Application.SetStatusBarMessage("Ud. no está registrado como Autorizador, por tanto, no puede acceder a esta opción", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                                    int resp;
+                                    resp=B1.Application.MessageBox("Ud. no está registrado como Autorizador, por tanto, no puede acceder a esta opción");
                                 }
                             }
 
