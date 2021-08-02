@@ -18,6 +18,7 @@ namespace ventaRT.Constantes.View
         public const string cbArt = "cbArt";
         public const string cbCli = "cbCli";
         public const string cbVend = "cbVend";
+        public const string mtxaprob = "mtxaprob";
     }
 
 

@@ -26,14 +26,14 @@ namespace ventaRT.VIEW
         SAPbouiCOM.Form AForm = null;
         SAPbouiCOM.Matrix AMatrix = null;
 
-   
+        private int rowsel = 0;   
 
 
 
         public PantallaAprobac()
-            : base(GenericFunctions.ResourcesForms["ventaRT.Forms.Aprobac.srf"], "ventaRT_Aprob" + DateTime.Now.Hour.ToString() + "_" + DateTime.Now.Minute.ToString() + "_" + DateTime.Now.Second.ToString())
+            : base(GenericFunctions.ResourcesForms["ventaRT.Forms.Aprobac.srf"], "AprRT" + DateTime.Now.Hour.ToString() + "_" + DateTime.Now.Minute.ToString() + "_" + DateTime.Now.Second.ToString())
         {
-            formActual = "ventaRT_Aprob" + DateTime.Now.Hour.ToString() + "_" + DateTime.Now.Minute.ToString() + "_" + DateTime.Now.Second.ToString();
+            formActual = "AprRT" + DateTime.Now.Hour.ToString() + "_" + DateTime.Now.Minute.ToString() + "_" + DateTime.Now.Second.ToString();
 
             this.B1.Application.ItemEvent += new SAPbouiCOM._IApplicationEvents_ItemEventEventHandler(ThisSapApiForm_ItemEvent);
 
@@ -45,6 +45,8 @@ namespace ventaRT.VIEW
             bool todoOk = true;
             string serror = "";
             formActual = B1.Application.Forms.ActiveForm.UniqueID;
+            AForm = B1.Application.Forms.ActiveForm;
+            AMatrix = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item("mtxaprob").Specific;
             try
             {
                 B1.Application.Forms.ActiveForm.Freeze(true);
@@ -87,7 +89,7 @@ namespace ventaRT.VIEW
                 {
                     SAPbouiCOM.EditText desde = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.txtDesde).Specific;
                     SAPbouiCOM.EditText hasta = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.txtHasta).Specific;
-                    condPer = Constantes.View.CAB_RVT.U_fechaC + " between '" + desde.Value + "' AND ' " + hasta.Value + "'";
+                    condPer = desde.Value!="" && hasta.Value != "" ?Constantes.View.CAB_RVT.U_fechaC + " between '" + desde.Value + "' AND ' " + hasta.Value + "'":"" ;
                 }
 
                 SAPbouiCOM.CheckBox cboxCli = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxCli).Specific;
@@ -117,12 +119,12 @@ namespace ventaRT.VIEW
                     condVend = selVend != "" ? Constantes.View.CAB_RVT.U_idVend + " = '" + selVend + "'" : condVend;
                 }
 
-                string cadw = condPer != String.Empty || condCli != String.Empty || condArt != String.Empty || condVend != String.Empty ? " WHERE " : "";
-                cadw = cadw + condPer;
-                cadw = cadw + ((condPer != String.Empty) && (condCli != String.Empty || condArt != String.Empty || condVend != String.Empty) ? " AND " : "");
-                cadw = cadw + condCli + ((condPer != String.Empty || condCli != String.Empty) && (condArt != String.Empty) ? " AND " : "");
-                cadw = cadw + condArt + ((condPer != String.Empty || condCli != String.Empty || condArt != String.Empty) && (condVend != String.Empty) ? " AND " : ""); ;
-                cadw = cadw + condVend;
+                string cadw = "";
+                cadw = condPer != String.Empty || condCli != String.Empty || condArt != String.Empty || condVend != String.Empty ? " WHERE " : "";
+                cadw = cadw + (condPer  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condPer  : "");
+                cadw = cadw + (condCli  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condCli  : "");
+                cadw = cadw + (condArt  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condArt  : "");
+                cadw = cadw + (condVend != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condVend : "");
 
                 string adicjoin = (condCli != String.Empty || condArt != String.Empty) ? " INNER JOIN " +
                 Constantes.View.DET_RVT.DET_RV + " T3 ON T0." + Constantes.View.CAB_RVT.U_numOC +
@@ -173,8 +175,7 @@ namespace ventaRT.VIEW
 
                 Recordset rsCards = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
                 rsCards.DoQuery(SQLQuery);
-                SAPbouiCOM.Matrix AMatrix = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item("mtxaprob").Specific;
-        
+
                 AMatrix.Clear();
                 SAPbobsCOM.Fields fields = rsCards.Fields;
                 rsCards.MoveFirst();
@@ -191,11 +192,30 @@ namespace ventaRT.VIEW
                     { 
                         AMatrix.CommonSetting.SetCellFontColor(i, 6, 255); 
                     }
+                    else
+                    {
+                        AMatrix.CommonSetting.SetCellFontColor(i, 6, 0); 
+                    }
                     AMatrix.Columns.Item(7).Cells.Item(i).Specific.Value = fields.Item("U_IdAut").Value.ToString();
                     AMatrix.Columns.Item(8).Cells.Item(i).Specific.Value = fields.Item("U_aut").Value.ToString();
+
                     string txtestado = fields.Item("U_estado").Value.ToString();
-                    txtestado = txtestado == "N" ? "Nueva" : txtestado == "A" ? "Aprob" : txtestado == "A" ?"Canc." : txtestado;
-                    AMatrix.Columns.Item(9).Cells.Item(i).Specific.Value = txtestado;
+                    txtestado = txtestado.Substring(0, 1);
+                    SAPbouiCOM.ComboBox mc = (SAPbouiCOM.ComboBox)AMatrix.Columns.Item(9).Cells.Item(i).Specific;
+
+                    mc.Select(txtestado,BoSearchKey.psk_ByValue);
+
+                    if (txtestado=="C" || txtestado =="D")
+                    {
+                        AMatrix.CommonSetting.SetCellFontColor(i, 9, 255); 
+                    }
+                    else
+                        if (txtestado == "A" || txtestado == "T")
+                        {
+                            AMatrix.CommonSetting.SetCellFontColor(i, 9, 000102000);
+                        }
+                        else { AMatrix.CommonSetting.SetCellFontColor(i, 9, 0); }
+
                     AMatrix.Columns.Item(10).Cells.Item(i).Specific.Value = fields.Item("U_IdTR").Value.ToString();
                     AMatrix.Columns.Item(11).Cells.Item(i).Specific.Value = fields.Item("U_idTV").Value.ToString();
                     //AMatrix.Columns.Item(12).Cells.Item(i).Specific.Value = fields.Item("U_comment").Value.ToString();
@@ -204,6 +224,8 @@ namespace ventaRT.VIEW
                     rsCards.MoveNext();
                 }
                 AMatrix.AutoResizeColumns();
+                SAPbouiCOM.Column oColumn = AMatrix.Columns.Item("numDoc");
+                oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
                 
                 B1.Application.Forms.ActiveForm.Freeze(false);
             }
@@ -223,8 +245,6 @@ namespace ventaRT.VIEW
             }
 
         }
-
-
 
         private void ThisSapApiForm_ItemEvent(string FormUID, ref ItemEvent pVal, out bool BubbleEvent)
         {
@@ -409,6 +429,13 @@ namespace ventaRT.VIEW
                                             }
                                             break;
 
+                                        case "mtxaprob":
+                                            {
+                                                string nodoc = AMatrix.Columns.Item(1).Cells.Item(pVal.Row).Specific.Value;
+                                                new VIEW.PantallaRegistro(false, nodoc);
+                                            }
+                                            break;
+
                                     }
                                 }
                                 break;
@@ -490,7 +517,7 @@ namespace ventaRT.VIEW
 
         }
 
-
+ 
      
     }
 

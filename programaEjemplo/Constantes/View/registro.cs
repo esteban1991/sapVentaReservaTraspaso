@@ -18,13 +18,16 @@ namespace ventaRT.Constantes.View
         public const string txt_vend = "txt_vend";
         public const string txt_idaut = "txt_idaut";
         public const string txt_aut = "txt_aut";
-
-
+        public const string cbnd = "cbnd";
+        public const string grid = "grid";
+        public const string mtx = "mtx";
         public const string txt_com = "txt_com";
         public const string btn_crear = "1";
         public const string btn_cancel = "2";
-        public const string grid = "grid";
-        public const string mtx = "mtx";
+        public const string btn_autorizar = "btnAut";
+        public const string btn_TR = "btnTR";
+        public const string btn_cancelar = "btnCan";
+        public const string btn_TV = "btnTV";
     }
 
 

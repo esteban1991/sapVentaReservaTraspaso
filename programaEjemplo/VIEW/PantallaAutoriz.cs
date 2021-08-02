@@ -41,7 +41,6 @@ namespace ventaRT.VIEW
             cargar_info_inicial();
         }
 
-       
 
         // Metodos Override
 
