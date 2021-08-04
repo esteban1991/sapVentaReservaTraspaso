@@ -37,14 +37,14 @@ namespace ventaRT.Constantes.View
         public const string uCode = "\"USER_CODE\"";
         public const string uName = "\"U_NAME\"";
         public const string OUSR = "OUSR";
-    }
+    }    // Maestro de Usuarios
 
     public static class oitm
     {
         public const string OITM = "OITM";
         public const string ItemCode = "\"ItemCode\"";
         public const string ItemName = "\"ItemName\"";
-    }
+    }    // Maestro de Articulos
 
     public static class ocrd
     {
@@ -53,7 +53,7 @@ namespace ventaRT.Constantes.View
         public const string CardType = "\"CardType\"";
         public const string validFor = "\"validFor\"";
         public const string OCRD = "OCRD";
-    }
+    }    // Maestro de Socios de Negocios
 
     public static class oitw
     {
@@ -61,14 +61,22 @@ namespace ventaRT.Constantes.View
         public const string ItemCode = "\"ItemCode\"";
         public const string WhsCode = "\"WhsCode\"";
         public const string OnHand = "\"OnHand\"";
-    }
+    }   // Existencias de articulos pr almacenes
 
-    public static class owhs
+    public static class owhs  // Maestro de Almacenes o Bodegas
     {
         public const string OWHS = "OWHS";
         public const string WhsCode = "\"WhsCode\"";
         public const string WhsName = "\"WhsName\"";
     }
+
+    public static class owtr  // Documentos de Transferencias de Inventarios
+    {
+        public const string OWTR = "OWTR";
+        public const string DocEntry = "\"DocEntry\"";
+        public const string DocNum = "\"DocNum\"";
+    }
+
 
     public static class CAB_RVT
     {

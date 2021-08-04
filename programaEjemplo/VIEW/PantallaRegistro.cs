@@ -238,6 +238,13 @@ namespace ventaRT.VIEW
                                                 aprobar_solicitud();
                                                 break;
                                             }
+
+                                        case Constantes.View.registro.btn_TR:
+                                            {
+                                                transferir_aceptados();
+                                                break;
+                                            }
+
                                     }
                                     break;
                                 }
@@ -487,6 +494,9 @@ namespace ventaRT.VIEW
             else
             {
                 // Autorizador
+
+                btn_cancel.Item.Visible = false;
+
                 SForm.Mode = SAPbouiCOM.BoFormMode.fm_OK_MODE;
                 mtx.Item.Enabled = true;
                 // Desactivar todas las columnas de la matriz menos el estado
@@ -540,6 +550,16 @@ namespace ventaRT.VIEW
                 olCon2.CondVal = docaprob;
                 oDbLinesDataSource.Query(olCons2);
                 SMatrix.LoadFromDataSource();
+                // Recargar DocNum de Transferencia o Devolucion
+                string dentry = "";
+                for (int i = 1; i <= SMatrix.RowCount; i++)
+                {
+                    dentry = (SMatrix.Columns.Item(8).Cells.Item(i).Specific).Value.ToString();
+                    (SMatrix.Columns.Item(8).Cells.Item(i).Specific).Value = obtener_DocNum(dentry);
+                }
+                SMatrix.AutoResizeColumns();
+
+
                 SMatrix.AutoResizeColumns();
                 SAPbouiCOM.Column oColumn = SMatrix.Columns.Item("codArt");
                 oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
@@ -547,7 +567,11 @@ namespace ventaRT.VIEW
                 txt_estado = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_estado).Specific;
                 txt_estado.Value = oDbHeaderDataSource.GetValue("U_estado", oDbHeaderDataSource.Offset);
                 txt_estado.Value = txt_estado.Value == "" ? "N" : txt_estado.Value;
-                
+
+                txt_idtr = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idtr).Specific;
+                txt_idtr.Value = oDbHeaderDataSource.GetValue("U_idTR", oDbHeaderDataSource.Offset);
+                txt_idtr.Value = obtener_DocNum(txt_idtr.Value);
+
                 string estadoactual = txt_estado.Value.ToString().Substring(0, 1) ;
                 txt_estado.Value = obtener_Estado(estadoactual);
                 btn_autorizar.Item.Enabled = estadoactual == "N";
@@ -856,63 +880,74 @@ namespace ventaRT.VIEW
             {
                 try
                 {
+
                     // Eliminar documento 
                     string abuscar = txt_numoc.Value.ToString();
 
-                    string SQLQuery = String.Format("SELECT {0}, {2} FROM {1}",
-                                        Constantes.View.CAB_RVT.U_numOC,
-                                        Constantes.View.CAB_RVT.CAB_RV,
-                                        Constantes.View.CAB_RVT.U_estado);
-
-                    Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-                    oRecordSet.DoQuery(SQLQuery);
-                    oRecordSet.MoveFirst();
-                    bool encontrado = false;
-                    string estadoactual = "";
-                    int i;
-                    for (i = 0; !oRecordSet.EoF && !encontrado; i++)
+                    if (ya_Procesada(abuscar))
                     {
-                        encontrado = oRecordSet.Fields.Item("U_numDoc").Value.ToString() == abuscar;
-                        estadoactual = oRecordSet.Fields.Item("U_estado").Value.ToString();
-                        oRecordSet.MoveNext();
-                    }
-
-                    if (encontrado)
-                    {
-                        // Validar que sea Nueva sino no se puede borrar
-                        
-                        if(estadoactual != "N")
-                        {
-                            todoOk = false;
-                            serror = "Documento en Proceso, no se puede Eliminar";
-                        }
-                        else
-                        {
-                            oDbHeaderDataSource.RemoveRecord(i - 1);
-                            SQLQuery = String.Format("DELETE FROM {1} WHERE {0} = '{2}' ",
-                                            Constantes.View.CAB_RVT.U_numOC,
-                                            Constantes.View.CAB_RVT.CAB_RV,
-                                            abuscar);
-                            oRecordSet.DoQuery(SQLQuery);
-
-                            // Borrar lineas detalle
-
-                            SQLQuery = String.Format("DELETE FROM {1} WHERE {0} = '{2}' ",
-                                            Constantes.View.DET_RVT.U_numOC,
-                                            Constantes.View.DET_RVT.DET_RV,
-                                            abuscar);
-                            oRecordSet.DoQuery(SQLQuery);
-
-                            if (oDbHeaderDataSource.Offset == 0) { activar_primero(); }
-                            else { activar_anterior(); }
-                        }
-
+                        todoOk = false;
+                        serror = "Solicitud Procesada, no se puede eliminar..";
                     }
                     else
                     {
-                        todoOk = false;
-                        serror = "Documento No Encontrado";
+                        string SQLQuery = String.Format("SELECT {0}, {2} FROM {1}",
+                                              Constantes.View.CAB_RVT.U_numOC,
+                                              Constantes.View.CAB_RVT.CAB_RV,
+                                              Constantes.View.CAB_RVT.U_estado);
+
+                        Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+                        oRecordSet.DoQuery(SQLQuery);
+                        oRecordSet.MoveFirst();
+                        bool encontrado = false;
+                        string estadoactual = "";
+                        int i;
+                        for (i = 0; !oRecordSet.EoF && !encontrado; i++)
+                        {
+                            encontrado = oRecordSet.Fields.Item("U_numDoc").Value.ToString() == abuscar;
+                            estadoactual = oRecordSet.Fields.Item("U_estado").Value.ToString();
+                            oRecordSet.MoveNext();
+                        }
+
+                        if (encontrado)
+                        {
+                            // Validar que sea Nueva sino no se puede borrar
+
+                            if (estadoactual != "N")
+                            {
+                                todoOk = false;
+                                serror = "Documento en Proceso, no se puede Eliminar";
+                            }
+                            else
+                            {
+                                oDbHeaderDataSource.RemoveRecord(i - 1);
+                                SQLQuery = String.Format("DELETE FROM {1} WHERE {0} = '{2}' ",
+                                                Constantes.View.CAB_RVT.U_numOC,
+                                                Constantes.View.CAB_RVT.CAB_RV,
+                                                abuscar);
+                                oRecordSet.DoQuery(SQLQuery);
+
+                                // Borrar lineas detalle
+
+                                SQLQuery = String.Format("DELETE FROM {1} WHERE {0} = '{2}' ",
+                                                Constantes.View.DET_RVT.U_numOC,
+                                                Constantes.View.DET_RVT.DET_RV,
+                                                abuscar);
+                                oRecordSet.DoQuery(SQLQuery);
+
+                                if (oDbHeaderDataSource.Offset == 0) { activar_primero(); }
+                                else { activar_anterior(); }
+                            }
+
+                        }
+                        else
+                        {
+                            todoOk = false;
+                            serror = "Documento No Encontrado";
+                        }
                     }
+
+  
                 }
                 catch (Exception ex)
                 {
@@ -953,6 +988,7 @@ namespace ventaRT.VIEW
                         string sfechac = oDbHeaderDataSource.GetValue("U_fechaC", oDbHeaderDataSource.Offset);
                         string sestado = oDbHeaderDataSource.GetValue("U_estado", oDbHeaderDataSource.Offset);
                         sestado = (sestado=="" ?"N" :sestado).Substring(0,1);
+                        //sestado = "N";
                         string scom = oDbHeaderDataSource.GetValue("U_comment", oDbHeaderDataSource.Offset);
                         string svend = oDbHeaderDataSource.GetValue("U_idVend", oDbHeaderDataSource.Offset);
                         string snvend = oDbHeaderDataSource.GetValue("U_vend", oDbHeaderDataSource.Offset);
@@ -1258,6 +1294,13 @@ namespace ventaRT.VIEW
                     olCon2.CondVal = noDoc;
                     oDbLinesDataSource.Query(olCons2);
                     SMatrix.LoadFromDataSource();
+                    // Recargar DocNum de Transferencia o Devolucion
+                    string dentry = ""; 
+                    for (int i = 1; i <= SMatrix.RowCount; i++)
+                    {
+                        dentry = (SMatrix.Columns.Item(8).Cells.Item(i).Specific).Value.ToString();
+                        (SMatrix.Columns.Item(8).Cells.Item(i).Specific).Value = obtener_DocNum(dentry);
+                    }
                     SMatrix.AutoResizeColumns();
                     SAPbouiCOM.Column oColumn = SMatrix.Columns.Item("codArt");
                     oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
@@ -1332,6 +1375,7 @@ namespace ventaRT.VIEW
                             SAPbouiCOM.EditText txt_idtr = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idtr).Specific;
                             txt_com = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_com).Specific;
                             mtx = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.mtx).Specific;
+                            txt_idtr = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_idtr).Specific;
 
 
 
@@ -1437,6 +1481,8 @@ namespace ventaRT.VIEW
                             //txt_com.Value = oDbHeaderDataSource.GetValue("U_comment", oDbHeaderDataSource.Offset);
                             txt_estado.Value = oDbHeaderDataSource.GetValue("U_estado", oDbHeaderDataSource.Offset);
                             txt_estado.Value = obtener_Estado(txt_estado.Value);
+                            txt_idtr.Value = oDbHeaderDataSource.GetValue("U_idTR", oDbHeaderDataSource.Offset);
+                            txt_idtr.Value = obtener_DocNum(txt_idtr.Value);
                         }
                     }
                     catch (Exception ex)
@@ -1677,6 +1723,42 @@ namespace ventaRT.VIEW
             }
         }
 
+        private string obtener_DocNum(string dentry)
+        {
+            string dnum = "";
+            if (dentry != "")
+            {
+                try
+                {
+
+                    String strSQL = String.Format("SELECT {2} FROM {0} Where {1}='{3}'",
+                              Constantes.View.owtr.OWTR,
+                              Constantes.View.owtr.DocEntry,
+                              Constantes.View.owtr.DocNum,
+                              dentry);
+                    Recordset rsDoc = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    rsDoc.DoQuery(strSQL);
+                    SAPbobsCOM.Fields fields = rsDoc.Fields;
+                    rsDoc.MoveFirst();
+                    if (!rsDoc.EoF)
+                    {
+                        dnum = rsDoc.Fields.Item("DocNum").Value.ToString();
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    B1.Application.SetStatusBarMessage("Error obteniendo DocNum de la Transferencia", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                    return dnum;
+                    throw ex;
+
+                }
+            }
+            return dnum;
+ 
+        }
+
         private bool ya_Procesada(string nodoc)
         {
             try
@@ -1838,8 +1920,139 @@ namespace ventaRT.VIEW
                 B1.Application.SetStatusBarMessage("Error aprobando solicitud: " + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
                 throw ex;
             }
-         }  
-      
+         }
 
+        private void transferir_aceptados()
+        {
+            bool todoOk = true;
+            int result = 0;
+            try
+            {
+                SForm.Freeze(true);
+                string sCode = oDbHeaderDataSource.GetValue("U_numDoc", oDbHeaderDataSource.Offset);
+                GC.Collect();
+                B1.Company.StartTransaction();
+                SAPbobsCOM.StockTransfer doctransf = B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oStockTransfer);
+                 
+                doctransf.DocDate = DateTime.Today;
+                doctransf.TaxDate = DateTime.Today;
+                doctransf.FromWarehouse = "CD";
+                doctransf.ToWarehouse = "SHOWROOM";
+                doctransf.JournalMemo = "Generado por Addons VentasRT Solicitud: " + sCode;
+
+                if(SMatrix.RowCount > 1)
+                {
+                    string artcurrent = "";
+                    string art = "";
+                    double totalart = 0.00;
+                    int cantlines = 1;
+                    int linestransf = 0;
+                    for (int i = 1; i <= SMatrix.RowCount; i++)
+                    {
+                        art = (SMatrix.Columns.Item(1).Cells.Item(i).Specific).Value.ToString();
+                        if (artcurrent != art)
+                        {
+                            if (artcurrent != "" && obtener_exist_articulo(artcurrent)>0)
+                            {
+                                if (cantlines > 1)
+                                {
+                                    result = doctransf.Lines.Count;
+                                    doctransf.Lines.SetCurrentLine(doctransf.Lines.Count - 1);
+                                    doctransf.Lines.Add();
+                                    doctransf.Lines.SetCurrentLine(doctransf.Lines.Count - 1);
+                                    linestransf++;
+                                }
+                                cantlines++;
+                                doctransf.Lines.ItemCode = artcurrent;
+                                doctransf.Lines.ItemDescription = (SMatrix.Columns.Item(2).Cells.Item(i-1).Specific).Value.ToString();
+                                doctransf.Lines.Quantity = totalart;
+                                doctransf.Lines.FromWarehouseCode = "CD";
+                                doctransf.Lines.WarehouseCode = "SHOWROOM";
+                            }
+                            artcurrent = art;
+                            totalart = Double.Parse((SMatrix.Columns.Item(5).Cells.Item(i).Specific).Value.ToString()) / 1000000.00; ;
+                        }
+                        else
+                        {
+                            totalart += Double.Parse((SMatrix.Columns.Item(5).Cells.Item(i).Specific).Value.ToString()) / 1000000.00;
+                        }
+                    }
+                    // Adicionar ultima fila
+                    if (artcurrent != "" && obtener_exist_articulo(artcurrent) > 0)
+                    {
+                        if (cantlines > 1)
+                        {
+                            result = doctransf.Lines.Count;
+                            doctransf.Lines.SetCurrentLine(doctransf.Lines.Count - 1);
+                            doctransf.Lines.Add();
+                            doctransf.Lines.SetCurrentLine(doctransf.Lines.Count - 1);
+                            linestransf++;
+                        }
+                        doctransf.Lines.ItemCode = artcurrent;
+                        doctransf.Lines.ItemDescription = (SMatrix.Columns.Item(2).Cells.Item(SMatrix.RowCount).Specific).Value.ToString();
+                        doctransf.Lines.Quantity = totalart;
+                        doctransf.Lines.FromWarehouseCode = "CD";
+                        doctransf.Lines.WarehouseCode = "SHOWROOM";
+
+
+                        result = doctransf.Add();
+                        GC.Collect();
+                        todoOk = (result == 0) && (linestransf >0);
+                    }
+                }
+
+
+                if (todoOk)
+                {
+                    B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_Commit);
+                    string newkey = B1.Company.GetNewObjectKey();
+
+                    //Actualizar datos de Transferencia en Solicitud
+                    string scom = "\n - Transferida: " + DateTime.Now.Date.ToString("ddMMyyyy") +" DocNum:" + newkey;
+                    string sestado = "T";
+                    Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+                    string SQLQuery = String.Format("UPDATE {1} SET {2} = '{5}', {3}='{6}', {7} = '{8}' FROM {1} WHERE {0} = '{4}' ",
+                                             Constantes.View.CAB_RVT.U_numOC,   //0
+                                             Constantes.View.CAB_RVT.CAB_RV,    //1
+                                             Constantes.View.CAB_RVT.U_comment, //2
+                                             Constantes.View.CAB_RVT.U_estado,  //3
+                                             sCode,                             //4
+                                             scom,                              //5
+                                             sestado,                          //6
+                                             Constantes.View.CAB_RVT.U_idTR,  //7
+                                             newkey);                         //8
+
+                    oRecordSet.DoQuery(SQLQuery);
+
+                    //Actualizar datos de Transferencia en articulos autorizados
+                    sestado = "Y";
+                    SQLQuery = String.Format("UPDATE {1} SET {5} = '{6}' FROM {1} WHERE {0} = '{3}' AND {2} = '{4}' ",
+                                             Constantes.View.DET_RVT.U_numOC,   //0
+                                             Constantes.View.DET_RVT.DET_RV,    //1
+                                             Constantes.View.DET_RVT.U_estado,   //2
+                                             sCode,                             //3
+                                             sestado,                         //4
+                                             Constantes.View.DET_RVT.U_idTV,   //5
+                                             newkey);                           //6
+
+                    oRecordSet.DoQuery(SQLQuery);
+
+                    cargar_inicial();
+                }
+                else
+                {
+                    B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack);
+                }
+
+                SForm.Freeze(false);
+                B1.Application.SetStatusBarMessage("Solicitud Transferida con éxito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error Transferiendo solicitud autorizada: " + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw ex;
+            }
+        }  
+      
     }
 }

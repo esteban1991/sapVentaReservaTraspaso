@@ -5,4 +5,3 @@ C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspas
 C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\bin\Debug\ventaRT.pdb
 C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\obj\Debug\ventaRT.dll
 C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\obj\Debug\ventaRT.pdb
-C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\programaEjemplo\obj\Debug\ventaRT.csprojResolveAssemblyReference.cache

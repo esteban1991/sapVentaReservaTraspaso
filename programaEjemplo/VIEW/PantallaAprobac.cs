@@ -216,7 +216,7 @@ namespace ventaRT.VIEW
                         }
                         else { AMatrix.CommonSetting.SetCellFontColor(i, 9, 0); }
 
-                    AMatrix.Columns.Item(10).Cells.Item(i).Specific.Value = fields.Item("U_IdTR").Value.ToString();
+                    AMatrix.Columns.Item(10).Cells.Item(i).Specific.Value = obtener_DocNum(fields.Item("U_IdTR").Value.ToString());
                     AMatrix.Columns.Item(11).Cells.Item(i).Specific.Value = fields.Item("U_idTV").Value.ToString();
                     //AMatrix.Columns.Item(12).Cells.Item(i).Specific.Value = fields.Item("U_comment").Value.ToString();
 
@@ -517,7 +517,41 @@ namespace ventaRT.VIEW
 
         }
 
- 
+        private string obtener_DocNum(string dentry)
+        {
+            string dnum = "";
+            if (dentry != "")
+            {
+                try
+                {
+
+                    String strSQL = String.Format("SELECT {2} FROM {0} Where {1}='{3}'",
+                              Constantes.View.owtr.OWTR,
+                              Constantes.View.owtr.DocEntry,
+                              Constantes.View.owtr.DocNum,
+                              dentry);
+                    Recordset rsDoc = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    rsDoc.DoQuery(strSQL);
+                    SAPbobsCOM.Fields fields = rsDoc.Fields;
+                    rsDoc.MoveFirst();
+                    if (!rsDoc.EoF)
+                    {
+                        dnum = rsDoc.Fields.Item("DocNum").Value.ToString();
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    B1.Application.SetStatusBarMessage("Error obteniendo DocNum de la Transferencia", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                    return dnum;
+                    throw ex;
+
+                }
+            }
+            return dnum;
+
+        } 
      
     }
 
