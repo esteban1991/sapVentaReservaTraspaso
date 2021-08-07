@@ -37,16 +37,46 @@ namespace ventaRT.VIEW
 
             this.B1.Application.ItemEvent += new SAPbouiCOM._IApplicationEvents_ItemEventEventHandler(ThisSapApiForm_ItemEvent);
 
+
+            cancelar_vencidaspormas10D();
+
+            cargar_datos_iniciales();
+
             cargar_datos_matriz();
         }
 
-        private void cargar_datos_matriz()
+        private void cargar_datos_iniciales()
+        {
+            SAPbouiCOM.CheckBox cboxNue = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxNue).Specific;
+            cboxNue.Checked = true;
+
+            SAPbouiCOM.CheckBox cboxApr = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxApr).Specific;
+            cboxApr.Checked = true;
+
+            SAPbouiCOM.CheckBox cboxTra = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxTra).Specific;
+            cboxTra.Checked = true;
+
+            SAPbouiCOM.CheckBox cboxCan = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxCan).Specific;
+            cboxCan.Checked = true;
+
+            SAPbouiCOM.CheckBox cboxDev = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxDev).Specific;
+            cboxDev.Checked = true;
+        }
+
+        public void cargar_datos_matriz()
         {
             bool todoOk = true;
             string serror = "";
             formActual = B1.Application.Forms.ActiveForm.UniqueID;
             AForm = B1.Application.Forms.ActiveForm;
             AMatrix = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item("mtxaprob").Specific;
+
+            SAPbouiCOM.CheckBox cboxNue = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxNue).Specific;
+            SAPbouiCOM.CheckBox cboxApr = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxApr).Specific;
+            SAPbouiCOM.CheckBox cboxTra = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxTra).Specific;
+            SAPbouiCOM.CheckBox cboxCan = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxCan).Specific;
+            SAPbouiCOM.CheckBox cboxDev = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxDev).Specific;
+
             try
             {
                 B1.Application.Forms.ActiveForm.Freeze(true);
@@ -119,12 +149,34 @@ namespace ventaRT.VIEW
                     condVend = selVend != "" ? Constantes.View.CAB_RVT.U_idVend + " = '" + selVend + "'" : condVend;
                 }
 
+                string condNue = String.Empty;
+                condNue = (cboxNue.Checked == false) ? Constantes.View.CAB_RVT.U_estado + " <> 'N' " : condNue;
+
+                string condApr = String.Empty;
+                condApr = (cboxApr.Checked == false) ? Constantes.View.CAB_RVT.U_estado + " <> 'A' " : condApr;
+
+                string condTra = String.Empty;
+                condTra = (cboxTra.Checked == false) ? Constantes.View.CAB_RVT.U_estado + " <> 'T' " : condTra;
+
+                string condCan = String.Empty;
+                condCan = (cboxCan.Checked == false) ? Constantes.View.CAB_RVT.U_estado + " <> 'C' " : condCan;
+
+                string condDev = String.Empty;
+                condDev = (cboxDev.Checked == false) ? Constantes.View.CAB_RVT.U_estado + " <> 'D' " : condDev;
+
                 string cadw = "";
-                cadw = condPer != String.Empty || condCli != String.Empty || condArt != String.Empty || condVend != String.Empty ? " WHERE " : "";
+                cadw = condPer != String.Empty || condCli != String.Empty || condArt != String.Empty || condVend != String.Empty ||
+                       condNue != String.Empty || condApr != String.Empty || condTra != String.Empty || condCan != String.Empty  || condDev != String.Empty
+                       ? " WHERE " : "";
                 cadw = cadw + (condPer  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condPer  : "");
                 cadw = cadw + (condCli  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condCli  : "");
                 cadw = cadw + (condArt  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condArt  : "");
                 cadw = cadw + (condVend != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condVend : "");
+                cadw = cadw + (condNue  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condNue  : "");
+                cadw = cadw + (condApr  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condApr : "");
+                cadw = cadw + (condTra  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condTra : "");
+                cadw = cadw + (condCan  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condCan : "");
+                cadw = cadw + (condDev  != String.Empty ? (cadw.Length == 7 ? "" : " AND ") + condDev : "");
 
                 string adicjoin = (condCli != String.Empty || condArt != String.Empty) ? " INNER JOIN " +
                 Constantes.View.DET_RVT.DET_RV + " T3 ON T0." + Constantes.View.CAB_RVT.U_numOC +
@@ -141,10 +193,10 @@ namespace ventaRT.VIEW
                 : "" ;              
 
                 SQLQuery = String.Format("SELECT T0.{1} , T0.{4}, T1.{3} U_vend, T0.{6}, T0.{7}, DAYS_BETWEEN( CURRENT_DATE,T0.{7}) U_diasv, " +
-                      " T0.{8}, T2.{3} U_aut, T0.{9}, T0.{10}, T0.{11} " +
-                //,T0.{22} " +
+                      " T0.{8}, T2.{3} U_aut, T0.{9}, T0.{10}, T0.{11}, CAST(T0.{1} AS INT) AS ND" +
+                      //, T0.{22} " +
                       " FROM {0} T0 INNER JOIN {2} T1 ON T0.{4} = T1.{5} " +
-                      " LEFT JOIN {2} T2 ON T0.{8} = T2.{5} {24}  {23}  {25}",
+                      " LEFT JOIN {2} T2 ON T0.{8} = T2.{5} {24}  {23}  {25}  ORDER BY CAST(T0.{1} AS INT) ",
                                               Constantes.View.CAB_RVT.CAB_RV, //0
                                               Constantes.View.CAB_RVT.U_numOC,//1
                                               Constantes.View.ousr.OUSR, //2
@@ -217,15 +269,15 @@ namespace ventaRT.VIEW
                         else { AMatrix.CommonSetting.SetCellFontColor(i, 9, 0); }
 
                     AMatrix.Columns.Item(10).Cells.Item(i).Specific.Value = obtener_DocNum(fields.Item("U_IdTR").Value.ToString());
-                    AMatrix.Columns.Item(11).Cells.Item(i).Specific.Value = fields.Item("U_idTV").Value.ToString();
-                    //AMatrix.Columns.Item(12).Cells.Item(i).Specific.Value = fields.Item("U_comment").Value.ToString();
+                    AMatrix.Columns.Item(11).Cells.Item(i).Specific.Value = obtener_DocNum(fields.Item("U_idTV").Value.ToString());
+                    AMatrix.Columns.Item(12).Cells.Item(i).Specific.Value = obtener_Comentario(fields.Item("U_numDoc").Value.ToString());
 
 
                     rsCards.MoveNext();
                 }
                 AMatrix.AutoResizeColumns();
-                SAPbouiCOM.Column oColumn = AMatrix.Columns.Item("numDoc");
-                oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
+                //SAPbouiCOM.Column oColumn = AMatrix.Columns.Item("numDoc");
+                //oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
                 
                 B1.Application.Forms.ActiveForm.Freeze(false);
             }
@@ -257,6 +309,7 @@ namespace ventaRT.VIEW
                     {
                         switch (pVal.EventType)
                         {
+
                             case BoEventTypes.et_VALIDATE:
                                 {
                                     if (pVal.ItemUID == "txtDesde" || pVal.ItemUID == "txtHasta")
@@ -367,6 +420,42 @@ namespace ventaRT.VIEW
                                             }
                                             break;
 
+                                        case "cboxNue":
+                                            {
+                                                // Desactivar el estado Nueva  
+                                                cargar_datos_matriz();
+                                            }
+                                            break;
+
+                                        case "cboxApr":
+                                            {
+                                                // Desactivar el estado Autorizada
+                                                cargar_datos_matriz();
+                                            }
+                                            break;
+
+                                        case "cboxTra":
+                                            {
+                                                // Desactivar el estado Transferida  
+                                                cargar_datos_matriz();
+                                            }
+                                            break;
+
+                                        case "cboxCan":
+                                            {
+                                                // Desactivar el estado Cancelada  
+                                                cargar_datos_matriz();
+                                            }
+                                            break;
+
+                                        case "cboxDev":
+                                            {
+                                                // Desactivar el estado Devuelta  
+                                                cargar_datos_matriz();
+                                            }
+                                            break;
+                                    
+                                    
                                     }
                                     break;
 
@@ -432,7 +521,7 @@ namespace ventaRT.VIEW
                                         case "mtxaprob":
                                             {
                                                 string nodoc = AMatrix.Columns.Item(1).Cells.Item(pVal.Row).Specific.Value;
-                                                new VIEW.PantallaRegistro(false, nodoc);
+                                                new VIEW.PantallaRegistro(this, false, nodoc);
                                             }
                                             break;
 
@@ -479,7 +568,6 @@ namespace ventaRT.VIEW
                                     break;
 
                                 }
-                                break;
                         }
                     }
                 }
@@ -551,7 +639,69 @@ namespace ventaRT.VIEW
             }
             return dnum;
 
+        }
+ 
+        private string obtener_Comentario(string solnum)
+        {
+            string dcom = "";
+            if (solnum != "")
+            {
+                try
+                {
+
+                    String strSQL = String.Format("SELECT {2} FROM {0} Where {1}='{3}'",
+                              Constantes.View.CAB_RVT.CAB_RV,
+                              Constantes.View.CAB_RVT.U_numOC,
+                              Constantes.View.CAB_RVT.U_comment,
+                              solnum);
+                    Recordset rsDoc = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    rsDoc.DoQuery(strSQL);
+                    SAPbobsCOM.Fields fields = rsDoc.Fields;
+                    rsDoc.MoveFirst();
+                    if (!rsDoc.EoF)
+                    {
+                        dcom = rsDoc.Fields.Item("U_comment").Value.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    B1.Application.SetStatusBarMessage("Error obteniendo Comentarios de la Solicitud", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                    return dcom;
+                    throw ex;
+
+                }
+            }
+            return dcom;
+
         } 
+
+        private void cancelar_vencidaspormas10D()
+        {
+            try
+            {
+                //Actualizar estado y comentario
+                B1.Application.SetStatusBarMessage("Realizando Cancelación Automática por Fecha de Vencimiento", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+                string scom = "Solicitud Cancelada por vencer su período de revisión: "  + DateTime.Now.Date.ToString("dd/MM/yyyy") ;
+                string sestado = "C";
+                Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+                string SQLQuery = String.Format("UPDATE {0} SET {1} = '{3}', {2}='{4}' FROM {0} WHERE {2} = 'N' AND  DAYS_BETWEEN(CURRENT_DATE,{5}) < 0 ",
+                                         Constantes.View.CAB_RVT.CAB_RV,    //0
+                                         Constantes.View.CAB_RVT.U_comment, //1
+                                         Constantes.View.CAB_RVT.U_estado,  //2
+                                         scom,                              //3
+                                         sestado,                         //4
+                                         Constantes.View.CAB_RVT.U_fechaV); //5
+
+                oRecordSet.DoQuery(SQLQuery);
+                B1.Application.SetStatusBarMessage("Cancelación Automática realizada con éxito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error al realizar Cancelación automática:" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw ex;
+            }
+
+        }
      
     }
 

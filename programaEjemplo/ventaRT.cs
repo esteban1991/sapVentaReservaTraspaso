@@ -21,6 +21,7 @@ namespace ventaRT
         SAPbouiCOM.Form UForm = null;
         SAPbouiCOM.Matrix UMatrix = null;
 
+
         private SSIFramework.SSIConnector B1;
 
         public string Guid
@@ -80,11 +81,11 @@ namespace ventaRT
                     Constantes.Views.Menu.MenuVentaReserva,
                     BoMenuType.mt_STRING, null);
 
-                if (!B1.Application.Menus.Exists(Constantes.Views.Menu.MENU_submenu_control_anulaciones))
-                    GenericFunctions.addMenu(Constantes.Views.Menu.MENU_submenu_control_anulaciones,
-                    Constantes.Views.Menu.MENU_submenu_control_anulaciones_Desc,
-                    Constantes.Views.Menu.MenuVentaReserva,
-                    BoMenuType.mt_STRING, null);
+                //if (!B1.Application.Menus.Exists(Constantes.Views.Menu.MENU_submenu_control_anulaciones))
+                //    GenericFunctions.addMenu(Constantes.Views.Menu.MENU_submenu_control_anulaciones,
+                //    Constantes.Views.Menu.MENU_submenu_control_anulaciones_Desc,
+                //    Constantes.Views.Menu.MenuVentaReserva,
+                //    BoMenuType.mt_STRING, null);
 
                 if (!B1.Application.Menus.Exists(Constantes.Views.Menu.MENU_submenu_autorizadores))
                     GenericFunctions.addMenu(Constantes.Views.Menu.MENU_submenu_autorizadores,
@@ -140,7 +141,7 @@ namespace ventaRT
                         case Constantes.Views.Menu.MENU_submenu_registro_solicitud:
                             {
                                 B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
-                                new VIEW.PantallaRegistro();
+                                new VIEW.PantallaRegistro(null);
                                 Configurar_Pantalla_Registro();
                             }
 
@@ -151,6 +152,7 @@ namespace ventaRT
                                 {
                                     B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
                                     new VIEW.PantallaAprobac();
+
                                 }
                                 else
                                 {
@@ -411,6 +413,23 @@ namespace ventaRT
             }
         }
     
-    
+        private bool existe_Form(string ftype)
+        {
+            bool existe = false;
+            try
+            {
+                for (int i = 0; i < B1.Application.Forms.Count && !existe; i++)
+                {
+                    existe = B1.Application.Forms.Item(i).TypeEx == ftype;
+                    if (existe) { B1.Application.Forms.Item(i).Select(); }
+                }
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error verificando formulario", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw ex;
+            }
+            return existe;
+        }
     }
 }
