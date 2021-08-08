@@ -18,12 +18,6 @@ namespace ventaRT.DataBase
         {
             try {
             SSIConnector.GetSSIConnector().Application.MetadataAutoRefresh = false;
-                //CrearEstructuraImportacion();
-
-            //crear tabla prueba 1
-            //CrearTablasSAP();
-
-            //CrearCamposUsuarioTablasSAP();
 
             CreateUserTables();
 
@@ -31,7 +25,6 @@ namespace ventaRT.DataBase
             }
             catch (Exception ex) { throw ex; }
         }
-
 
         public static void CreateUserTables()
         {
@@ -279,42 +272,6 @@ namespace ventaRT.DataBase
 
         }
 
-
-        public static void CrearCamposUsuarioTablasSAP()
-        {
-          
-            //preguntar si va este campo ya que ya existiran los dptos creado como centros de costes
-            try { 
-            if (!GenericFunctions.ExistUserField("OPRC", "SSI_DPTOS"))
-            {
-                GC.Collect();
-                GenericFunctions.AddUserField("OPRC", "SSI_DPTOS", null, HelpBaseType.Tipo.Regular, 20, "");
-                GC.Collect();
-            }
-            }
-            catch(Exception EX) { throw EX; }
-
-            //cuenta que tendra el addon para el haber, tendre que tomarlo desde aca en  principio seria la 4659999
-            try
-            {
-                if (!GenericFunctions.ExistUserField("@OADM", "SSI_CtaPu"))
-                {
-                    GC.Collect();
-                    GenericFunctions.AddUserField("@OADM", "SSI_CtaPu", "Cuenta Puente para addon", HelpBaseType.Tipo.Regular, 13, "");
-                    GC.Collect();
-                }
-
-
-                if (!GenericFunctions.ExistUserField("@OADM", "SSICtaDesc"))
-                {
-                    GC.Collect();
-                    GenericFunctions.AddUserField("@OADM", "SSICtaDesc", "Cuenta Descuadres Varios", HelpBaseType.Tipo.Regular, 13, "");
-                    GC.Collect();
-                }
-            }
-            catch (Exception EX) { throw EX; }
-
-        }
 
     }
 }

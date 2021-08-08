@@ -21,7 +21,6 @@ namespace ventaRT
         SAPbouiCOM.Form UForm = null;
         SAPbouiCOM.Matrix UMatrix = null;
 
-
         private SSIFramework.SSIConnector B1;
 
         public string Guid
@@ -334,28 +333,14 @@ namespace ventaRT
 
             SForm = B1.Application.Forms.ActiveForm;
             SMatrix =SForm.Items.Item("mtx" ).Specific;
-            //SForm.AutoManaged = true;
-            //SForm.Items.Item("txt_numoc").SetAutoManagedAttribute(SAPbouiCOM.BoAutoManagedAttr.ama_Editable,0,SAPbouiCOM.BoModeVisualBehavior.mvb_False);
-            //SForm.Items.Item("txt_numoc").SetAutoManagedAttribute(SAPbouiCOM.BoAutoManagedAttr.ama_Editable,
-             //   2,SAPbouiCOM.BoModeVisualBehavior.mvb_False);
-             // SForm.DataBrowser.BrowseBy = "txt_numoc" ;
-              //SForm.Items.Item("txt_numoc").Click();
-
-            //SAPbouiCOM.EditText oEditText = (SAPbouiCOM.EditText)SForm.Items.Item("txt_numoc").Specific;
-            //SAPbouiCOM.EditText oEditText2 = (SAPbouiCOM.EditText)SForm.Items.Item("txt_com").Specific;
-            //SAPbouiCOM.ComboBox oComboBox = (SAPbouiCOM.ComboBox)SForm.Items.Item("cbnumoc").Specific;
-            //LoadDefaultValue("@CAB_RT", ref oComboBox, ref oEditText, ref oEditText2);
 
             SAPbouiCOM.Column _Col = (SAPbouiCOM.Column)SMatrix.Columns.Item("codArt");
             SAPbouiCOM.Column _Col1 = (SAPbouiCOM.Column)SMatrix.Columns.Item("articulo");
-            //AddChooseFromListToEditTextBox("4", "CFL1", BoYesNoEnum.tNO);
-            //AddChooseFromListToEditTextBox("4", "CFL1", BoYesNoEnum.tYES, "onHand", "0", ">"); // 4 - oitm
-            //AddChooseFromListToEditTextBox("31", "CFL1", BoYesNoEnum.tYES, "onHand", "0", ">"); //31 - oitw
-            AddCFLArtOnHandinCD("4", "CFL1");
+            AddCFLArtOnHandinCD("4", "CFL1");                                                           // 4 - oitm
 
             SAPbouiCOM.Column _Col2= (SAPbouiCOM.Column)SMatrix.Columns.Item("codCli");
             SAPbouiCOM.Column _Col3 = (SAPbouiCOM.Column)SMatrix.Columns.Item("cliente");
-            AddChooseFromListToEditTextBox(SForm, "2", "CFL2", BoYesNoEnum.tYES,"CardType","C" ,"=" );
+            AddChooseFromListToEditTextBox(SForm, "2", "CFL2", BoYesNoEnum.tYES, "CardType", "C", "="); // 2 - ocrd
 
             _Col.ChooseFromListUID = "CFL1";
             _Col.ChooseFromListAlias = "ItemCode";
@@ -374,7 +359,7 @@ namespace ventaRT
 
             SAPbouiCOM.Column _Col4 = (SAPbouiCOM.Column)UMatrix.Columns.Item("idAut");
             SAPbouiCOM.Column _Col5 = (SAPbouiCOM.Column)UMatrix.Columns.Item("aut");
-            AddChooseFromListToEditTextBox(UForm, "12", "CFL3", BoYesNoEnum.tNO);
+            AddChooseFromListToEditTextBox(UForm, "12", "CFL3", BoYesNoEnum.tNO);                       // 12 - ousr
 
             _Col4.ChooseFromListUID = "CFL3";
             _Col4.ChooseFromListAlias = "USER_CODE";
@@ -409,7 +394,7 @@ namespace ventaRT
             catch (Exception ex)
             {
                 B1.Application.SetStatusBarMessage("Error verificando Autorizador", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                throw;
+                throw ex;
             }
         }
     

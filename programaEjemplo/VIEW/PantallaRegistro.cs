@@ -230,6 +230,10 @@ namespace ventaRT.VIEW
                                                     case SAPbouiCOM.BoFormMode.fm_ADD_MODE:
                                                         {
                                                             guardar_solicitud();
+                                                            // adicionar ultima fila a combo de busqueda
+                                                            oCombo.ValidValues.Add(
+                                                                oDbHeaderDataSource.GetValue("U_numDoc", oDbHeaderDataSource.Offset), 
+                                                                oDbHeaderDataSource.GetValue("U_fechaC", oDbHeaderDataSource.Offset));
                                                             BubbleEvent = false;
                                                             break;
                                                         }
@@ -515,11 +519,12 @@ namespace ventaRT.VIEW
                 btn_cancelar.Item.Visible = false;
                 btn_tv.Item.Visible = false;
 
-                SForm.EnableMenu("1290", true); SForm.EnableMenu("1289", true);
+                SForm.EnableMenu("1290", true); SForm.EnableMenu("1289", true); // mov entre registros
                 SForm.EnableMenu("1288", true); SForm.EnableMenu("1291", true);
                 SForm.EnableMenu("1282", true); SForm.EnableMenu("1283", true);
                 //SForm.EnableMenu("1281", true); 
                 SForm.EnableMenu("1281", false);  //buscar
+                SForm.EnableMenu("772", true); SForm.EnableMenu("773", true); //copiar y pegar
 
             }
             else
@@ -619,7 +624,7 @@ namespace ventaRT.VIEW
 
                 btn_autorizar.Item.Enabled = estadoactual == "N";
                 btn_tr.Item.Enabled = estadoactual == "A" && cantautoriz > 0;
-                btn_cancelar.Item.Enabled = estadoactual == "N" || estadoactual == "T";
+                btn_cancelar.Item.Enabled = estadoactual == "N" || estadoactual == "A" || estadoactual == "T";
                 btn_tv.Item.Enabled = estadoactual == "C" && cantautoriz > 0;
             }
             SForm.Freeze(false);
@@ -974,6 +979,9 @@ namespace ventaRT.VIEW
                                                 Constantes.View.DET_RVT.DET_RV,
                                                 abuscar);
                                 oRecordSet.DoQuery(SQLQuery);
+
+                                // eliminar linea en combo seleccion
+                                oCombo.ValidValues.Remove(abuscar,BoSearchKey.psk_Index);
 
                                 if (oDbHeaderDataSource.Offset == 0) { activar_primero(); }
                                 else { activar_anterior(); }

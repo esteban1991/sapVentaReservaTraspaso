@@ -86,20 +86,12 @@
     <Compile Include="Constantes\View\PantallaImpoNominas.cs" />
     <Compile Include="Constantes\View\recepImpo.cs" />
     <Compile Include="DataBase\UserFields.cs" />
-    <Compile Include="Importacion\Imp_Nominas.cs" />
-    <Compile Include="Model\ModeloImpNom.cs" />
     <Compile Include="ventaRT.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VIEW\PantallaPrueba1.cs" />
-    <Compile Include="VIEW\CancelarRecepImpo.cs" />
-    <Compile Include="VIEW\pantallaEjemplo.cs" />
     <Compile Include="VIEW\PantallaImportacion.cs" />
-    <Compile Include="VIEW\PantallaImportacionpuente.cs" />
     <Compile Include="VIEW\PantallaAprobac.cs" />
     <Compile Include="VIEW\PantallaAutoriz.cs" />
     <Compile Include="VIEW\PantallaRegistro.cs" />
-    <Compile Include="VIEW\PantallaRegistroold.cs" />
-    <Compile Include="VIEW\PantallaRecepImpo.cs" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="SAPbobsCOM">
@@ -123,32 +115,13 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DLL\" />
+    <Folder Include="Model\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\CancelRecepImpo.srf" />
-    <EmbeddedResource Include="Forms\CargarNominas.srf" />
-    <EmbeddedResource Include="Forms\CargarNominas_ant.srf" />
-    <EmbeddedResource Include="Forms\CargarPuente.srf" />
-    <EmbeddedResource Include="Forms\RecepImpo.srf" />
     <EmbeddedResource Include="Forms\Registro.srf" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\pantallaEjemplo.srf" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Forms\prueba1.srf" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Forms\Registroold.srf" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Forms\Registro - Copia.srf" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Forms\Registro - Copia %282%29.srf" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Forms\Registro - Copia %283%29.srf" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\Aprobac.srf" />

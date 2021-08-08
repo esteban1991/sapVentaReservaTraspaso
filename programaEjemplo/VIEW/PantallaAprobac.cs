@@ -54,17 +54,21 @@ namespace ventaRT.VIEW
             cboxApr.Checked = true;
 
             SAPbouiCOM.CheckBox cboxTra = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxTra).Specific;
-            cboxTra.Checked = true;
+            cboxTra.Checked = false;
 
             SAPbouiCOM.CheckBox cboxCan = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxCan).Specific;
-            cboxCan.Checked = true;
+            cboxCan.Checked = false;
 
             SAPbouiCOM.CheckBox cboxDev = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxDev).Specific;
-            cboxDev.Checked = true;
+            cboxDev.Checked = false;
         }
 
         public void cargar_datos_matriz()
         {
+
+
+            B1.Application.SetStatusBarMessage("Cargando datos de Solcitudes de Reservas de Stock para su Autorización...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+
             bool todoOk = true;
             string serror = "";
             formActual = B1.Application.Forms.ActiveForm.UniqueID;
@@ -80,38 +84,8 @@ namespace ventaRT.VIEW
             try
             {
                 B1.Application.Forms.ActiveForm.Freeze(true);
-                string SQLQuery = string.Empty;
-                //SQLQuery = String.Format("SELECT T0.{1} , T1.{3} IdVend, T0.{6}, T0.{7}, DAYS_BETWEEN(T0.{7}, CURRENT_DATE) dias, " + 
-                //    " T2.{3} IdAut, T0.{9}, T0.{10}, T0.{11} , T3.{14} , T3.{15}, T3.{16}, T3.{17}, "+
-                //    " T3.{18} , T3.{19}, T3.{20}, T3.{21}, T0.{22} "+
-                //    " FROM {0} T0 INNER JOIN {2} T1 ON T0.{4} = T1.{5} " +
-                //    " LEFT JOIN {2} T2 ON T0.{8} = T2.{5} " +
-                //    " INNER JOIN {12} T3 ON T0.{1} = T3.{13} ",
-                //                            Constantes.View.CAB_RVT.CAB_RV, //0
-                //                            Constantes.View.CAB_RVT.U_numOC,//1
-                //                            Constantes.View.ousr.OUSR, //2
-                //                            Constantes.View.ousr.uName, //3
-                //                            Constantes.View.CAB_RVT.U_idVend,//4
-                //                            Constantes.View.ousr.uCode, //5
-                //                            Constantes.View.CAB_RVT.U_fechaC, //6
-                //                            Constantes.View.CAB_RVT.U_fechaV, //7
-                //                            Constantes.View.CAB_RVT.U_idAut, //8
-                //                            Constantes.View.CAB_RVT.U_estado, //9
-                //                            Constantes.View.CAB_RVT.U_idTR, //10
-                //                            Constantes.View.CAB_RVT.U_idTV, //11
-                //                            Constantes.View.DET_RVT.DET_RV, //12
-                //                            Constantes.View.DET_RVT.U_numOC, //13
-                //                            Constantes.View.DET_RVT.U_codArt, //14
-                //                            Constantes.View.DET_RVT.U_articulo, //15
-                //                            Constantes.View.DET_RVT.U_codCli, //16
-                //                            Constantes.View.DET_RVT.U_cliente, //17
-                //                            Constantes.View.DET_RVT.U_cant, //18
-                //                            Constantes.View.DET_RVT.U_onHand, //19
-                //                            Constantes.View.DET_RVT.U_estado, //20
-                //                            Constantes.View.DET_RVT.U_idTV, //21                                                
-                //                            Constantes.View.CAB_RVT.U_comment//22
-                //                            );
 
+                string SQLQuery = string.Empty;
 
                 SAPbouiCOM.CheckBox cboxPer = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxPer).Specific;
                 string condPer = String.Empty;
@@ -231,6 +205,9 @@ namespace ventaRT.VIEW
                 AMatrix.Clear();
                 SAPbobsCOM.Fields fields = rsCards.Fields;
                 rsCards.MoveFirst();
+                B1.Application.Forms.ActiveForm.Freeze(false);
+                SAPbouiCOM.ProgressBar oProgressBar = B1.Application.StatusBar.CreateProgressBar("Cargando datos de Solicitudes...", rsCards.RecordCount, false);
+
                 for (int i = 1; !rsCards.EoF; i++)
                 {
                     AMatrix.AddRow(1);
@@ -274,22 +251,32 @@ namespace ventaRT.VIEW
 
 
                     rsCards.MoveNext();
+
+                    try
+                    {
+                         oProgressBar.Text = "Cargando datos de Solicitudes ...";
+                    }
+                    catch (Exception)
+                    {
+                        oProgressBar = B1.Application.StatusBar.CreateProgressBar("Cargando datos de Solicitudes...", rsCards.RecordCount, false);
+                    }
+                     oProgressBar.Value = i;
+
                 }
+                oProgressBar.Stop();
                 AMatrix.AutoResizeColumns();
-                //SAPbouiCOM.Column oColumn = AMatrix.Columns.Item("numDoc");
-                //oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
-                
-                B1.Application.Forms.ActiveForm.Freeze(false);
+               
+
             }
             catch (Exception ex)
             {
                    todoOk = false;
                    serror = ex.Message;
-                   throw;
+                   throw ex;
             }
             if (todoOk)
             {
-                B1.Application.SetStatusBarMessage("Articulos cargados con exito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+                B1.Application.SetStatusBarMessage("Solicitudes cargadas con éxito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
             }
             else
             {
@@ -575,6 +562,7 @@ namespace ventaRT.VIEW
             catch (Exception ex)
             {
                 B1.Application.SetStatusBarMessage("Error: " + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                BubbleEvent = false;
                 throw ex;
             }
 
@@ -677,10 +665,13 @@ namespace ventaRT.VIEW
 
         private void cancelar_vencidaspormas10D()
         {
+            
             try
             {
+
                 //Actualizar estado y comentario
                 B1.Application.SetStatusBarMessage("Realizando Cancelación Automática por Fecha de Vencimiento", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+                B1.Application.Forms.ActiveForm.Freeze(true);
                 string scom = "Solicitud Cancelada por vencer su período de revisión: "  + DateTime.Now.Date.ToString("dd/MM/yyyy") ;
                 string sestado = "C";
                 Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
@@ -693,6 +684,7 @@ namespace ventaRT.VIEW
                                          Constantes.View.CAB_RVT.U_fechaV); //5
 
                 oRecordSet.DoQuery(SQLQuery);
+                B1.Application.Forms.ActiveForm.Freeze(false);
                 B1.Application.SetStatusBarMessage("Cancelación Automática realizada con éxito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
             }
             catch (Exception ex)
