@@ -407,6 +407,7 @@ namespace ventaRT.VIEW
                                     {
                                         string codart = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codArt").Cells.Item(pVal.Row).Specific).Value.ToString();
                                         string codcli = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("codCli").Cells.Item(pVal.Row).Specific).Value.ToString();
+                                        string cantart = ((SAPbouiCOM.EditText)SMatrix.Columns.Item("cant").Cells.Item(pVal.Row).Specific).Value.ToString();
                                         switch (pVal.ColUID)
                                         {
                                             case "codArt":
@@ -446,24 +447,33 @@ namespace ventaRT.VIEW
                                                 break;
                                             case "cant":
                                                 {
-                                                    double cantidad = Double.Parse(((SAPbouiCOM.EditText)SMatrix.Columns.Item("cant").Cells.Item(pVal.Row).Specific).Value.ToString());
-                                                    double disp = Double.Parse(((SAPbouiCOM.EditText)SMatrix.Columns.Item("onHand").Cells.Item(pVal.Row).Specific).Value.ToString());
-                                                    if (cantidad == 0 && disp != 0)
+                                                    if (cantart == "")
                                                     {
-                                                        //SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value = disp.ToString(); 
-                                                        B1.Application.SetStatusBarMessage("Error Cantidad debe ser superior a 0", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                        B1.Application.SetStatusBarMessage("Error: Cantidad debe ser superior a  0 ", SAPbouiCOM.BoMessageTime.bmt_Short, true);
                                                         BubbleEvent = false;
                                                     }
                                                     else
                                                     {
-                                                        if (cantidad > disp)
+                                                        double cantidad = Double.Parse(((SAPbouiCOM.EditText)SMatrix.Columns.Item("cant").Cells.Item(pVal.Row).Specific).Value.ToString());
+                                                        double disp = Double.Parse(((SAPbouiCOM.EditText)SMatrix.Columns.Item("onHand").Cells.Item(pVal.Row).Specific).Value.ToString());
+                                                        if (cantidad == 0 && disp != 0)
                                                         {
-                                                            //SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value = disp.ToString();
-                                                            B1.Application.SetStatusBarMessage("Error Cantidad > Disponibilidad", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                            //SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value = disp.ToString(); 
+                                                            B1.Application.SetStatusBarMessage("Error Cantidad debe ser superior a 0", SAPbouiCOM.BoMessageTime.bmt_Short, true);
                                                             BubbleEvent = false;
                                                         }
+                                                        else
+                                                        {
+                                                            if (cantidad > disp)
+                                                            {
+                                                                //SMatrix.Columns.Item(5).Cells.Item(pVal.Row).Specific.Value = disp.ToString();
+                                                                B1.Application.SetStatusBarMessage("Error Cantidad > Disponibilidad", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                                BubbleEvent = false;
+                                                            }
 
+                                                        }
                                                     }
+
 
                                                 }
                                                 break;
