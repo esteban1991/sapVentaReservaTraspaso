@@ -76,7 +76,7 @@ namespace ventaRT.VIEW
                             }
                             break;
                     }
-                    BubbleEvent = false;
+                    BubbleEvent = true;
                 }
              }
             }
