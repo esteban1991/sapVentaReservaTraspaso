@@ -98,14 +98,14 @@ namespace ventaRT.VIEW
                     ItemActiveMenu = eventInfo.ItemUID;
                     if (eventInfo.BeforeAction && eventInfo.ItemUID == ventaRT.Constantes.View.autorizad.umtx)
                     {
-                        UForm.EnableMenu("1292", true); //Activar Agregar Linea
-                        UForm.EnableMenu("1293", true); //Activar Borrar Linea 
+                        //UForm.EnableMenu("1292", true); //Activar Agregar Linea
+                        //UForm.EnableMenu("1293", true); //Activar Borrar Linea 
                         rowsel = eventInfo.Row;
                     }
                     else
                     {
-                        UForm.EnableMenu("1292", false); //Desctivar Agregar Linea
-                        UForm.EnableMenu("1293", false); //Desactivar Borrar Linea 
+                        //UForm.EnableMenu("1292", false); //Desctivar Agregar Linea
+                        //UForm.EnableMenu("1293", false); //Desactivar Borrar Linea 
                     }
                 }
             }
@@ -267,6 +267,8 @@ namespace ventaRT.VIEW
             UMatrix = UForm.Items.Item("umtx").Specific;
             oDbAutDataSource = UForm.DataSources.DBDataSources.Item("@AUT_RSTV");
             formActual = B1.Application.Forms.ActiveForm.UniqueID;
+            UForm.EnableMenu("1292", true); //Activar Agregar Linea
+            UForm.EnableMenu("1293", true); //Activar Borrar Linea
             cargar_lineas();
         }
 

@@ -20,15 +20,11 @@ namespace ventaRT.VIEW
         : SSIFramework.UI.UIApi.UserForm
     {
         private readonly SSIConnector B1 = SSIConnector.GetSSIConnector();
-        private string ItemActiveMenu = "";
+        private List<string> lineasnodisp = new List<string>();
 
         private string formActual = "";
         SAPbouiCOM.Form AForm = null;
         SAPbouiCOM.Matrix AMatrix = null;
-
-        private int rowsel = 0;   
-
-
 
         public PantallaAprobac()
             : base(GenericFunctions.ResourcesForms["ventaRT.Forms.Aprobac.srf"], "AprRT" + DateTime.Now.Hour.ToString() + "_" + DateTime.Now.Minute.ToString() + "_" + DateTime.Now.Second.ToString())
@@ -37,11 +33,8 @@ namespace ventaRT.VIEW
 
             this.B1.Application.ItemEvent += new SAPbouiCOM._IApplicationEvents_ItemEventEventHandler(ThisSapApiForm_ItemEvent);
 
-
             cancelar_vencidaspormas10D();
-
             cargar_datos_iniciales();
-
             cargar_datos_matriz();
         }
 
@@ -613,7 +606,6 @@ namespace ventaRT.VIEW
 
         }
 
-
         public void llenar_combo_busq(SAPbouiCOM.ComboBox oCombo, string SqlQuery)
         {
             SAPbobsCOM.Recordset oRecordSet = null;
@@ -706,7 +698,239 @@ namespace ventaRT.VIEW
             }
             return dcom;
 
-        } 
+        }
+
+        private double obtener_exist_articulo(string codart, string codwhs)
+        {
+            double exist = 0.00;
+            try
+            {
+                String strSQL = String.Format("SELECT {0} FROM {3} " +
+                    " WHERE contains({1},'%{4}%') AND {2}='{5}'  ",
+                          Constantes.View.oitw.OnHand,
+                          Constantes.View.oitw.ItemCode,
+                          Constantes.View.oitw.WhsCode,
+                          Constantes.View.oitw.OITW,
+                          codart,
+                          codwhs);
+                Recordset rsResult = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                rsResult.DoQuery(strSQL);
+                SAPbobsCOM.Fields fields = rsResult.Fields;
+                rsResult.MoveFirst();
+                if (!rsResult.EoF)
+                {
+                    exist = Double.Parse(rsResult.Fields.Item("OnHand").Value.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error obteniendo Stock Disponible" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw;
+            }
+            return exist;
+        }
+
+        private void revertir(string sCode, string docentry)
+        {
+            bool todoOk = true;
+            int result = 0;
+            try
+            {
+                GC.Collect();
+                B1.Company.StartTransaction();
+                SAPbobsCOM.StockTransfer doctransf = B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oStockTransfer);
+                doctransf.DocDate = DateTime.Today;
+                doctransf.TaxDate = DateTime.Today;
+                doctransf.FromWarehouse = "SHOWROOM";
+                doctransf.ToWarehouse = "CD";
+                doctransf.JournalMemo = "Addons VentasRT Canc.Aut. Solic:" + sCode;
+                if (docentry != "")
+                {
+                    String strSQL = String.Format("SELECT {2}, {3}, {4} FROM {0} Where {1}='{5}'",
+                                Constantes.View.wtr1.WTR1,
+                                Constantes.View.wtr1.DocEntry,
+                                Constantes.View.wtr1.ItemCode,
+                                Constantes.View.wtr1.ItemDescription,
+                                Constantes.View.wtr1.Quantity,
+                                docentry);
+
+                    Recordset rsDoc = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    rsDoc.DoQuery(strSQL);
+                    SAPbobsCOM.Fields fields = rsDoc.Fields;
+                    rsDoc.MoveFirst();
+                    string artcurrent = "";
+                    string art = "";
+                    double totalart = 0.00;
+                    int cantlines = 1;
+                    int linestransf = 0;
+                    double disponible = 0;
+                    for (int i = 1; i <= rsDoc.RecordCount; i++)
+                    {
+                        art = rsDoc.Fields.Item("ItemCode").Value.ToString();
+                        if (artcurrent != art)
+                        {
+                            if (artcurrent != "")
+                            {
+                                disponible = obtener_exist_articulo(artcurrent, "SHOWROOM");
+                                if (disponible >= totalart)
+                                {
+                                    if (cantlines > 1)
+                                    {
+                                        result = doctransf.Lines.Count;
+                                        doctransf.Lines.SetCurrentLine(doctransf.Lines.Count - 1);
+                                        doctransf.Lines.Add();
+                                        doctransf.Lines.SetCurrentLine(doctransf.Lines.Count - 1);
+                                    }
+                                    cantlines++;
+                                    linestransf++;
+                                    doctransf.Lines.ItemCode = artcurrent;
+                                    doctransf.Lines.ItemDescription = rsDoc.Fields.Item("Dscription").Value.ToString();
+                                    doctransf.Lines.Quantity = totalart;
+                                    doctransf.Lines.FromWarehouseCode = "SHOWROOM";
+                                    doctransf.Lines.WarehouseCode = "CD";
+                                }
+                            }
+                            artcurrent = art;
+                            totalart = Double.Parse(rsDoc.Fields.Item("Quantity").Value.ToString());
+                        }
+                        else
+                        {
+                            totalart += Double.Parse(rsDoc.Fields.Item("Quantity").Value.ToString());
+                        }
+                        if (i < rsDoc.RecordCount) { rsDoc.MoveNext(); }
+                    }
+                    // Adicionar ultima fila
+                    if (artcurrent != "")
+                    {
+                        disponible = obtener_exist_articulo(artcurrent, "SHOWROOM");
+                        if (disponible >= totalart)
+                        {
+                            if (cantlines > 1)
+                            {
+                                result = doctransf.Lines.Count;
+                                doctransf.Lines.SetCurrentLine(doctransf.Lines.Count - 1);
+                                doctransf.Lines.Add();
+                                doctransf.Lines.SetCurrentLine(doctransf.Lines.Count - 1);
+                            }
+                            linestransf++;
+                            doctransf.Lines.ItemCode = artcurrent;
+                            doctransf.Lines.ItemDescription = rsDoc.Fields.Item("Dscription").Value.ToString();
+                            doctransf.Lines.Quantity = totalart;
+                            doctransf.Lines.FromWarehouseCode = "SHOWROOM";
+                            doctransf.Lines.WarehouseCode = "CD";
+                        }
+                    }
+                    if ((linestransf > 0)) { result = doctransf.Add(); }
+                    GC.Collect();
+                    todoOk = (result == 0) && (linestransf > 0);
+                }
+
+                if (todoOk)
+                {
+                    B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_Commit);
+                    string newkey = B1.Company.GetNewObjectKey();
+                    if (newkey != "")
+                    {
+                        //Actualizar datos de Transferencia en Solicitud
+                        string infonodisp = lineasnodisp != null && lineasnodisp.Count > 0 ? ", No disp:" + string.Join("-", lineasnodisp) : "";
+                        string slog = "Cancelada Automáticamente: " + DateTime.Now.Date.ToString("dd/MM/yyyy") + " DocNum:" + obtener_DocNum(newkey) + infonodisp;
+                        string scom = "Solicitud Cancelada por vencer su período de revisión: " + DateTime.Now.Date.ToString("dd/MM/yyyy");
+
+                        Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+
+                        string sestado = "C";
+
+                        string SQLQuery = String.Format("UPDATE {1} SET {2} = '{8}', {5} = '{4}', {6} = '{7}', {9} = '{10}' FROM {1} WHERE {0} = '{3}' ",
+                                                 Constantes.View.CAB_RVT.U_numOC,   //0
+                                                 Constantes.View.CAB_RVT.CAB_RV,    //1
+                                                 Constantes.View.CAB_RVT.U_logs,    //2
+                                                 sCode,                             //3
+                                                 scom,                              //4
+                                                 Constantes.View.CAB_RVT.U_comment,    //5
+                                                 Constantes.View.CAB_RVT.U_estado,    //6
+                                                 sestado,   //7
+                                                 slog,//8
+                                                 Constantes.View.CAB_RVT.U_idTV,  //9
+                                                 newkey); ////10
+
+                        oRecordSet.DoQuery(SQLQuery);
+
+
+                        SQLQuery = String.Format("UPDATE {1} SET {3} = '{4}' FROM {1} WHERE {0} = '{2}'  ",
+                                                 Constantes.View.DET_RVT.U_numOC,   //0
+                                                 Constantes.View.DET_RVT.DET_RV,    //1
+                                                 sCode,                             //2
+                                                 Constantes.View.DET_RVT.U_idTV,   //3
+                                                 newkey);                           //4
+
+
+                        oRecordSet.DoQuery(SQLQuery);
+                        cancelar_filas_nodisp(newkey);
+                        B1.Application.SetStatusBarMessage("Solicitud Cancelada Automática Transferida con éxito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+
+                    }
+                    else
+                    {
+                        B1.Application.SetStatusBarMessage("Error Transfiriendo Solicitud Cancelada Automática", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                    }
+                }
+                else
+                {
+                    B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack);
+                    B1.Application.SetStatusBarMessage("Error Transferiendo Solicitud Cancelada Automática" +sCode, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error Transferiendo Solicitud Cancelada Automática" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw ex;
+            }
+        }
+
+        private bool cancelar_filas_nodisp(string newkey)
+        {
+            bool todoOk = true;
+            string SQLQuery = String.Empty;
+            try
+            {
+                string filasnodisp = string.Join("-", lineasnodisp);
+                if (lineasnodisp != null && lineasnodisp.Count > 0)
+                {
+                    for (int i = 0; i < lineasnodisp.Count; i++)
+                    {
+                        string sestado = "N";
+                        string nuevaidtv = "";
+                        SQLQuery = String.Format("UPDATE {1} SET {2} = '{5}', {3} = '{7}' FROM {1} WHERE {0} = '{4}' AND {3} = '{6}' ",
+                                        Constantes.View.DET_RVT.U_codArt,      //0
+                                        Constantes.View.DET_RVT.DET_RV,    //1 
+                                        Constantes.View.DET_RVT.U_estado,  //2
+                                        Constantes.View.DET_RVT.U_idTV,    //3
+                                        lineasnodisp[i],                   //4
+                                        sestado,                           //5
+                                        newkey,                          //6
+                                        nuevaidtv);                    //7
+
+                        Recordset rsCards = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                        rsCards.DoQuery(SQLQuery);
+                    }
+                    int respuesta = B1.Application.MessageBox("Los artículos " + filasnodisp + " no están disponibles, por tanto, se cancela su transferencia", 1, "OK", " Cancelar");
+                }
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error sincronizando artículos no disponibles " + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                todoOk = false;
+                throw;
+            }
+
+            finally
+            {
+                lineasnodisp.Clear();
+                System.GC.Collect();
+            }
+
+            return todoOk;
+        }
 
         private void cancelar_vencidaspormas10D()
         {
@@ -717,18 +941,28 @@ namespace ventaRT.VIEW
                 //Actualizar estado y comentario
                 B1.Application.SetStatusBarMessage("Realizando Cancelación Automática por Fecha de Vencimiento", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
                 B1.Application.Forms.ActiveForm.Freeze(true);
-                string scom = "Solicitud Cancelada por vencer su período de revisión: "  + DateTime.Now.Date.ToString("dd/MM/yyyy") ;
-                string sestado = "C";
-                Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-                string SQLQuery = String.Format("UPDATE {0} SET {1} = '{3}', {2}='{4}' FROM {0} WHERE {2} = 'N' AND  DAYS_BETWEEN(CURRENT_DATE,{5}) < 0 ",
-                                         Constantes.View.CAB_RVT.CAB_RV,    //0
-                                         Constantes.View.CAB_RVT.U_comment, //1
-                                         Constantes.View.CAB_RVT.U_estado,  //2
-                                         scom,                              //3
-                                         sestado,                         //4
-                                         Constantes.View.CAB_RVT.U_fechaV); //5
+                string nodoc = "";
+                string dentry = "";
+                //DAYS_BETWEEN(CURRENT_DATE,{3}) < 0
+                string SQLQuery = String.Format("SELECT {0}, {4} FROM {1} WHERE {2} = 'R' AND  DAYS_BETWEEN(CURRENT_DATE,{3}) < 0 ",
+                                             Constantes.View.CAB_RVT.U_numOC,
+                                             Constantes.View.CAB_RVT.CAB_RV,
+                                             Constantes.View.CAB_RVT.U_estado,
+                                             Constantes.View.CAB_RVT.U_fechaV,
+                                             Constantes.View.CAB_RVT.U_idTR);
 
+
+                Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
                 oRecordSet.DoQuery(SQLQuery);
+                oRecordSet.MoveFirst();
+                for (int i = 0; !oRecordSet.EoF ; i++)
+                {
+                    nodoc = oRecordSet.Fields.Item("U_numDoc").Value.ToString();
+                    dentry = oRecordSet.Fields.Item("U_idTR").Value.ToString();
+                    revertir(nodoc, dentry);
+                    oRecordSet.MoveNext();
+                }
+
                 B1.Application.Forms.ActiveForm.Freeze(false);
                 B1.Application.SetStatusBarMessage("Cancelación Automática realizada con éxito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
             }

@@ -22,6 +22,7 @@ namespace ventaRT.Constantes.View
         public const string grid = "grid";
         public const string mtx = "mtx";
         public const string txt_com = "txt_com";
+        public const string txt_log = "txt_log";
         public const string btn_crear = "1";
         public const string btn_cancel = "2";
         public const string btn_autorizar = "btnAut";
@@ -77,6 +78,15 @@ namespace ventaRT.Constantes.View
         public const string DocNum = "\"DocNum\"";
     }
 
+    public static class wtr1  // Lineas de Documentos de Transferencias de Inventarios
+    {
+        public const string WTR1 = "WTR1";
+        public const string DocEntry = "\"DocEntry\"";
+        public const string ItemCode = "\"ItemCode\"";
+        public const string Quantity = "\"Quantity\"";
+        public const string ItemDescription = "\"Dscription\"";
+    }
+
 
     public static class CAB_RVT
     {
@@ -94,6 +104,7 @@ namespace ventaRT.Constantes.View
         public const string U_idAut = "\"U_idAut\"";
         public const string U_vend = "\"U_vend\"";
         public const string U_aut = "\"U_aut\"";
+        public const string U_logs = "\"U_logs\"";
     }
 
     public static class DET_RVT
@@ -124,6 +135,7 @@ namespace ventaRT.Constantes.View
         public const string U_comment = "U_comment";
         public const string U_idVend = "U_idVend";
         public const string U_idAut = "U_idAut";
+        public const string U_logs = "U_logs";
 
     }
 
