@@ -838,7 +838,7 @@ namespace ventaRT.VIEW
 
                         Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
 
-                        string sestado = "C";
+                        string sestado = "D";
 
                         string SQLQuery = String.Format("UPDATE {1} SET {2} = '{8}', {5} = '{4}', {6} = '{7}', {9} = '{10}' FROM {1} WHERE {0} = '{3}' ",
                                                  Constantes.View.CAB_RVT.U_numOC,   //0
