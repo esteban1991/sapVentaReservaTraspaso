@@ -58,16 +58,13 @@ namespace ventaRT.VIEW
 
         public void cargar_datos_matriz()
         {
-
-
-            B1.Application.SetStatusBarMessage("Cargando datos de Solcitudes de Reservas de Stock para su Autorización...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+            B1.Application.SetStatusBarMessage("Cargando datos de Solicitudes de Reservas de Stock para su Autorización...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
             bool todoOk = true;
             string serror = "";
             formActual = B1.Application.Forms.ActiveForm.UniqueID;
             AForm = B1.Application.Forms.ActiveForm;
             AMatrix = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item("mtxaprob").Specific;
-            
-
+  
             string filtrado = "";
     
             try
@@ -152,6 +149,8 @@ namespace ventaRT.VIEW
                     int respuesta = B1.Application.MessageBox("Filtros aplicados: " + filtrado, 1, "OK");
                 }
 
+                B1.Application.SetStatusBarMessage("Cargando datos de Solicitudes...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+
                 string cadw = "";
                 cadw = condPer != String.Empty || condCli != String.Empty || condArt != String.Empty || condVend != String.Empty ||
                        condNue != String.Empty || condApr != String.Empty || condTra != String.Empty || condCan != String.Empty  || condDev != String.Empty
@@ -219,8 +218,8 @@ namespace ventaRT.VIEW
                 AMatrix.Clear();
                 SAPbobsCOM.Fields fields = rsCards.Fields;
                 rsCards.MoveFirst();
-                B1.Application.Forms.ActiveForm.Freeze(false);
-                SAPbouiCOM.ProgressBar oProgressBar = B1.Application.StatusBar.CreateProgressBar("Cargando datos de Solicitudes...", rsCards.RecordCount, false);
+                //B1.Application.Forms.ActiveForm.Freeze(false);
+                //SAPbouiCOM.ProgressBar oProgressBar = B1.Application.StatusBar.CreateProgressBar("Cargando datos de Solicitudes...", rsCards.RecordCount, false);
 
                 for (int i = 1; !rsCards.EoF; i++)
                 {
@@ -274,21 +273,22 @@ namespace ventaRT.VIEW
 
 
                     rsCards.MoveNext();
-
-                    try
-                    {
-                         oProgressBar.Text = "Cargando datos de Solicitudes ...";
-                    }
-                    catch (Exception)
-                    {
-                        oProgressBar = B1.Application.StatusBar.CreateProgressBar("Cargando datos de Solicitudes...", rsCards.RecordCount, false);
-                    }
-                     oProgressBar.Value = i;
+                    if (!rsCards.EoF)
+                    { B1.Application.SetStatusBarMessage("Espere......Cargando datos de Solicitud...No." + fields.Item("U_numDoc").Value.ToString() + "    (" + i.ToString() + "/" + rsCards.RecordCount.ToString() + ")", SAPbouiCOM.BoMessageTime.bmt_Short, false); }
+                    //try
+                    //{
+                    //     oProgressBar.Text = "Cargando datos de Solicitudes ...";
+                    //}
+                    //catch (Exception)
+                    //{
+                    //    oProgressBar = B1.Application.StatusBar.CreateProgressBar("Cargando datos de Solicitudes...", rsCards.RecordCount, false);
+                    //}
+                    // oProgressBar.Value = i;
 
                 }
-                oProgressBar.Stop();
+                //oProgressBar.Stop();
                 AMatrix.AutoResizeColumns();
-
+                B1.Application.Forms.ActiveForm.Freeze(false);
 
                
 

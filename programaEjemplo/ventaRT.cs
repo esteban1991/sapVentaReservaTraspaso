@@ -66,7 +66,7 @@ namespace ventaRT
                 if (!B1.Application.Menus.Exists(Constantes.Views.Menu.MenuVentaReserva))
                     GenericFunctions.addMenu(Constantes.Views.Menu.MenuVentaReserva,
                      Constantes.Views.Menu.MenuVentaReserva_Desc, "43520",
-                      BoMenuType.mt_POPUP, null);
+                      BoMenuType.mt_POPUP, null );
 
                 if (!B1.Application.Menus.Exists(Constantes.Views.Menu.MENU_submenu_registro_solicitud))
                     GenericFunctions.addMenu(Constantes.Views.Menu.MENU_submenu_registro_solicitud,
