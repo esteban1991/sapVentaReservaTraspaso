@@ -66,6 +66,9 @@ namespace ventaRT.VIEW
             formActual = B1.Application.Forms.ActiveForm.UniqueID;
             AForm = B1.Application.Forms.ActiveForm;
             AMatrix = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item("mtxaprob").Specific;
+            
+
+            string filtrado = "";
     
             try
             {
@@ -87,6 +90,10 @@ namespace ventaRT.VIEW
                     SAPbouiCOM.EditText desde = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.txtDesde).Specific;
                     SAPbouiCOM.EditText hasta = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.txtHasta).Specific;
                     condPer = desde.Value!="" && hasta.Value != "" ?Constantes.View.CAB_RVT.U_fechaC + " between '" + desde.Value + "' AND ' " + hasta.Value + "'":"" ;
+                    filtrado = filtrado + (condPer != "" ? "\n>Período Seleccionado: " + 
+                        DateTime.ParseExact(desde.Value, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd/MM/yyyy")+
+                        " a "+
+                        DateTime.ParseExact(hasta.Value, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd/MM/yyyy") : "");
                 }
 
                 SAPbouiCOM.CheckBox cboxCli = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxCli).Specific;
@@ -94,8 +101,9 @@ namespace ventaRT.VIEW
                 if (cboxCli.Checked == true)
                 {
                     SAPbouiCOM.ComboBox cli = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cbCli).Specific;
-                    string selCli = cli.Selected != null  ? cli.Selected.Value.ToString() : "";
+                    string selCli = (cli.Value != "") ? cli.Value : "";
                     condCli = selCli != "" ? Constantes.View.DET_RVT.U_codCli + " = '" + selCli + "'": condCli;
+                    filtrado = filtrado + (condCli != ""? "\n>Cliente Seleccionado: " + selCli:"");
                 }
 
                 SAPbouiCOM.CheckBox cboxArt = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxArt).Specific;
@@ -103,8 +111,9 @@ namespace ventaRT.VIEW
                 if (cboxArt.Checked == true)
                 {
                     SAPbouiCOM.ComboBox art = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cbArt).Specific;
-                    string selArt = art.Selected != null ? art.Selected.Value.ToString() : "";
+                    string selArt = (art.Value != "") ? art.Value : "";
                     condArt = selArt != "" ? Constantes.View.DET_RVT.U_codArt + " = '" + selArt + "'": condArt;
+                    filtrado = filtrado + (condArt != ""? "\n>Artículo Seleccionado: "+ selArt: "");
                 }
 
                 SAPbouiCOM.CheckBox cboxVend = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxVend).Specific;
@@ -112,12 +121,14 @@ namespace ventaRT.VIEW
                 if (cboxVend.Checked == true)
                 {
                     SAPbouiCOM.ComboBox vend = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cbVend).Specific;
-                    string selVend = vend.Selected != null ? vend.Selected.Value.ToString() : "";
+                    string selVend = (vend.Value != "" )? vend.Value : "";
                     condVend = selVend != "" ? Constantes.View.CAB_RVT.U_idVend + " = '" + selVend + "'" : condVend;
+                    filtrado = filtrado + (condVend != "" ? "\n>Vendedor Seleccionado: " + selVend: "");
+
                 }
 
                 string condNue = String.Empty;
-                condNue = (cboxNue.Checked == false) ? "T0." + Constantes.View.CAB_RVT.U_estado + " <> 'N' " : condNue;
+                condNue = (cboxNue.Checked == false) ? "T0." + Constantes.View.CAB_RVT.U_estado + " <> 'R' " : condNue;
 
                 string condApr = String.Empty;
                 condApr = (cboxApr.Checked == false) ? "T0." + Constantes.View.CAB_RVT.U_estado + " <> 'A' " : condApr;
@@ -130,6 +141,16 @@ namespace ventaRT.VIEW
 
                 string condDev = String.Empty;
                 condDev = (cboxDev.Checked == false) ? "T0." + Constantes.View.CAB_RVT.U_estado + " <> 'D' " : condDev;
+
+                filtrado = filtrado + "\n>Estados Seleccionados: " +
+                        (condNue == String.Empty ? "Reservada" : "") + (condApr == String.Empty ? "-Aprobada" : "") + 
+                        (condTra == String.Empty ? "-Transferida" : "")+
+                        (condCan == String.Empty ? "-Cancelada " : "") + (condDev == String.Empty ? "-Devuelta" : "") ;
+
+                if (filtrado !="")
+                {
+                    int respuesta = B1.Application.MessageBox("Filtros aplicados: " + filtrado, 1, "OK");
+                }
 
                 string cadw = "";
                 cadw = condPer != String.Empty || condCli != String.Empty || condArt != String.Empty || condVend != String.Empty ||
@@ -267,6 +288,8 @@ namespace ventaRT.VIEW
                 }
                 oProgressBar.Stop();
                 AMatrix.AutoResizeColumns();
+
+
                
 
             }
@@ -308,9 +331,10 @@ namespace ventaRT.VIEW
 
                                             SAPbouiCOM.EditText desde = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.txtDesde).Specific;
                                             SAPbouiCOM.EditText hasta = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.txtHasta).Specific;
-                                            if (desde.Value.ToString() != "" && hasta.Value.ToString() != "")
+                                            if (cboxPer.Checked && desde.Value.ToString() != "" && hasta.Value.ToString() != "")
                                             {
                                                 cargar_datos_matriz();
+
                                             }
 
 
@@ -326,17 +350,39 @@ namespace ventaRT.VIEW
                                     {
                                         case "cbCli":
                                             {
-                                                cargar_datos_matriz();
+                                                SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxCli").Specific;
+                                                SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbCli").Specific;
+                                                if (oCombo.Value != "") 
+                                                {
+                                                    if (oCbox.Checked) { cargar_datos_matriz(); }
+                                                    else { oCbox.Checked = true; }
+                                                }
+                                                else { oCbox.Checked = false; }
+
                                             }
                                             break;
                                         case "cbArt":
                                             {
-                                                cargar_datos_matriz();
+                                                SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxArt").Specific;
+                                                SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbArt").Specific;
+                                                if (oCombo.Value != "")
+                                                {
+                                                    if (oCbox.Checked) { cargar_datos_matriz(); }
+                                                    else { oCbox.Checked = true; }
+                                                }
+                                                else { oCbox.Checked = false; }
                                             }
                                             break;
                                         case "cbVend":
                                             {
-                                                cargar_datos_matriz();
+                                                SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxVend").Specific;
+                                                SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbVend").Specific;
+                                                if (oCombo.Value != "")
+                                                {
+                                                    if (oCbox.Checked) { cargar_datos_matriz(); }
+                                                    else { oCbox.Checked = true; }
+                                                }
+                                                else { oCbox.Checked = false; }
                                             }
                                             break;
                                     }
@@ -344,26 +390,7 @@ namespace ventaRT.VIEW
 
                                 }
 
-                            //case BoEventTypes.et_CLICK:
-                            //    {
 
-                            //        switch (pVal.ItemUID)
-                            //        {
-
-                            //            case "cboxPer":
-                            //                {
-                            //                    // Activar busqueda por articulo  
-                            //                    SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxPer").Specific;
-                            //                    SAPbouiCOM.EditText desde = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item("txtDesde").Specific;
-                            //                    SAPbouiCOM.EditText hasta = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item("txtHasta").Specific;
-                            //                    if (desde.Value.ToString() != "" && hasta.Value.ToString() != "")
-                            //                    { cargar_datos_matriz(); }
-
-                            //                }
-                            //                break;
-                            //        }
-                            //        break;
-                            //    }
 
                             case BoEventTypes.et_ITEM_PRESSED:
                                 {
@@ -396,7 +423,10 @@ namespace ventaRT.VIEW
                                                 // Activar busqueda por articulo  
                                                 SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxArt").Specific;
                                                 SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbArt").Specific;
-                                                cargar_datos_matriz();
+                                                if (oCombo.Value != "")
+                                                {
+                                                    cargar_datos_matriz();
+                                                }                                                
                                             }
                                             break;
 
@@ -405,7 +435,10 @@ namespace ventaRT.VIEW
                                                 // Activar busqueda por articulo  
                                                 SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxVend").Specific;
                                                 SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbVend").Specific;
-                                                cargar_datos_matriz();
+                                                if (oCombo.Value != "")
+                                                {
+                                                    cargar_datos_matriz();
+                                                }
                                             }
                                             break;
 
@@ -414,8 +447,10 @@ namespace ventaRT.VIEW
                                                 // Activar busqueda por articulo  
                                                 SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxCli").Specific;
                                                 SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbCli").Specific;
-                                                //oCombo.Item.Visible = !oCbox.Checked;
-                                                cargar_datos_matriz();
+                                                if (oCombo.Value != "")
+                                                {
+                                                    cargar_datos_matriz();
+                                                }
                                             }
                                             break;
 
@@ -470,60 +505,82 @@ namespace ventaRT.VIEW
                         {
                             case BoEventTypes.et_CLICK:
                                 {
-                                    switch (pVal.ItemUID)
+                                    // Mensaje de error para los combobox cdo se editan los campos e fecha q SAP no los activa
+                                    if (pVal.ItemUID == "cboxDev" || pVal.ItemUID == "cboxCan" || pVal.ItemUID == "cboxTra" ||
+                                        pVal.ItemUID == "cboxApr" || pVal.ItemUID == "cboxNue" || pVal.ItemUID == "cboxCli" ||
+                                        pVal.ItemUID == "cboxArt" || pVal.ItemUID == "cboxVend")
                                     {
+                                        SAPbouiCOM.EditText desde = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item("txtDesde").Specific;
+                                        SAPbouiCOM.EditText hasta = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item("txtHasta").Specific;
+                                        SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxPer").Specific;
 
-                                        case "cbCli":
-                                            {
-                                                // Rellenando combo de busqueda
-                                                SAPbouiCOM.ComboBox oCombo = null;
-                                                oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbCli").Specific;
-                                                string SQLQuery = string.Empty;
-                                                SQLQuery = String.Format("SELECT {1}, {2} FROM {0} GROUP BY {1}, {2} ORDER BY {1}",
-                                                                                    Constantes.View.DET_RVT.DET_RV,
-                                                                                    Constantes.View.DET_RVT.U_codCli,
-                                                                                    Constantes.View.DET_RVT.U_cliente);
+                                        if ((oCbox.Checked && (desde.Value != "" || hasta.Value != "")) &&
+                                            (AForm.ActiveItem == "txtHasta" || AForm.ActiveItem == "txtDesde"))
+                                        {
+                                            B1.Application.SetStatusBarMessage("Error: Finalice la edición primero de " + (AForm.ActiveItem == "txtDesde" ? "Desde" : "Hasta") + 
+                                                ". Si finalizó, salga con " + (AForm.ActiveItem == "txtDesde" ? "<SHIFT+TAB>" : "<TAB>")  , SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                            BubbleEvent = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        switch (pVal.ItemUID)
+                                        {
 
-                                                llenar_combo_busq(oCombo, SQLQuery);
-                                            }
-                                            break;
-                                        case "cbArt":
-                                            {
-                                                // Rellenando combo de busqueda
-                                                SAPbouiCOM.ComboBox oCombo = null;
-                                                oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbArt").Specific;
-                                                string SQLQuery = string.Empty;
-                                                SQLQuery = String.Format("SELECT {1}, {2} FROM {0} GROUP BY {1}, {2} ORDER BY {1}",
-                                                                                    Constantes.View.DET_RVT.DET_RV,
-                                                                                    Constantes.View.DET_RVT.U_codArt,
-                                                                                    Constantes.View.DET_RVT.U_articulo);
+                                            case "cbCli":
+                                                {
+                                                    // Rellenando combo de busqueda
+                                                    SAPbouiCOM.ComboBox oCombo = null;
+                                                    oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbCli").Specific;
+                                                    string SQLQuery = string.Empty;
+                                                    SQLQuery = String.Format("SELECT {1}, {2} FROM {0} GROUP BY {1}, {2} ORDER BY {1}",
+                                                                                        Constantes.View.DET_RVT.DET_RV,
+                                                                                        Constantes.View.DET_RVT.U_codCli,
+                                                                                        Constantes.View.DET_RVT.U_cliente);
 
-                                                llenar_combo_busq(oCombo, SQLQuery);
-                                            }
-                                            break;
+                                                    llenar_combo_busq(oCombo, SQLQuery);
+                                                }
+                                                break;
+                                            case "cbArt":
+                                                {
+                                                    // Rellenando combo de busqueda
+                                                    SAPbouiCOM.ComboBox oCombo = null;
+                                                    oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbArt").Specific;
+                                                    string SQLQuery = string.Empty;
+                                                    SQLQuery = String.Format("SELECT {1}, {2} FROM {0} GROUP BY {1}, {2} ORDER BY {1}",
+                                                                                        Constantes.View.DET_RVT.DET_RV,
+                                                                                        Constantes.View.DET_RVT.U_codArt,
+                                                                                        Constantes.View.DET_RVT.U_articulo);
 
-                                        case "cbVend":
-                                            {
-                                                // Rellenando combo de busqueda
-                                                SAPbouiCOM.ComboBox oCombo = null;
-                                                oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbVend").Specific;
-                                                string SQLQuery = string.Empty;
-                                                SQLQuery = String.Format("SELECT {1}, {2} FROM {0} GROUP BY {1}, {2} ORDER BY {1}",
-                                                                                    Constantes.View.CAB_RVT.CAB_RV,
-                                                                                    Constantes.View.CAB_RVT.U_idVend,
-                                                                                    Constantes.View.CAB_RVT.U_vend);
+                                                    llenar_combo_busq(oCombo, SQLQuery);
+                                                }
+                                                break;
 
-                                                llenar_combo_busq(oCombo, SQLQuery);
-                                            }
-                                            break;
+                                            case "cbVend":
+                                                {
+                                                    // Rellenando combo de busqueda
+                                                    SAPbouiCOM.ComboBox oCombo = null;
+                                                    oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbVend").Specific;
+                                                    string SQLQuery = string.Empty;
+                                                    SQLQuery = String.Format("SELECT {1}, {2} FROM {0} GROUP BY {1}, {2} ORDER BY {1}",
+                                                                                        Constantes.View.CAB_RVT.CAB_RV,
+                                                                                        Constantes.View.CAB_RVT.U_idVend,
+                                                                                        Constantes.View.CAB_RVT.U_vend);
+                                                    llenar_combo_busq(oCombo, SQLQuery);
+                                                }
+                                                break;
 
-                                        case "mtxaprob":
-                                            {
-                                                string nodoc = AMatrix.Columns.Item(1).Cells.Item(pVal.Row).Specific.Value;
-                                                new VIEW.PantallaRegistro(this, false, nodoc);
-                                            }
-                                            break;
+                                            case "mtxaprob":
+                                                {
+                                                    if (pVal.Row > 0)
+                                                    {
+                                                        string nodoc = AMatrix.Columns.Item(1).Cells.Item(pVal.Row).Specific.Value;
+                                                        new VIEW.PantallaRegistro(this, false, nodoc);
+                                                    }
 
+                                                }
+                                                break;
+                                        }
                                     }
                                 }
                                 break;
@@ -535,7 +592,7 @@ namespace ventaRT.VIEW
                                     {
                                         case Constantes.View.aprobac.cboxPer:
                                             {
-                                                if (pVal.InnerEvent == false && pVal.ItemUID == "cboxPer" )
+                                                if (pVal.InnerEvent == false  )
                                                 {
 
                                                     SAPbouiCOM.EditText desde = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item("txtDesde").Specific;
@@ -552,6 +609,56 @@ namespace ventaRT.VIEW
                                                 }
                                             }
                                             break;
+                                        case Constantes.View.aprobac.cboxVend:
+                                            {
+                                                if (pVal.InnerEvent == false)
+                                                {
+                                                    SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbVend").Specific;
+                                                    SAPbouiCOM.CheckBox oCbox =  (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxVend").Specific;
+
+                                                    if (oCbox.Checked && oCombo.Value == "")
+                                                    {
+                                                        B1.Application.SetStatusBarMessage("Error No se puede filtrar por Vendedor si no tiene Vendedor Seleccionado", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                        oCbox.Checked = false;
+                                                        BubbleEvent = false;
+                                                    }
+                                                }
+                                            }
+                                            break;
+
+                                        case Constantes.View.aprobac.cboxArt:
+                                            {
+                                                if (pVal.InnerEvent == false)
+                                                {
+                                                    SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbArt").Specific;
+                                                    SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxArt").Specific;
+
+                                                    if (oCbox.Checked && oCombo.Value == "")
+                                                    {
+                                                        B1.Application.SetStatusBarMessage("Error No se puede filtrar por Artículo si no tiene Artículo Seleccionado", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                        oCbox.Checked = false;
+                                                        BubbleEvent = false;
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        case Constantes.View.aprobac.cboxCli:
+                                            {
+                                                if (pVal.InnerEvent == false)
+                                                {
+                                                    SAPbouiCOM.ComboBox oCombo = (SAPbouiCOM.ComboBox)B1.Application.Forms.ActiveForm.Items.Item("cbCli").Specific;
+                                                    SAPbouiCOM.CheckBox oCbox = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item("cboxCli").Specific;
+
+                                                    if (oCbox.Checked && oCombo.Value == "")
+                                                    {
+                                                        B1.Application.SetStatusBarMessage("Error No se puede filtrar por Cliente si no tiene Cliente Seleccionado", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                        oCbox.Checked = false;
+                                                        BubbleEvent = false;
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                    
                                     }
                                 }
                                 break;
@@ -568,10 +675,13 @@ namespace ventaRT.VIEW
                                             if ((DateTime.ParseExact(hasta.Value, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture) -
                                                   DateTime.ParseExact(desde.Value, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture)).Days < 0)
                                             {
-                                                B1.Application.SetStatusBarMessage("Error Fecha Desde <= Fecha Hasta", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                                B1.Application.SetStatusBarMessage("Error Desde <= Hasta", SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                                                if (pVal.ItemUID == "txtDesde") { desde.Value = hasta.Value; }
+                                                else {hasta.Value = desde.Value;}
                                                 BubbleEvent = false;
                                             }
                                     }
+
 
                                     if (pVal.InnerEvent == false && (pVal.ItemUID == "cboxPer" || pVal.ItemUID == "txtDesde" || pVal.ItemUID == "txtHasta"))
                                     {
@@ -583,11 +693,10 @@ namespace ventaRT.VIEW
 
                                         if (oCbox.Checked && (desde.Value == "" || hasta.Value == ""))
                                         {
-                                          B1.Application.SetStatusBarMessage("Error No se puede filtrar por Periodo si el Desde o Hasta estan vacios", SAPbouiCOM.BoMessageTime.bmt_Short, true);
-                                          BubbleEvent = false;
+                                            B1.Application.SetStatusBarMessage("Error No se puede filtrar por Período si el Desde o Hasta están vacíos, se desmarca Periodo..", SAPbouiCOM.BoMessageTime.bmt_Short, true);
+                                            BubbleEvent = false;
                                         }
                                     }
-
 
                                     break;
 
@@ -617,7 +726,7 @@ namespace ventaRT.VIEW
             oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
             oRecordSet.DoQuery(SqlQuery);
 
-
+            oCombo.ValidValues.Add("", "");
 
             for (int i = 1; !oRecordSet.EoF;i++ )
             {

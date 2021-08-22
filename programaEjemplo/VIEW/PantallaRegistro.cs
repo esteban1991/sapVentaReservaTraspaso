@@ -32,6 +32,7 @@ namespace ventaRT.VIEW
         private int indice = 0;
         private string docaprob = "";
         private string tractual = "";
+        private string cominicial = "";
         private bool cabinserted = false;
 
         private SAPbouiCOM.ComboBox oCombo = null;
@@ -96,10 +97,10 @@ namespace ventaRT.VIEW
                         //    preparar_modo_Find();
                         //    BubbleEvent = false;
                         //    break;
-                        case "1283":    // Eliminar                     
-                            eliminar_solicitud();
-                            BubbleEvent = false;
-                            break;
+                        //case "1283":    // Eliminar                     
+                        //    eliminar_solicitud();
+                        //    BubbleEvent = false;
+                        //    break;
                         case "1292":   //Adicionar linea
                             switch (ItemActiveMenu)
                             {
@@ -204,8 +205,11 @@ namespace ventaRT.VIEW
                         {
                             case BoEventTypes.et_FORM_CLOSE:
                                 {
-                                    //AprRT
-                                    //int respuesta = B1.Application.MessageBox("Me voy a cerrar....? ", 1, "OK", " Cancelar");
+                                    if (fa != null)
+                                    {
+                                        fa.ThisSapApiForm.Form.Select();
+                                        fa.cargar_datos_matriz();
+                                    }
                                     
                                 }
                                 break;
@@ -382,16 +386,16 @@ namespace ventaRT.VIEW
 
                         switch (pVal.EventType)
                         {
-                            case BoEventTypes.et_FORM_CLOSE:
-                                {
-                                    if (fa!=null)
-                                    {
-                                        this.ThisSapApiForm.Form.Visible = false;
-                                        fa.ThisSapApiForm.Form.Select();
-                                        fa.cargar_datos_matriz();
-                                    }
-                                }
-                                break;
+                            //case BoEventTypes.et_FORM_CLOSE:
+                            //    {
+                            //        if (fa!=null)
+                            //        {
+                            //            //this.ThisSapApiForm.Form.Visible = false;
+                            //            //fa.ThisSapApiForm.Form.Select();
+                            //            //fa.cargar_datos_matriz();
+                            //        }
+                            //    }
+                            //    break;
 
                             case BoEventTypes.et_CLICK:
                                 {
@@ -427,9 +431,11 @@ namespace ventaRT.VIEW
                                                 }
                                                 else
                                                 {
-                                                    BubbleEvent = false;
-                                                    oCombo.Item.Click(BoCellClickType.ct_Regular);
-                                                    BubbleEvent = false;
+                                                    if (btn_crear.Caption == "Buscar")
+                                                    {
+                                                        oCombo.Item.Click(BoCellClickType.ct_Regular);
+                                                        BubbleEvent = false;
+                                                    }
                                                 } 
                                                     
                                             }
@@ -537,15 +543,17 @@ namespace ventaRT.VIEW
         private void cargar_inicial()
         {
             Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-            //// borrando tablas !!!
+            // borrando tablas !!!
             //string SQLQuery = String.Empty;
-            //// Borrar lineas detalle
+            // Borrar lineas detalle
             //SQLQuery = String.Format("DELETE FROM {0}",
-            //                  Constantes.View.DET_RVT.DET_RV);
+            //                  Constantes.View.DET_RVT.DET_RV,
+            //                   Constantes.View.DET_RVT.U_numOC);
             //oRecordSet.DoQuery(SQLQuery);
 
             //SQLQuery = String.Format("DELETE FROM {0}",
-            //                       Constantes.View.CAB_RVT.CAB_RV);
+            //                       Constantes.View.CAB_RVT.CAB_RV,
+            //                        Constantes.View.CAB_RVT.U_numOC);
 
             //oRecordSet.DoQuery(SQLQuery);
 
@@ -612,7 +620,7 @@ namespace ventaRT.VIEW
                 SForm.EnableMenu("1290", true); SForm.EnableMenu("1289", true); // mov entre registros
                 SForm.EnableMenu("1288", true); SForm.EnableMenu("1291", true);
                 SForm.EnableMenu("1282", true); // crear solicitud
-                SForm.EnableMenu("1283", true); //eliminar solicitud
+                //SForm.EnableMenu("1283", true); //eliminar solicitud
                 //SForm.EnableMenu("1281", true); 
                 SForm.EnableMenu("1281", false);  //buscar
                 SForm.EnableMenu("772", true); SForm.EnableMenu("773", true); //copiar y pegar
@@ -640,7 +648,8 @@ namespace ventaRT.VIEW
 
                 SForm.EnableMenu("1290", false); SForm.EnableMenu("1289", false);
                 SForm.EnableMenu("1288", false); SForm.EnableMenu("1291", false);
-                SForm.EnableMenu("1282", false); SForm.EnableMenu("1283", false);
+                SForm.EnableMenu("1282", false); 
+                //SForm.EnableMenu("1283", false);
                 //SForm.EnableMenu("1281", true); 
                 SForm.EnableMenu("1281", false);  //buscar
 
@@ -679,6 +688,8 @@ namespace ventaRT.VIEW
 
                 SAPbouiCOM.Column oColumn = SMatrix.Columns.Item("codArt");
                 oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
+
+                cominicial = txt_com.Value;
 
                 txt_estado = (SAPbouiCOM.EditText)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.txt_estado).Specific;
                 txt_estado.Value = oDbHeaderDataSource.GetValue("U_estado", oDbHeaderDataSource.Offset);
@@ -733,7 +744,7 @@ namespace ventaRT.VIEW
 
                     SForm.EnableMenu("1292", true); //Activar Agregar Linea
                     SForm.EnableMenu("1293", true); //Activar Borrar Linea 
-                    SForm.EnableMenu("1283", false); //Activar eliminar solicitud
+                    //SForm.EnableMenu("1283", false); //Activar eliminar solicitud
 
                     B1.Application.Forms.ActiveForm.Mode = SAPbouiCOM.BoFormMode.fm_ADD_MODE;
                     int norecord = obtener_ultimo_ID("CA") + 1;
@@ -1701,7 +1712,7 @@ namespace ventaRT.VIEW
 
                             SForm.EnableMenu("1292", registrar && procesar); //Activar Agregar Linea
                             SForm.EnableMenu("1293", registrar && procesar); //Activar Borrar Linea 
-                            SForm.EnableMenu("1283", registrar && procesar); //Activar eliminar solicitud
+                            //SForm.EnableMenu("1283", registrar && procesar); //Activar eliminar solicitud
                             txt_log.Active = true;
                             mtx.Item.Enabled = procesar;
                             txt_com.Item.Enabled = procesar;
@@ -2095,27 +2106,27 @@ namespace ventaRT.VIEW
             try
             {
                 bool continuar = true;
+                string terror = "";
                 if (!crear && !aprobar)
                 {
-                    continuar = oDbHeaderDataSource.GetValue("U_comment", oDbHeaderDataSource.Offset) != "" ;
+                    continuar = oDbHeaderDataSource.GetValue("U_comment", oDbHeaderDataSource.Offset) != "";
+                    if (!continuar) { terror = "Al cancelar, es recomendable comentar la causa....."; }
+                    else
+                    {
+                        // chequear que el comentario sea diferente
+                        continuar = (cominicial != oDbHeaderDataSource.GetValue("U_comment", oDbHeaderDataSource.Offset));
+                        if (!continuar) { terror = "Al cancelar, es recomendable cambiar el  comentario existente....."; }
+                    }
                 }
                 if (!continuar)
                 {
-                    int respuesta = B1.Application.MessageBox("Al cancelar, es recomendable comentar la causa.....", 1, "OK");
+                    int respuesta = B1.Application.MessageBox(terror, 1, "OK");
                 }
                 else
                 {
-
-
                     SForm.Freeze(true);
-
-
                     string sCode = oDbHeaderDataSource.GetValue("U_numDoc", oDbHeaderDataSource.Offset);
-
-
-
                     string scom = crear ? "Reservada" : (aprobar ? "Aprobada: " : "Cancelada: ") + DateTime.Now.Date.ToString("dd/MM/yyyy");
-
                     string sestado = crear ? "R" : (aprobar ? "A" : "C");
                     Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
 
