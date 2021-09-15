@@ -54,6 +54,15 @@ namespace ventaRT.VIEW
 
             SAPbouiCOM.CheckBox cboxDev = (SAPbouiCOM.CheckBox)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.aprobac.cboxDev).Specific;
             cboxDev.Checked = false;
+
+            AForm = B1.Application.Forms.ActiveForm;
+            AForm.EnableMenu("1290", false); AForm.EnableMenu("1289", false);
+            AForm.EnableMenu("1288", false); AForm.EnableMenu("1291", false);
+            AForm.EnableMenu("1282", false);   // crear
+            AForm.EnableMenu("1281", false);  //buscar
+            AForm.EnableMenu("1283", false);  //eliminar
+            AForm.EnableMenu("1292", false);  //buscar
+            AForm.EnableMenu("1293", false);  //eliminar
         }
 
         public void cargar_datos_matriz()
@@ -144,10 +153,10 @@ namespace ventaRT.VIEW
                         (condTra == String.Empty ? "-Transferida" : "")+
                         (condCan == String.Empty ? "-Cancelada " : "") + (condDev == String.Empty ? "-Devuelta" : "") ;
 
-                if (filtrado !="")
-                {
-                    int respuesta = B1.Application.MessageBox("Filtros aplicados: " + filtrado, 1, "OK");
-                }
+                //if (filtrado != "")
+                //{
+                //    int respuesta = B1.Application.MessageBox("Filtros aplicados: " + filtrado, 1, "OK");
+                //}
 
                 B1.Application.SetStatusBarMessage("Cargando datos de Solicitudes...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
 
@@ -274,7 +283,7 @@ namespace ventaRT.VIEW
 
                     rsCards.MoveNext();
                     if (!rsCards.EoF)
-                    { B1.Application.SetStatusBarMessage("Espere......Cargando datos de Solicitud...No." + fields.Item("U_numDoc").Value.ToString() + "    (" + i.ToString() + "/" + rsCards.RecordCount.ToString() + ")", SAPbouiCOM.BoMessageTime.bmt_Short, false); }
+                    { B1.Application.SetStatusBarMessage("ESPERE......Cargando datos de Solicitud...No." + fields.Item("U_numDoc").Value.ToString() + "    (" + i.ToString() + "/" + rsCards.RecordCount.ToString() + ")", SAPbouiCOM.BoMessageTime.bmt_Short, false); }
                     //try
                     //{
                     //     oProgressBar.Text = "Cargando datos de Solicitudes ...";
@@ -843,6 +852,7 @@ namespace ventaRT.VIEW
         {
             bool todoOk = true;
             int result = 0;
+            string terror = "";
             try
             {
                 GC.Collect();
@@ -850,7 +860,9 @@ namespace ventaRT.VIEW
                 SAPbobsCOM.StockTransfer doctransf = B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oStockTransfer);
                 doctransf.DocDate = DateTime.Today;
                 doctransf.TaxDate = DateTime.Today;
-                doctransf.FromWarehouse = "SHOWROOM";
+                // Serie Primaria
+                doctransf.Series = 27;
+                doctransf.FromWarehouse = "CD_RSV";
                 doctransf.ToWarehouse = "CD";
                 doctransf.JournalMemo = "Addons VentasRT Canc.Aut. Solic:" + sCode;
                 if (docentry != "")
@@ -880,7 +892,7 @@ namespace ventaRT.VIEW
                         {
                             if (artcurrent != "")
                             {
-                                disponible = obtener_exist_articulo(artcurrent, "SHOWROOM");
+                                disponible = obtener_exist_articulo(artcurrent, "CD_RSV");
                                 if (disponible >= totalart)
                                 {
                                     if (cantlines > 1)
@@ -895,8 +907,13 @@ namespace ventaRT.VIEW
                                     doctransf.Lines.ItemCode = artcurrent;
                                     doctransf.Lines.ItemDescription = rsDoc.Fields.Item("Dscription").Value.ToString();
                                     doctransf.Lines.Quantity = totalart;
-                                    doctransf.Lines.FromWarehouseCode = "SHOWROOM";
+                                    doctransf.Lines.FromWarehouseCode = "CD_RSV";
                                     doctransf.Lines.WarehouseCode = "CD";
+                                }
+                                else
+                                {
+                                    // Procesar los articulos no disponibles a la hora de transferir
+                                    lineasnodisp.Add(artcurrent);
                                 }
                             }
                             artcurrent = art;
@@ -911,7 +928,7 @@ namespace ventaRT.VIEW
                     // Adicionar ultima fila
                     if (artcurrent != "")
                     {
-                        disponible = obtener_exist_articulo(artcurrent, "SHOWROOM");
+                        disponible = obtener_exist_articulo(artcurrent, "CD_RSV");
                         if (disponible >= totalart)
                         {
                             if (cantlines > 1)
@@ -925,13 +942,31 @@ namespace ventaRT.VIEW
                             doctransf.Lines.ItemCode = artcurrent;
                             doctransf.Lines.ItemDescription = rsDoc.Fields.Item("Dscription").Value.ToString();
                             doctransf.Lines.Quantity = totalart;
-                            doctransf.Lines.FromWarehouseCode = "SHOWROOM";
+                            doctransf.Lines.FromWarehouseCode = "CD_RSV";
                             doctransf.Lines.WarehouseCode = "CD";
                         }
+                        else
+                        {
+                            // Procesar los articulos no disponibles a la hora de transferir
+                            lineasnodisp.Add(artcurrent);
+                        }
                     }
-                    if ((linestransf > 0)) { result = doctransf.Add(); }
+
+
+                    if (linestransf > 0)
+                    {
+                        result = doctransf.Add();
+                        todoOk = (result == 0) && (linestransf > 0);
+                    }
+                    else
+                    {
+                        string infonodisp = lineasnodisp != null && lineasnodisp.Count > 0 ? ", No disp:" + string.Join("-", lineasnodisp) : "";
+                        terror = "No existen artículos disponibles. " + infonodisp;
+                        todoOk = false;
+                    }
                     GC.Collect();
-                    todoOk = (result == 0) && (linestransf > 0);
+
+
                 }
 
                 if (todoOk)
@@ -986,12 +1021,33 @@ namespace ventaRT.VIEW
                 else
                 {
                     B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack);
-                    B1.Application.SetStatusBarMessage("Error Transferiendo Solicitud Cancelada Automática" +sCode, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                    B1.Application.SetStatusBarMessage("Error Transferiendo Solicitud Cancelada Automática " +sCode +" "+terror, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+
+                    //Actualizar logs en Solicitud
+                    string infonodisp = lineasnodisp != null && lineasnodisp.Count > 0 ? ", No disp:" + string.Join("-", lineasnodisp) : "";
+                    string slog = "Error:No pudo ser Cancelada Automáticamente por no tener disponibilidad: " + DateTime.Now.Date.ToString("dd/MM/yyyy") + infonodisp;
+                    string scom = "Solicitud sin disponibilidad al intentar Cancelada por vencer su período de revisión: " + DateTime.Now.Date.ToString("dd/MM/yyyy");
+
+                    Recordset oRecordSet = (SAPbobsCOM.Recordset)B1.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+
+
+                    string SQLQuery = String.Format("UPDATE {1} SET {2} = '{6}', {5} = '{4}'  FROM {1} WHERE {0} = '{3}' ",
+                                             Constantes.View.CAB_RVT.U_numOC,   //0
+                                             Constantes.View.CAB_RVT.CAB_RV,    //1
+                                             Constantes.View.CAB_RVT.U_logs,    //2
+                                             sCode,                             //3
+                                             scom,                              //4
+                                             Constantes.View.CAB_RVT.U_comment,    //5
+                                             slog);//6
+
+                    oRecordSet.DoQuery(SQLQuery);
+
+
                 }
             }
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error Transferiendo Solicitud Cancelada Automática" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                B1.Application.SetStatusBarMessage("Error Transferiendo Solicitud Cancelada Automática" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Long, true);
                 throw ex;
             }
         }

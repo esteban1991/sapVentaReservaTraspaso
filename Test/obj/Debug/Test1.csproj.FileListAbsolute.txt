@@ -1,0 +1,10 @@
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\Debug\Test1.Properties.Resources.resources
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\Debug\Test1.csproj.GenerateResource.Cache
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\Debug\Test1.exe.config
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\Debug\Test1.exe
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\Debug\Test1.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\Debug\ventaRT.dll
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\Debug\ventaRT.pdb
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\Debug\Test1.csprojResolveAssemblyReference.cache
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\Debug\Test1.exe
+C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\obj\Debug\Test1.pdb

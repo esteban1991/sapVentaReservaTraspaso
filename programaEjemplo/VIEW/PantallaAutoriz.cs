@@ -267,8 +267,8 @@ namespace ventaRT.VIEW
             UMatrix = UForm.Items.Item("umtx").Specific;
             oDbAutDataSource = UForm.DataSources.DBDataSources.Item("@AUT_RSTV");
             formActual = B1.Application.Forms.ActiveForm.UniqueID;
-            UForm.EnableMenu("1292", true); //Activar Agregar Linea
-            UForm.EnableMenu("1293", true); //Activar Borrar Linea
+            UForm.EnableMenu("1292", es_Admin()); //Activar Agregar Linea
+            UForm.EnableMenu("1293", es_Admin()); //Activar Borrar Linea
             cargar_lineas();
         }
 
@@ -559,6 +559,41 @@ namespace ventaRT.VIEW
             UMatrix.Columns.Item(3).Cells.Item(UMatrix.RowCount).Specific.Checked = true;
             UMatrix.Columns.Item(1).Cells.Item(UMatrix.RowCount).Click(BoCellClickType.ct_Double);
         }
+
+        private bool es_Admin()
+        {
+            try
+            {
+                string usrCurrent = B1.Company.UserName;
+
+                String strSQL = String.Format("SELECT COUNT(*) FROM {1} Where {0}='{3}' AND {2} = 'N'",
+                          Constantes.View.ousr.uCode,  //0
+                          Constantes.View.ousr.OUSR,       //1
+                          Constantes.View.ousr.uLocked,     //2
+                          usrCurrent);                     //3
+                Recordset rsUsers = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                rsUsers.DoQuery(strSQL);
+                SAPbobsCOM.Fields fields = rsUsers.Fields;
+                rsUsers.MoveFirst();
+                if (rsUsers.EoF)
+                {
+                    return false;
+                }
+                else
+                {
+                    int existe = Int32.Parse(rsUsers.Fields.Item("COUNT(*)").Value.ToString());
+                    return existe > 0;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error verificando Administrador", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw ex;
+            }
+        }
+
+
         
 
     }

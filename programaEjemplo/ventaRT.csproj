@@ -52,13 +52,15 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Framework">
+      <HintPath>..\..\..\..\genericos\Genericos\Frameworks\Framework\bin\x86\Release\Framework.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\librerias\SSIFramework\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="SSIFramework, Version=1.0.0.1, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\SSIFramework.dll</HintPath>
+    <Reference Include="SSIFramework">
+      <HintPath>..\..\..\..\genericos\Genericos\SSIFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

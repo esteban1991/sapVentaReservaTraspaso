@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AddOnRegData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SlientInstallation="No" SlientUpgrade="No" Partnernmsp="EP" SchemaVersion="3.0" Type="" MultipleVersion="false" OnDemand="" OnPremise="" ExtName="solicitud de  inventario beta 6" ExtVersion="2.6" Contdata="Esteban Peralta" Partner="Esteban Peralta" DBType="HANA" ClientType="A">
+  <Validity>
+    <SBOCompatibility>
+      <Version From="9.3" To="9.3" />
+    </SBOCompatibility>
+  </Validity>
+  <Configuration>
+    <Repository>
+      <Properties />
+    </Repository>
+    <Deployment>
+      <Properties />
+    </Deployment>
+    <Assignment>
+      <Properties />
+    </Assignment>
+  </Configuration>
+  <Addons>
+    <Addon Name="" Group="" ForceFlag="" Visible="" AutoAssign="" SelfUpgrd="">
+      <x86 AddonExe="C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\Debug\Test1.exe" AddonSig="">
+        <Installation>
+          <Files>
+            <File FileName="ContabilizacionDeNominas.dll">
+              <Actions />
+            </File>
+            <File FileName="ContabilizacionDeNominas.pdb">
+              <Actions />
+            </File>
+            <File FileName="SSIFramework.dll">
+              <Actions />
+            </File>
+            <File FileName="Test1.exe">
+              <Actions />
+            </File>
+            <File FileName="ventaRT.dll">
+              <Actions />
+            </File>
+            <File FileName="ventaRT.pdb">
+              <Actions />
+            </File>
+          </Files>
+        </Installation>
+        <Uninstallation>
+          <Files>
+            <File FileName="ContabilizacionDeNominas.dll">
+              <Actions />
+            </File>
+            <File FileName="ContabilizacionDeNominas.pdb">
+              <Actions />
+            </File>
+            <File FileName="SSIFramework.dll">
+              <Actions />
+            </File>
+            <File FileName="Test1.exe">
+              <Actions />
+            </File>
+            <File FileName="ventaRT.dll">
+              <Actions />
+            </File>
+            <File FileName="ventaRT.pdb">
+              <Actions />
+            </File>
+          </Files>
+        </Uninstallation>
+      </x86>
+      <x64 AddonExe="C:\Users\eperalta\Documents\QvaSAP\sapb1ventaEnvioAlmacen\sapVentaReservaTraspaso\Test\bin\Debug\Test1.exe" AddonSig="">
+        <Installation>
+          <Files>
+            <File FileName="Test1.exe">
+              <Actions />
+            </File>
+          </Files>
+        </Installation>
+        <Uninstallation>
+          <Files>
+            <File FileName="Test1.exe">
+              <Actions />
+            </File>
+          </Files>
+        </Uninstallation>
+      </x64>
+    </Addon>
+  </Addons>
+  <XApps>
+    <XApp Name="" Path="" FileName="" />
+  </XApps>
+  <UDQs>
+    <UDQ udqname="">
+      <Hana FileName="" />
+    </UDQ>
+  </UDQs>
+</AddOnRegData>

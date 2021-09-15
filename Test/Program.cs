@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Test
+namespace Test1
 {
     static class Program
     {
@@ -21,7 +21,7 @@ namespace Test
             ventaRT.addonGeneral x = new ventaRT.addonGeneral();
 
             
-            //x.Instalar();
+            x.Instalar();
 
             x.CrearMenu();
             x.Run();

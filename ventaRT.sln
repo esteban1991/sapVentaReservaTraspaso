@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{C0D3FB95-082A-4B70-95B3-2401FB08488F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test1", "Test\Test1.csproj", "{C0D3FB95-082A-4B70-95B3-2401FB08488F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ventaRT", "programaEjemplo\ventaRT.csproj", "{FEA0E57D-C7ED-4A41-A8AA-5A25916CE8ED}"
 EndProject

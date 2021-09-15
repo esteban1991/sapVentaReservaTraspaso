@@ -37,6 +37,7 @@ namespace ventaRT.Constantes.View
         public const string uId = "\"USERID\"";
         public const string uCode = "\"USER_CODE\"";
         public const string uName = "\"U_NAME\"";
+        public const string uLocked = "\"Locked\"";
         public const string OUSR = "OUSR";
     }    // Maestro de Usuarios
 
