@@ -9,6 +9,7 @@ using SSIFramework;
 using SSIFramework.DI.Attributes;
 using SSIFramework.Utilidades;
 using System.Threading;
+using System.Windows.Forms;
 
 
 namespace ventaRT.VIEW
@@ -118,6 +119,9 @@ namespace ventaRT.VIEW
                         case "1291":    // Ultimo                      
                             activar_ultimo();
                             BubbleEvent = false;
+                            break;
+                        case "773":    // Pegar                     
+                            insertar_lineas_necesarias();
                             break;
                     }
                     //BubbleEvent = true;
@@ -295,7 +299,7 @@ namespace ventaRT.VIEW
                                                     SMatrix.FlushToDataSource();
                                                     oDbLinesDataSource.SetValue("U_CodArt", nRow - 1, artsel);
                                                     oDbLinesDataSource.SetValue("U_articulo", nRow - 1, CFLEvent.SelectedObjects.GetValue("ItemName", 0).ToString());
-                                                    oDbLinesDataSource.SetValue("U_cant", nRow - 1, obtener_exist_articulo(artsel, "CD").ToString());
+                                                    oDbLinesDataSource.SetValue("U_cant", nRow - 1, "1");
                                                     oDbLinesDataSource.SetValue("U_onHand", nRow - 1, obtener_exist_articulo(artsel, "CD").ToString());
                                                     SMatrix.LoadFromDataSource();
                                                     SMatrix.Columns.Item("codCli").Cells.Item(nRow).Click();
@@ -2609,6 +2613,101 @@ namespace ventaRT.VIEW
             return encontrado;
         }
 
+        private int cantFilas_clipboard()
+        {
+            int filas = 0;
+
+            try
+            {
+
+                string textocopiado = GetClipBoardData();
+                filas = textocopiado.Split('\n').Length;
+                
+                //string textocopiado = Clipboard.GetText();
+                //filas = textocopiado.Split('\n').Length;
+  
+
+                //string[] cb = textocopiado.Split(new string[1] { "\r\n" }, StringSplitOptions.None);
+                //filas = cb.Length;
+
+
+
+            }
+            catch (Exception ex)
+            {
+                B1.Application.SetStatusBarMessage("Error gestionando clipboard " + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                filas = 0;
+            }
+            return filas;
+        }
+
+        private void insertar_lineas_necesarias()
+        {
+
+            string abuscar = txt_numoc.Value.ToString();
+            if (registrar && !ya_Procesada(abuscar))
+            {
+                SAPbouiCOM.Button btn_crear = (SAPbouiCOM.Button)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.btn_crear).Specific;
+                mtx = (SAPbouiCOM.Matrix)B1.Application.Forms.ActiveForm.Items.Item(ventaRT.Constantes.View.registro.mtx).Specific;
+                btn_crear.Caption = SForm.Mode != SAPbouiCOM.BoFormMode.fm_ADD_MODE ? "Actualizar" : btn_crear.Caption;
+                if (SForm.Mode != SAPbouiCOM.BoFormMode.fm_ADD_MODE)
+                {
+                    SForm.Mode = SAPbouiCOM.BoFormMode.fm_UPDATE_MODE;
+                }
+                int filasnuevas = cantFilas_clipboard() - (mtx.RowCount - rowsel + 1);
+                if (filasnuevas > 0)
+                {
+                    int posfila = mtx.RowCount + 1;
+                    mtx.AddRow(filasnuevas, posfila);
+                    for (int i = 0; i < filasnuevas; i++)
+                    {
+                        mtx.ClearRowData(posfila + i);
+                    }
+
+                    if (SForm.Mode != SAPbouiCOM.BoFormMode.fm_ADD_MODE)
+                    {
+                        mtx.FlushToDataSource();
+                        mtx.LoadFromDataSource();
+                    }
+                }
+
+
+            }
+            else
+            {
+                B1.Application.SetStatusBarMessage("No se puede insertar líneas porque ya es una Solicitud Procesada", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+            }
+        }
+
+        private string GetClipBoardData()
+        {
+            try
+            {
+                string clipboardData = null;
+                Exception threadEx = null;
+                Thread staThread = new Thread(
+                    delegate()
+                    {
+                        try
+                        {
+                            clipboardData = Clipboard.GetText(TextDataFormat.Text);
+                        }
+
+                        catch (Exception ex)
+                        {
+                            threadEx = ex;
+                        }
+                    });
+                staThread.SetApartmentState(ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
+                return clipboardData;
+            }
+            catch (Exception exception)
+            {
+                return string.Empty;
+            }
+        }
 
 
     }

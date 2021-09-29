@@ -33,6 +33,19 @@ namespace ventaRT.DataBase
             try
             {
 
+                //if (!GenericFunctions.ExistUserTable("SER_RSTV"))
+                //{
+
+                //    GC.Collect();
+                //    GenericFunctions.AddUserTable("SER_RSTV", "Serie Doc Res Stock Traspaso", BoUTBTableType.bott_NoObject);
+                //    GC.Collect();
+
+                //    GC.Collect();
+                //    GenericFunctions.AddUserField("SER_RSTV", "cabprox", "Doc Prox", HelpBaseType.Tipo.Regular, 25, "");
+                //    GC.Collect();
+
+                //}
+
                 if (!GenericFunctions.ExistUserTable("AUT_RSTV"))
                 {
 

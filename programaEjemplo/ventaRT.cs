@@ -348,7 +348,8 @@ namespace ventaRT
 
             _Col2.ChooseFromListUID = "CFL2";
             _Col2.ChooseFromListAlias = "CardCode";
-            _Col3.Editable = false;    
+            _Col3.Editable = false;   
+
         }
 
         private void Configurar_Pantalla_Autoriz()

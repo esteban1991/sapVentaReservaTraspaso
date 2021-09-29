@@ -11,7 +11,7 @@ namespace Test1
         /// <summary>
         /// Punto de entrada principal para la aplicación.
         /// </summary>
-        [STAThread]
+        [STAThread]  
         static void Main()
         {
             Application.EnableVisualStyles();
