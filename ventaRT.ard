@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<AddOnRegData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SlientInstallation="No" SlientUpgrade="No" Partnernmsp="EP" SchemaVersion="3.0" Type="" MultipleVersion="false" OnDemand="" OnPremise="" ExtName="solicitud de  inventario preprod 1" ExtVersion="2.8" Contdata="Esteban Peralta" Partner="Esteban Peralta" DBType="HANA" ClientType="A">
+<AddOnRegData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SlientInstallation="No" SlientUpgrade="No" Partnernmsp="EP" SchemaVersion="3.0" Type="" MultipleVersion="false" OnDemand="" OnPremise="" ExtName="solicitud de  inventario prod 1" ExtVersion="1.0" Contdata="Esteban Peralta" Partner="Esteban Peralta" DBType="HANA" ClientType="A">
   <Validity>
     <SBOCompatibility>
       <Version From="9.3" To="9.3" />
