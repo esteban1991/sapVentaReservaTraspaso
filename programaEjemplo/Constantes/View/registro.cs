@@ -16,6 +16,8 @@ namespace ventaRT.Constantes.View
         public const string txt_idtr = "txt_idtr";
         public const string txt_idvend = "txt_idvend";
         public const string txt_vend = "txt_vend";
+        public const string txt_idcli = "txt_idcli";
+        public const string txt_cli = "txt_cli";
         public const string txt_idaut = "txt_idaut";
         public const string txt_aut = "txt_aut";
         public const string cbnd = "cbnd";
@@ -46,6 +48,9 @@ namespace ventaRT.Constantes.View
         public const string OITM = "OITM";
         public const string ItemCode = "\"ItemCode\"";
         public const string ItemName = "\"ItemName\"";
+        public const string AvgPrice = "\"AvgPrice\"";
+
+
     }    // Maestro de Articulos
 
     public static class ocrd
@@ -94,10 +99,13 @@ namespace ventaRT.Constantes.View
         public const string CAB_RV = "\"@CAB_RSTV\"";
         public const string Code = "\"Code\"";
         public const string Name = "\"Name\"";
-        public const string U_numOC = "\"U_numDoc\"";
+        public const string U_numDoc = "\"U_numDoc\"";
         public const string U_fechaC = "\"U_fechaC\"";
         public const string U_fechaV = "\"U_fechaV\"";
         public const string U_estado = "\"U_estado\"";
+        public const string U_codCli = "\"U_codCli\"";
+        public const string U_cliente = "\"U_cliente\"";
+        public const string U_amount = "\"U_amount\"";
         public const string U_idTR = "\"U_idTR\"";
         public const string U_idTV = "\"U_idTV\"";
         public const string U_comment = "\"U_comment\"";
@@ -113,13 +121,13 @@ namespace ventaRT.Constantes.View
         public const string DET_RV = "\"@DET_RSTV\"";
         public const string U_numOC = "\"U_numOC\"";
         public const string U_codArt = "\"U_codArt\"";
-        public const string U_codCli = "\"U_codCli\"";
         public const string U_cant = "\"U_cant\"";
+        public const string U_price = "\"U_price\"";
+        public const string U_amount = "\"U_amount\"";
         public const string U_onHand = "\"U_onHand\"";
         public const string U_estado = "\"U_estado\"";
         public const string U_idTV = "\"U_idTV\"";
         public const string U_articulo = "\"U_articulo\"";
-        public const string U_cliente = "\"U_cliente\"";
         public const string Code = "\"Code\"";
     }
 
@@ -127,10 +135,13 @@ namespace ventaRT.Constantes.View
     {
         public const string CAB_RV = "@CAB_RSTV";
         public const string Code = "Code";
-        public const string U_numOC = "U_numDoc";
+        public const string U_numDoc = "U_numDoc";
         public const string U_fechaC = "U_fechaC";
         public const string U_fechaV = "U_fechaV";
         public const string U_estado = "U_estado";
+        public const string U_codCli = "U_codCli";
+        public const string U_cliente = "U_cliente";
+        public const string U_amount = "U_amount";
         public const string U_idTR = "U_idTR";
         public const string U_idTV = "U_idTV";
         public const string U_comment = "U_comment";
@@ -145,14 +156,14 @@ namespace ventaRT.Constantes.View
         public const string DET_RV = "@DET_RSTV";
         public const string U_numOC = "U_numOC";
         public const string U_codArt = "U_codArt";
-        public const string U_codCli = "U_codCli";
+        public const string U_price = "U_price";
+        public const string U_amount = "U_amount";
+        public const string U_onHand = "U_onHand";
         public const string U_cant = "U_cant";
-        public const string U_onHand = "\"U_onHand\"";
         public const string U_estado = "U_estado";
         public const string U_idTV = "U_idTV";
-        public const string code = "code";
+        public const string Code = "Code";
         public const string articulo = "U_articulo";
-        public const string cliente = "U_cliente";
     }
 
 }

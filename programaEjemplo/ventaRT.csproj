@@ -59,6 +59,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\librerias\SSIFramework\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="SSIFramework">
       <HintPath>..\..\..\..\genericos\Genericos\SSIFramework.dll</HintPath>
     </Reference>
@@ -75,7 +78,6 @@
   <ItemGroup>
     <Compile Include="clases\cabecera_registro.cs" />
     <Compile Include="clases\detalle_registro.cs" />
-    <Compile Include="Constantes\Model\UserFields.cs" />
     <Compile Include="Constantes\View\autorizad.cs" />
     <Compile Include="Constantes\View\aprobac.cs" />
     <Compile Include="Constantes\View\registro.cs" />
@@ -119,6 +121,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\Autorizad.srf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="img\atrasbtn.jpg" />
+    <Content Include="img\excelbtn.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

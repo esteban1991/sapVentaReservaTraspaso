@@ -20,6 +20,9 @@ namespace ventaRT
         SAPbouiCOM.Matrix SMatrix = null;
         SAPbouiCOM.Form UForm = null;
         SAPbouiCOM.Matrix UMatrix = null;
+        public static int contadorRegistrosAbiertos = 0; // Contador global para instancias abiertas
+        public const int maxRegistrosAbiertos = 3; // Máximo permitido 
+        private string msgError = "";
 
         private SSIFramework.SSIConnector B1;
 
@@ -80,11 +83,6 @@ namespace ventaRT
                     Constantes.Views.Menu.MenuVentaReserva,
                     BoMenuType.mt_STRING, null);
 
-                //if (!B1.Application.Menus.Exists(Constantes.Views.Menu.MENU_submenu_control_anulaciones))
-                //    GenericFunctions.addMenu(Constantes.Views.Menu.MENU_submenu_control_anulaciones,
-                //    Constantes.Views.Menu.MENU_submenu_control_anulaciones_Desc,
-                //    Constantes.Views.Menu.MenuVentaReserva,
-                //    BoMenuType.mt_STRING, null);
 
                 if (!B1.Application.Menus.Exists(Constantes.Views.Menu.MENU_submenu_autorizadores))
                     GenericFunctions.addMenu(Constantes.Views.Menu.MENU_submenu_autorizadores,
@@ -92,10 +90,13 @@ namespace ventaRT
                     Constantes.Views.Menu.MenuVentaReserva,
                     BoMenuType.mt_STRING, null);
             }
+
             catch (Exception ex)
             {
-                B1.Application.MessageBox("Error : " + ex.Message);
-            }
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw;
+            } 
         }
 
         public void Finalizar()
@@ -117,15 +118,25 @@ namespace ventaRT
 
         public void Run()
         {
-            // *******************************************************************
-            //  Use SSIFramework.SSIConnector object to establish connection
-            //  with the SAP Business One application and return an
-            //  initialized appliction object
-            // *******************************************************************
-            B1 = SSIConnector.GetSSIConnector();
-            GenericFunctions.GetResourceForm();
-            Global.MenuEvent += new Global.MenuEventHandler(Global_MenuEvent);
-            B1.Application.SetStatusBarMessage("Addon Iniciado correctamente...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+            try
+            {
+
+                // *******************************************************************
+                //  Use SSIFramework.SSIConnector object to establish connection
+                //  with the SAP Business One application and return an
+                //  initialized appliction object
+                // *******************************************************************
+                B1 = SSIConnector.GetSSIConnector();
+                GenericFunctions.GetResourceForm();
+                Global.MenuEvent += new Global.MenuEventHandler(Global_MenuEvent);
+                B1.Application.SetStatusBarMessage("Addon HJ Reserva y Traslado de Inventarios => iniciado correctamente...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+            }
+            catch (Exception ex)
+            {
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw;
+            } 
         }
 
         void Global_MenuEvent(ref MenuEvent pVal, ref bool bubbleEvent)
@@ -139,9 +150,23 @@ namespace ventaRT
                     {
                         case Constantes.Views.Menu.MENU_submenu_registro_solicitud:
                             {
-                                B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
-                                new VIEW.PantallaRegistro(null);
-                                Configurar_Pantalla_Registro();
+                                //B1.Application.SetStatusBarMessage("Abriendo menu...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+                                //new VIEW.PantallaRegistro(null);
+                                //Configurar_Pantalla_Registro();
+
+
+                                if (contadorRegistrosAbiertos < maxRegistrosAbiertos)
+                                {
+                                    B1.Application.SetStatusBarMessage("Abriendo menu Registros...", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
+                                    new VIEW.PantallaRegistro(null);
+                                    Configurar_Pantalla_Registro();
+                                    contadorRegistrosAbiertos++; // Incrementar contador
+                                }
+                                else
+                                {
+                                    B1.Application.SetStatusBarMessage("No se puede abrir más de 3 formularios de Registro.", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                                }
+
                             }
 
                             break;
@@ -175,16 +200,19 @@ namespace ventaRT
 
 
             }
+
             catch (Exception ex)
             {
-                B1.Application.MessageBox("Error : " + ex.Message);
                 bubbleEvent = false;
-            }
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw;
+            } 
         }
 
         void Global_ItemEvent(string formUID, ref ItemEvent pVal, ref bool bubbleEvent)
         {
-            SAPbouiCOM.Form oForm;
+            //SAPbouiCOM.Form oForm;
 
             // *************************************************************************
             //  BubbleEvent sets the behavior of SAP Business One.
@@ -219,14 +247,14 @@ namespace ventaRT
                 }
 
             }
+
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error al llegar al modulo principal");
                 bubbleEvent = false;
-                throw ex;
-
-
-            }
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error en Módulo Principal: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw;
+            } 
 
         }
 
@@ -330,41 +358,57 @@ namespace ventaRT
 
         private void Configurar_Pantalla_Registro()
         {
+            try
+            {
+                SForm = B1.Application.Forms.ActiveForm;
+                SMatrix = SForm.Items.Item("mtx").Specific;
 
-            SForm = B1.Application.Forms.ActiveForm;
-            SMatrix =SForm.Items.Item("mtx" ).Specific;
+                SAPbouiCOM.Column _Col = (SAPbouiCOM.Column)SMatrix.Columns.Item("codArt");
+                SAPbouiCOM.Column _Col1 = (SAPbouiCOM.Column)SMatrix.Columns.Item("articulo");
+                AddCFLArtOnHandinCD("4", "CFL1");                                                           // 4 - oitm
 
-            SAPbouiCOM.Column _Col = (SAPbouiCOM.Column)SMatrix.Columns.Item("codArt");
-            SAPbouiCOM.Column _Col1 = (SAPbouiCOM.Column)SMatrix.Columns.Item("articulo");
-            AddCFLArtOnHandinCD("4", "CFL1");                                                           // 4 - oitm
+                SAPbouiCOM.EditText _txtidcli = (SAPbouiCOM.EditText)SForm.Items.Item(ventaRT.Constantes.View.registro.txt_idcli).Specific;
+                AddChooseFromListToEditTextBox(SForm, "2", "CFL2", BoYesNoEnum.tYES, "CardType", "C", "="); // 2 - ocrd
 
-            SAPbouiCOM.Column _Col2= (SAPbouiCOM.Column)SMatrix.Columns.Item("codCli");
-            SAPbouiCOM.Column _Col3 = (SAPbouiCOM.Column)SMatrix.Columns.Item("cliente");
-            AddChooseFromListToEditTextBox(SForm, "2", "CFL2", BoYesNoEnum.tYES, "CardType", "C", "="); // 2 - ocrd
+                _Col.ChooseFromListUID = "CFL1";
+                _Col.ChooseFromListAlias = "ItemCode";
+                _Col1.Editable = false;
 
-            _Col.ChooseFromListUID = "CFL1";
-            _Col.ChooseFromListAlias = "ItemCode";
-            _Col1.Editable = false;
-
-            _Col2.ChooseFromListUID = "CFL2";
-            _Col2.ChooseFromListAlias = "CardCode";
-            _Col3.Editable = false;   
+                _txtidcli.ChooseFromListUID = "CFL2";
+                _txtidcli.ChooseFromListAlias = "CardCode";
+            }
+            catch (Exception ex)
+            {
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw;
+            } 
+  
 
         }
 
         private void Configurar_Pantalla_Autoriz()
         {
+            try
+            {
 
-            UForm = B1.Application.Forms.ActiveForm;
-            UMatrix = UForm.Items.Item("umtx").Specific;
+                UForm = B1.Application.Forms.ActiveForm;
+                UMatrix = UForm.Items.Item("umtx").Specific;
 
-            SAPbouiCOM.Column _Col4 = (SAPbouiCOM.Column)UMatrix.Columns.Item("idAut");
-            SAPbouiCOM.Column _Col5 = (SAPbouiCOM.Column)UMatrix.Columns.Item("aut");
-            AddChooseFromListToEditTextBox(UForm, "12", "CFL3", BoYesNoEnum.tNO);                       // 12 - ousr
+                SAPbouiCOM.Column _Col4 = (SAPbouiCOM.Column)UMatrix.Columns.Item("idAut");
+                SAPbouiCOM.Column _Col5 = (SAPbouiCOM.Column)UMatrix.Columns.Item("aut");
+                AddChooseFromListToEditTextBox(UForm, "12", "CFL3", BoYesNoEnum.tNO);                       // 12 - ousr
 
-            _Col4.ChooseFromListUID = "CFL3";
-            _Col4.ChooseFromListAlias = "USER_CODE";
-            _Col5.Editable = false;
+                _Col4.ChooseFromListUID = "CFL3";
+                _Col4.ChooseFromListAlias = "USER_CODE";
+                _Col5.Editable = false;
+            }
+            catch (Exception ex)
+            {
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw;
+            } 
         }
 
         private bool es_Autorizador()
@@ -372,7 +416,7 @@ namespace ventaRT
             try
             {
                 string usrCurrent = B1.Company.UserName;
-                String strSQL = String.Format("SELECT COUNT(*) FROM {1} Where {0}='{3}' AND {2} = 'Y'",
+                String strSQL = String.Format("SELECT COUNT(*) FROM {1} Where contains({0},'%{3}%') AND {2} = 'Y'",
                           Constantes.View.AUT_RVT.U_idAut,
                           Constantes.View.AUT_RVT.AUT_RV,
                           Constantes.View.AUT_RVT.U_activo,
@@ -392,11 +436,13 @@ namespace ventaRT
                 }
 
             }
+
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error verificando Autorizador", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                throw ex;
-            }
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error verificando Autorizador: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw;
+            } 
         }
     
         private bool existe_Form(string ftype)
@@ -410,11 +456,13 @@ namespace ventaRT
                     if (existe) { B1.Application.Forms.Item(i).Select(); }
                 }
             }
+
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error verificando formulario", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                throw ex;
-            }
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error verificando formulario: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw;
+            } 
             return existe;
         }
     }

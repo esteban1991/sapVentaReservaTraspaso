@@ -21,24 +21,24 @@ namespace ventaRT.VIEW
         private string formActual = "";
         SAPbouiCOM.Form UForm = null;
         SAPbouiCOM.Matrix UMatrix = null;
-
         SAPbouiCOM.DBDataSource oDbAutDataSource = null;
 
         List<string> lineasdel = new List<string>();
-
         int rowsel = 0;
-       
+        private string msgError = "";
 
         public PantallaAutoriz()
             : base(GenericFunctions.ResourcesForms["ventaRT.Forms.Autorizad.srf"], "AutRT" + DateTime.Now.Hour.ToString() + "_" + DateTime.Now.Minute.ToString() + "_" + DateTime.Now.Second.ToString()) 
         {
+            string errorMessage = "";
             formActual = "AutRT" + DateTime.Now.Hour.ToString() + "_" + DateTime.Now.Minute.ToString() + "_" + DateTime.Now.Second.ToString();
        
             this.B1.Application.ItemEvent += new SAPbouiCOM._IApplicationEvents_ItemEventEventHandler(ThisSapApiForm_ItemEvent);
             this.B1.Application.MenuEvent += new _IApplicationEvents_MenuEventEventHandler(ThisSapApiForm_MenuEvent);
             this.B1.Application.RightClickEvent += new SAPbouiCOM._IApplicationEvents_RightClickEventEventHandler(ThisSapApiForm_OnAfterRightClick);
 
-            cargar_info_inicial();
+            errorMessage =  cargar_info_inicial();
+            if (!string.IsNullOrEmpty(errorMessage)){ HandleError(new Exception(errorMessage));}
         }
 
 
@@ -46,6 +46,7 @@ namespace ventaRT.VIEW
 
         private void ThisSapApiForm_MenuEvent(ref MenuEvent pVal, out bool BubbleEvent)
         {
+            string errorMessage = "";
             try
             {
               BubbleEvent = true;
@@ -60,7 +61,8 @@ namespace ventaRT.VIEW
                             switch (ItemActiveMenu)
                             {
                                 case ventaRT.Constantes.View.autorizad.umtx:
-                                    insertar_linea_autoriz();
+                                    errorMessage = insertar_linea_autoriz();
+                                    if (!string.IsNullOrEmpty(errorMessage)) { HandleError(new Exception(errorMessage)); }
                                     BubbleEvent = false;
                                     break;
                             }
@@ -68,21 +70,23 @@ namespace ventaRT.VIEW
                         case "1293":  //BORRAR LINEA
                             switch (ItemActiveMenu)
                             {
-                                //ejemplo con una matrix 
                                 case ventaRT.Constantes.View.autorizad.umtx:
-                                    borrar_linea_autoriz();
+                                    errorMessage = borrar_linea_autoriz();
+                                    if (!string.IsNullOrEmpty(errorMessage)) { HandleError(new Exception(errorMessage)); }
                                     BubbleEvent = false;
                                     break;
                             }
                             break;
                     }
-                    BubbleEvent = true;
+                    //BubbleEvent = true;
                 }
              }
             }
+
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error Ejecutando Menu" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
                 throw;
             }
         }
@@ -90,7 +94,6 @@ namespace ventaRT.VIEW
         private void ThisSapApiForm_OnAfterRightClick(ref ContextMenuInfo eventInfo, out bool BubbleEvent)
         {
             BubbleEvent = true;
-
             try
             {
                 if (eventInfo.FormUID == formActual)
@@ -98,41 +101,33 @@ namespace ventaRT.VIEW
                     ItemActiveMenu = eventInfo.ItemUID;
                     if (eventInfo.BeforeAction && eventInfo.ItemUID == ventaRT.Constantes.View.autorizad.umtx)
                     {
-                        //UForm.EnableMenu("1292", true); //Activar Agregar Linea
-                        //UForm.EnableMenu("1293", true); //Activar Borrar Linea 
                         rowsel = eventInfo.Row;
-                    }
-                    else
-                    {
-                        //UForm.EnableMenu("1292", false); //Desctivar Agregar Linea
-                        //UForm.EnableMenu("1293", false); //Desactivar Borrar Linea 
                     }
                 }
             }
+
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error Activando Opciones Menu" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                throw ex;
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw;
             }
-
         }
 
         private void ThisSapApiForm_ItemEvent(string FormUID, ref ItemEvent pVal, out bool BubbleEvent)
         {
             BubbleEvent = true;
+            string errorMessage = "";
             try
             {
                 if (FormUID == formActual)
                 {
-
                     if (!pVal.BeforeAction)
                     {
                         switch (pVal.EventType)
                         {
-
                             case BoEventTypes.et_ITEM_PRESSED:
                                 {
-
                                     switch (pVal.ItemUID)
                                     {
                                         case Constantes.View.autorizad.btn_Exit:
@@ -142,35 +137,14 @@ namespace ventaRT.VIEW
                                             break;
                                     }
                                     break;
-
                                 }
-
-                            //case BoEventTypes.et_VALIDATE:
-                            //    {
-                            //        if (pVal.InnerEvent == false && pVal.ItemUID == "umtx" && pVal.ColUID == "activo")
-                            //        {
-                            //            string idAut = ((SAPbouiCOM.EditText)UMatrix.Columns.Item("idAut").Cells.Item(pVal.Row).Specific).Value.ToString();
-
-                            //            if (idAut != "" && pVal.Row == UMatrix.RowCount)
-                            //            {
-                            //                UMatrix.AddRow(1, pVal.Row);
-                            //                UMatrix.ClearRowData(UMatrix.RowCount);
-                            //                UMatrix.FlushToDataSource();
-                            //                UMatrix.LoadFromDataSource();
-                            //            }
-                            //        }
-                            //    }
-                            //    break;
 
                             case BoEventTypes.et_CHOOSE_FROM_LIST:
                                 {
                                     if (pVal.InnerEvent == true)
                                     {
-
                                         SAPbouiCOM.ChooseFromList oCFL;
-
                                         SAPbouiCOM.IChooseFromListEvent CFLEvent = (SAPbouiCOM.IChooseFromListEvent)pVal;
-
                                         string CFL_Id = CFLEvent.ChooseFromListUID;
                                         oCFL = UForm.ChooseFromLists.Item(CFL_Id);
                                         if (pVal.FormTypeEx.Substring(0, 5) == "AutRT" && CFLEvent.SelectedObjects != null)
@@ -180,10 +154,12 @@ namespace ventaRT.VIEW
                                                 bool Ok = true;
                                                 string usrsel = CFLEvent.SelectedObjects.GetValue("USER_CODE", 0).ToString();
                                                 // Validar que no existan repetidos 
-                                                if (usrsel != "" && !validar_usr_unico(usrsel, pVal.Row))
+                                                bool is_unique = validar_usr_unico(usrsel, pVal.Row, out errorMessage);
+                                                if (!string.IsNullOrEmpty(errorMessage)) { HandleError(new Exception(errorMessage)); }
+                                                if (usrsel != "" && !is_unique)
                                                 {
                                                     Ok = false;
-                                                    B1.Application.SetStatusBarMessage("Error Usuario Repetido", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                                                    B1.Application.SetStatusBarMessage("Error: Autorizador Repetido", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
                                                     BubbleEvent = false;
                                                 }
                                                 if (Ok)
@@ -212,12 +188,12 @@ namespace ventaRT.VIEW
                                 {
                                     if (pVal.FormTypeEx.Substring(0, 5) == "AutRT")
                                     {
-                                        guardar_autoriz();
+                                        errorMessage =  guardar_autoriz();
+                                        if (!string.IsNullOrEmpty(errorMessage)) { HandleError(new Exception(errorMessage)); }
                                     }
-
-
                                 }
                                 break;
+
                             case BoEventTypes.et_VALIDATE:
                                 {
                                     if (pVal.InnerEvent == false && pVal.ItemUID == "umtx")
@@ -229,12 +205,14 @@ namespace ventaRT.VIEW
                                                 {
                                                     if (idaut == "")
                                                     {
-                                                        B1.Application.SetStatusBarMessage("Error Codigo Autorizador es Obligatorio", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                                                        B1.Application.SetStatusBarMessage("Error: Código Autorizador es Obligatorio", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
                                                         BubbleEvent = false;
                                                     }
                                                     else
                                                     {
-                                                        if (idaut != "" && !validar_usr_unico(idaut, pVal.Row))
+                                                        bool is_unique = validar_usr_unico(idaut, pVal.Row, out errorMessage);
+                                                        if (!string.IsNullOrEmpty(errorMessage)) { HandleError(new Exception(errorMessage)); }
+                                                        if (idaut != "" && !is_unique)
                                                         {
                                                             B1.Application.SetStatusBarMessage("Error: Autorizador Repetido", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
                                                             BubbleEvent = false;
@@ -252,127 +230,188 @@ namespace ventaRT.VIEW
             }
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error: " + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                throw ex;
-            }
+                msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+                B1.Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
+                throw;
 
+            }
         }
 
          
         // Metodos No Override
 
-        private void cargar_info_inicial()
+        private void HandleError(Exception ex)
         {
-            UForm = B1.Application.Forms.ActiveForm;
-            UMatrix = UForm.Items.Item("umtx").Specific;
-            oDbAutDataSource = UForm.DataSources.DBDataSources.Item("@AUT_RSTV");
-            formActual = B1.Application.Forms.ActiveForm.UniqueID;
-            UForm.EnableMenu("1292", es_Admin()); //Activar Agregar Linea
-            UForm.EnableMenu("1293", es_Admin()); //Activar Borrar Linea
-            cargar_lineas();
+            if (B1.Company.InTransaction)
+            {
+                B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack);
+            }
+            string msgError = (B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message;
+            B1.Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
         }
 
-        private bool guardar_autoriz()
+        private string num_lineas()
         {
-            bool todoOk = true;
-            string serror = "";
-            string sCode = ""; string sName = "";
-            int iRet;
-            UForm.Freeze(true);
+            string errorMessage = "";
             try
             {
+                for (int i = 1; i <= UMatrix.RowCount; i++)
+                {
+                    UMatrix.Columns.Item(0).Cells.Item(i).Specific.Value = i.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Numerar Líneas: " + ((B1.Company.GetLastErrorCode() != 0) 
+                    ? B1.Company.GetLastErrorDescription() : ex.Message);
+            }
+            return errorMessage;
+        }
+
+        private string cargar_lineas()
+        {
+            string errorMessage = "";
+            try
+            {
+                UForm.Freeze(true);
+                oDbAutDataSource.Query();
+                UMatrix.LoadFromDataSource();
+                UMatrix.AutoResizeColumns();
+                SAPbouiCOM.Column oColumn = UMatrix.Columns.Item("idAut");
+                oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
+                errorMessage = num_lineas();
+                if (!string.IsNullOrEmpty(errorMessage)) { HandleError(new Exception(errorMessage)); }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Cargando Líneas: " +  
+                    ((B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message);
+            }
+            finally
+            {
+                UForm.Freeze(false);
+            }
+            return errorMessage;
+        }
+
+        private string cargar_info_inicial()
+        {
+            string errorMessage = "";
+            try
+            {
+                UForm = B1.Application.Forms.ActiveForm;
+                UMatrix = UForm.Items.Item("umtx").Specific;
+                oDbAutDataSource = UForm.DataSources.DBDataSources.Item("@AUT_RSTV");
+                formActual = B1.Application.Forms.ActiveForm.UniqueID;
+                bool isAdmin = es_Admin(out errorMessage);
+                if (!string.IsNullOrEmpty(errorMessage)) { return errorMessage; }
+                UForm.EnableMenu("1292", isAdmin); //Activar Agregar Linea
+                UForm.EnableMenu("1293", isAdmin); //Activar Borrar Linea
+
+                errorMessage = cargar_lineas();
+                if (!string.IsNullOrEmpty(errorMessage)) { HandleError(new Exception(errorMessage)); }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Cargando Datos: " + ((B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message);
+            }
+            return errorMessage;
+        }
+        
+        private string guardar_autoriz()
+        {
+            string errorMessage = "";
+            int iRet = 0;
+            try
+            {
+                UForm.Freeze(true);
                 SAPbobsCOM.UserTable UTAut = B1.Company.UserTables.Item("AUT_RSTV");
                 //Salvando autorizadores
                 if (UMatrix != null)
                 {
-                    int norecord = obtener_ultimo_ID() ;
+                    int norecord = obtener_ultimo_ID(out errorMessage);
+                    if (!string.IsNullOrEmpty(errorMessage)) {
+                        UForm.Freeze(false);
+                        return errorMessage; 
+                    }
   
                     UMatrix.FlushToDataSource();
                     for(int i=0; i <= oDbAutDataSource.Size-1; i++)
                     {
-
                         // Obteniendo texto de los campos de DbDataSource
                         string sCodeL = oDbAutDataSource.GetValue("Code", i);
                         string sNameL = oDbAutDataSource.GetValue("Name" ,i);
                         string scodaut = oDbAutDataSource.GetValue("U_idAut",i);
                         string saut = oDbAutDataSource.GetValue("U_aut",i);
                         string sactivo = oDbAutDataSource.GetValue("U_activo", i);
-
+                        iRet = 0;
                         if (scodaut != "")
                         {
-                            try
+                            // Guardando en la UserTable
+                            B1.Company.StartTransaction();
+                            if (UTAut.GetByKey(sCodeL))
                             {
-                                // Guardando en la UserTable
-                                B1.Company.StartTransaction();
-                                if (UTAut.GetByKey(sCodeL))
-                                {
-                                    //UPDATE
-                                    UTAut.UserFields.Fields.Item("U_idAut").Value = scodaut;
-                                    UTAut.UserFields.Fields.Item("U_aut").Value = saut;
-                                    UTAut.UserFields.Fields.Item("U_activo").Value = sactivo;
-                                    iRet = UTAut.Update();
-                                    todoOk = (iRet == 0);
-                                }
-                                else
-                                {
-                                    //INSERT
-                                    norecord = norecord + 1;
-                                    sCodeL = norecord.ToString();
-                                    UTAut.Code = sCodeL;
-                                    UTAut.Name = sCodeL;
-                                    UTAut.UserFields.Fields.Item("U_idAut").Value = scodaut;
-                                    UTAut.UserFields.Fields.Item("U_aut").Value = saut;
-                                    UTAut.UserFields.Fields.Item("U_activo").Value = sactivo;
-                                    iRet = UTAut.Add();
-                                    todoOk = (iRet == 0);
-                                }
+                                //UPDATE
+                                UTAut.UserFields.Fields.Item("U_idAut").Value = scodaut;
+                                UTAut.UserFields.Fields.Item("U_aut").Value = saut;
+                                UTAut.UserFields.Fields.Item("U_activo").Value = sactivo;
+                                iRet = UTAut.Update();
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                if (B1.Company.InTransaction)
-                                {
-                                    B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack);
-                                }
-                                serror = ex.Message;
-                                todoOk = false;
+                                //INSERT
+                                norecord = norecord + 1;
+                                sCodeL = norecord.ToString();
+                                UTAut.Code = sCodeL;
+                                UTAut.Name = sCodeL;
+                                UTAut.UserFields.Fields.Item("U_idAut").Value = scodaut;
+                                UTAut.UserFields.Fields.Item("U_aut").Value = saut;
+                                UTAut.UserFields.Fields.Item("U_activo").Value = sactivo;
+                                iRet = UTAut.Add();
                             }
-                            finally
+                            if (iRet != 0)
                             {
-                                if (todoOk) { B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_Commit);}
+                                if (B1.Company.InTransaction) { B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack); }
+                                errorMessage = "Guardar Autorizadores" + 
+                                    ((B1.Company.GetLastErrorCode() != 0) 
+                                    ? B1.Company.GetLastErrorDescription() 
+                                    : "");
+                                return errorMessage;
                             }
+                            if (B1.Company.InTransaction) { B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_Commit); }
                         }
                     }
                     UTAut = null;
                 }
-                else {todoOk = false;}
+                errorMessage = eliminar_filas_borradas();
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    UForm.Freeze(false);
+                    return errorMessage;
+                }
+                B1.Application.SetStatusBarMessage("Datos de Autorizadores guardados con éxito...", SAPbouiCOM.BoMessageTime.bmt_Short, false);
+                UForm.Freeze(false);
             }
-            catch (Exception ex)
+             catch (Exception ex)
             {
-                todoOk = false;
-                serror = ex.Message;
-                throw;
+                if (B1.Company.InTransaction)
+                {
+                    B1.Company.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack);
+                }
+                errorMessage = "Guardar Autorizadores:" + 
+                    ((B1.Company.GetLastErrorCode() != 0) 
+                    ? B1.Company.GetLastErrorDescription() 
+                    : ex.Message);
             }
             finally {
-
                 System.GC.Collect();
             }
-            if (todoOk)
-            {
-                todoOk = eliminar_filas_borradas();
-            }
-            if (todoOk){
-               B1.Application.SetStatusBarMessage("Datos guardados exitosamente", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
-            }
-            else {
-                B1.Application.SetStatusBarMessage("Error guardando datos: " + serror, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-            }
-            UForm.Freeze(false);
-            return todoOk;
+            return errorMessage;
         }
 
-        private bool eliminar_filas_borradas()
+        private string eliminar_filas_borradas()
         {
-            bool todoOk = true;
+            string errorMessage = "";
             string SQLQuery = String.Empty;
             try
             {
@@ -389,61 +428,25 @@ namespace ventaRT.VIEW
                         rsCards.DoQuery(SQLQuery);
                     }
                 }
-
             }
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error sincronizando eliminados " + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                todoOk = false;
-                throw;
+                errorMessage = "Sincronizar filas eliminadas: " + 
+                    ((B1.Company.GetLastErrorCode() != 0) 
+                    ? B1.Company.GetLastErrorDescription() 
+                    : ex.Message);
             }
-
             finally
             {
                 lineasdel.Clear();
                 System.GC.Collect();
             }
-
-            return todoOk;
+            return errorMessage;
         }
 
-        private bool cargar_lineas()
+        private bool validar_usr_unico( string usr, int row, out string errorMessage)
         {
-           bool todoOk = true;
-
-           string serror = "";
-               try
-               {
-                   UForm.Freeze(true);
-                   oDbAutDataSource.Query();
-                   UMatrix.LoadFromDataSource();
-                   UMatrix.AutoResizeColumns();
-                   SAPbouiCOM.Column oColumn = UMatrix.Columns.Item("idAut");
-                   oColumn.TitleObject.Sort(BoGridSortType.gst_Ascending);
-
-               }
-               catch (Exception ex)
-               {
-                   todoOk = false;
-                   serror = ex.Message;
-                   throw;
-               }
-
-               if (todoOk)
-               {
-                   B1.Application.SetStatusBarMessage("Datos cargados con exito", SAPbouiCOM.BoMessageTime.bmt_Medium, false);
-               }
-               else
-               {
-                   B1.Application.SetStatusBarMessage("Error cargando datos: " + serror, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-               }
-
-               UForm.Freeze(false);
-               return todoOk;
-        }
-
-        private bool validar_usr_unico( string usr, int row)
-        {
+            errorMessage = "";
             bool todoOK = true;
             if(UMatrix.RowCount > 1)
             {
@@ -464,33 +467,47 @@ namespace ventaRT.VIEW
                 }
                 catch (Exception ex)
                 {
-                    B1.Application.SetStatusBarMessage("Error validando datos repetidos" + ex.Message, SAPbouiCOM.BoMessageTime.bmt_Medium, true);
                     todoOK = false;
-                    throw;
-                }
+                    errorMessage = "Error obteniendo Autorizaciones: " +
+                        ((B1.Company.GetLastErrorCode() != 0)
+                        ? B1.Company.GetLastErrorDescription()
+                        : ex.Message);
+                  }
             }
-
             return todoOK;
         }
 
-        private int  obtener_ultimo_ID()
+        private int  obtener_ultimo_ID(out string errorMessage)
         {
+            errorMessage = "";
             int CodeNum = 0;
-            String strSQL = String.Format("SELECT TOP 1 CAST(T0.{0} AS INT) AS nd FROM {1} T0 ORDER BY CAST(T0.{0} AS INT) DESC",
-                                    Constantes.View.AUT_RVT.Code,
-                                    Constantes.View.AUT_RVT.AUT_RV);
-            Recordset rsCards = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-            rsCards.DoQuery(strSQL);
-            string Code = rsCards.Fields.Item("nd").Value.ToString();
-            if (Code != "")
+            try
             {
-               CodeNum = Convert.ToInt32(Code);
+                
+                String strSQL = String.Format("SELECT TOP 1 CAST(T0.{0} AS INT) AS nd FROM {1} T0 ORDER BY CAST(T0.{0} AS INT) DESC",
+                                        Constantes.View.AUT_RVT.Code,
+                                        Constantes.View.AUT_RVT.AUT_RV);
+                Recordset rsCards = (Recordset)B1.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                rsCards.DoQuery(strSQL);
+                string Code = rsCards.Fields.Item("nd").Value.ToString();
+                if (Code != "")
+                {
+                    CodeNum = Convert.ToInt32(Code);
+                }
             }
+            catch (Exception ex)
+            {
+                errorMessage = "Error Obtener nuevo ID: " +
+                    ((B1.Company.GetLastErrorCode() != 0)
+                    ? B1.Company.GetLastErrorDescription()
+                    : ex.Message);
+              }
             return CodeNum;
         }
 
-        private bool tiene_Autorizadas(string autor)
+        private bool tiene_Autorizadas(string autor, out string errorMessage)
         {
+            errorMessage = "";
             try
             {
                 string usrCurrent = B1.Company.UserName;
@@ -511,57 +528,91 @@ namespace ventaRT.VIEW
                     int existe = Int32.Parse(rsUsers.Fields.Item("COUNT(*)").Value.ToString());
                     return existe > 0;
                 }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Error obteniendo Autorizaciones: " +  
+                    ((B1.Company.GetLastErrorCode() != 0) 
+                    ? B1.Company.GetLastErrorDescription() 
+                    : ex.Message);
+             }
+            return false;
+        }
+
+        private string borrar_linea_autoriz()
+        {
+            string errorMessage = "";
+            try
+            {
+                UForm.Freeze(true);
+                if (rowsel > 0)
+                {
+                    UMatrix.GetLineData(rowsel);
+                    //  Verificando si tiene autorizadas
+                    string autor = UMatrix.Columns.Item(1).Cells.Item(rowsel).Specific.Value.ToString();
+                    bool tieneSolAutorizadas = tiene_Autorizadas(autor, out errorMessage);
+                    if (!string.IsNullOrEmpty(errorMessage)) { return errorMessage; }
+                    if (tieneSolAutorizadas)
+                    {
+                        B1.Application.SetStatusBarMessage("Ese Autorizador tiene solicitudes autorizadas, por tanto, solo se Desactiva", SAPbouiCOM.BoMessageTime.bmt_Short, false);
+                        UMatrix.Columns.Item(3).Cells.Item(rowsel).Specific.Checked = false;
+                        UMatrix.FlushToDataSource();
+                        UMatrix.LoadFromDataSource();
+                    }
+                    else
+                    {
+                        string lindel =  UMatrix.Columns.Item(4).Cells.Item(rowsel).Specific.Value.ToString();
+                        lineasdel.Add(lindel);
+                        UMatrix.DeleteRow(rowsel);
+                        UMatrix.FlushToDataSource();
+                        UMatrix.LoadFromDataSource();
+                        errorMessage = num_lineas();
+                        if (!string.IsNullOrEmpty(errorMessage)) { HandleError(new Exception(errorMessage)); }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Borrar Línea: " +
+                    ((B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message);
+            }
+            finally
+            {
+                UForm.Freeze(false);
+            }
+            return errorMessage;
+        }
+
+        private string insertar_linea_autoriz()
+        {
+            string errorMessage = "";
+            try
+            {
+                UMatrix.AddRow(1, UMatrix.RowCount);
+                UMatrix.ClearRowData(UMatrix.RowCount);
+                UMatrix.FlushToDataSource();
+                UMatrix.LoadFromDataSource();
+                errorMessage = num_lineas();
+                if (!string.IsNullOrEmpty(errorMessage)) { HandleError(new Exception(errorMessage)); }
+                UMatrix.Columns.Item(3).Cells.Item(UMatrix.RowCount).Specific.Checked = true;
+                UMatrix.Columns.Item(1).Cells.Item(UMatrix.RowCount).Click(BoCellClickType.ct_Double);
 
             }
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error obteniendo Autorizaciones", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                throw;
+                errorMessage = "Adicionar Línea: " +
+                    ((B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message);
             }
-        }
-
-        private void borrar_linea_autoriz()
-        {
-            UForm.Freeze(true);
-            //int nRow = (int)UMatrix.GetNextSelectedRow(0, SAPbouiCOM.BoOrderType.ot_RowOrder);
-            //nRow = nRow == -1 ? UMatrix.RowCount : nRow ;
-            if (rowsel > 0)
+            finally
             {
-                UMatrix.GetLineData(rowsel);
-                //  Verificando si tiene autorizadas
-                string autor = oDbAutDataSource.GetValue("U_idAut", rowsel - 1);
-                if (tiene_Autorizadas(autor))
-                {
-
-                    B1.Application.SetStatusBarMessage("Ese Autorizador tiene autorizaciones, por tanto, solo se Desactiva", SAPbouiCOM.BoMessageTime.bmt_Short, false);
-                    UMatrix.Columns.Item(3).Cells.Item(rowsel).Specific.Checked = false;
-                    UMatrix.FlushToDataSource();
-                    UMatrix.LoadFromDataSource();
-                }
-                else
-                {
-                    string lindel = oDbAutDataSource.GetValue("code", rowsel - 1);
-                    lineasdel.Add(lindel);
-                    UMatrix.DeleteRow(rowsel);
-                    UMatrix.FlushToDataSource();
-                    UMatrix.LoadFromDataSource();
-                }
+                UForm.Freeze(false);
             }
-            UForm.Freeze(false);
+            return errorMessage;
         }
 
-        private void insertar_linea_autoriz()
+        private bool es_Admin(out string errorMessage)
         {
-            UMatrix.AddRow(1, UMatrix.RowCount);
-            UMatrix.ClearRowData(UMatrix.RowCount);
-            UMatrix.FlushToDataSource();
-            UMatrix.LoadFromDataSource();
-            UMatrix.Columns.Item(3).Cells.Item(UMatrix.RowCount).Specific.Checked = true;
-            UMatrix.Columns.Item(1).Cells.Item(UMatrix.RowCount).Click(BoCellClickType.ct_Double);
-        }
-
-        private bool es_Admin()
-        {
+            errorMessage = "";
             try
             {
                 string usrCurrent = B1.Company.UserName;
@@ -584,17 +635,13 @@ namespace ventaRT.VIEW
                     int existe = Int32.Parse(rsUsers.Fields.Item("COUNT(*)").Value.ToString());
                     return existe > 0;
                 }
-
             }
             catch (Exception ex)
             {
-                B1.Application.SetStatusBarMessage("Error verificando Administrador", SAPbouiCOM.BoMessageTime.bmt_Medium, true);
-                throw ex;
+                errorMessage =  "Verificar Administrador: " +  ((B1.Company.GetLastErrorCode() != 0) ? B1.Company.GetLastErrorDescription() : ex.Message);
             }
+            return false;
         }
-
-
-        
 
     }
 }

@@ -13,23 +13,33 @@ namespace ventaRT.DataBase
     class UserFields
     {
         public static object Framework { get; private set; }
+        private readonly SSIConnector B1 = SSIConnector.GetSSIConnector();
+
+        
 
         public static void CrearEstructura()
         {
             try {
-            SSIConnector.GetSSIConnector().Application.MetadataAutoRefresh = false;
+                SSIConnector.GetSSIConnector().Application.MetadataAutoRefresh = false;
 
-            CreateUserTables();
+                CreateUserTables();
 
-            SSIConnector.GetSSIConnector().Application.MetadataAutoRefresh = true;
+                SSIConnector.GetSSIConnector().Application.MetadataAutoRefresh = true;
             }
-            catch (Exception ex) { throw ex; }
+
+            catch (Exception ex)
+            {
+
+                //string msgError = (SSIConnector.GetSSIConnector().Company.GetLastErrorCode() != 0) 
+                //    ? SSIConnector.GetSSIConnector().Company.GetLastErrorDescription() 
+                //    : ex.Message;
+                //SSIConnector.GetSSIConnector().Application.SetStatusBarMessage("Error creando tablas: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw ex;
+            } 
         }
 
         public static void CreateUserTables()
         {
-
-
             try
             {
 
@@ -45,6 +55,7 @@ namespace ventaRT.DataBase
                 //    GC.Collect();
 
                 //}
+
 
                 if (!GenericFunctions.ExistUserTable("AUT_RSTV"))
                 {
@@ -66,6 +77,9 @@ namespace ventaRT.DataBase
                     GC.Collect();
 
                 }
+
+
+
  
                 if (!GenericFunctions.ExistUserTable("CAB_RSTV"))
                 {
@@ -80,6 +94,14 @@ namespace ventaRT.DataBase
 
                     GC.Collect();
                     GenericFunctions.AddUserField("CAB_RSTV", "idVend", "Id Vendedor", HelpBaseType.Tipo.Regular, 25, "");
+                    GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("CAB_RSTV", "codCli", "Cod Cliente", HelpBaseType.Tipo.Regular, 20, "");
+                    GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("CAB_RSTV", "cliente", "Cliente", HelpBaseType.Tipo.Regular, 100, "");
                     GC.Collect();
 
                     GC.Collect();
@@ -126,6 +148,9 @@ namespace ventaRT.DataBase
                     GenericFunctions.AddUserField("CAB_RSTV", "aut", "Autorizador", HelpBaseType.Tipo.Regular, 155, "");
                     GC.Collect();
 
+                    GC.Collect();
+                    GenericFunctions.AddUserField("CAB_RSTV", "amount", "Amount", HelpBaseType.Tipo.Price, 10, "");
+                    GC.Collect();
                 }
 
 
@@ -146,12 +171,14 @@ namespace ventaRT.DataBase
                     GenericFunctions.AddUserField("DET_RSTV", "codArt", "Cod Articulo", HelpBaseType.Tipo.Regular, 50, "");
                     GC.Collect();
 
-                    GC.Collect();
-                    GenericFunctions.AddUserField("DET_RSTV", "codCli", "Cliente", HelpBaseType.Tipo.Regular, 20, "");
-                    GC.Collect();
+
 
                     GC.Collect();
                     GenericFunctions.AddUserField("DET_RSTV", "cant", "Cantidad", HelpBaseType.Tipo.Quantity, 10, "");
+                    GC.Collect();
+
+                    GC.Collect();
+                    GenericFunctions.AddUserField("DET_RSTV", "price", "Price", HelpBaseType.Tipo.Price, 10, "");
                     GC.Collect();
 
                     GC.Collect();
@@ -167,25 +194,24 @@ namespace ventaRT.DataBase
                     GC.Collect();
 
                     GC.Collect();
-                    GenericFunctions.AddUserField("DET_RSTV", "cliente", "Cliente", HelpBaseType.Tipo.Regular, 100, "");
-                    GC.Collect();
-
-                    GC.Collect();
                     GenericFunctions.AddUserField("DET_RSTV", "onHand", "Stock", HelpBaseType.Tipo.Quantity, 10, "");
                     GC.Collect();
 
-
-
-
+                    GC.Collect();
+                    GenericFunctions.AddUserField("DET_RSTV", "amount", "Amount", HelpBaseType.Tipo.Price, 10, "");
+                    GC.Collect();
                 }
 
-
-
-
-
             }
-            catch (Exception EX) { throw EX; }
 
+            catch (Exception ex)
+            {
+                string msgError = (SSIConnector.GetSSIConnector().Company.GetLastErrorCode() != 0) 
+                    ? SSIConnector.GetSSIConnector().Company.GetLastErrorDescription() 
+                    : ex.Message;
+                SSIConnector.GetSSIConnector().Application.SetStatusBarMessage("Error: " + msgError, SAPbouiCOM.BoMessageTime.bmt_Long, true);
+                throw;
+            } 
 
 
         }
